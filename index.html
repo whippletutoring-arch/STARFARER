@@ -68,27 +68,28 @@
 
   .app {
     display: grid;
-    grid-template-columns: 312px 1fr 360px;
+    grid-template-columns: 230px 190px 1fr 360px;
     grid-template-rows: auto auto auto 1fr;
     grid-template-areas:
-      "top top top"
-      "sector sector sector"
-      "banner banner banner"
-      "left main right";
+      "top top top top"
+      "sector sector sector sector"
+      "banner banner banner banner"
+      "captain left main right";
     gap: 1px;
-    max-width: 1352px;
+    max-width: 1450px;
     margin: 0 auto;
     min-height: 100vh;
     background: var(--border);
   }
 
-  @media (max-width: 880px) {
+  @media (max-width: 1000px) {
     .app {
       grid-template-columns: 1fr;
       grid-template-areas:
         "top"
         "sector"
         "banner"
+        "captain"
         "left"
         "main"
         "right";
@@ -146,6 +147,24 @@
     width: 70px;
     accent-color: var(--cyan);
   }
+  .compendium-btn {
+    position: absolute;
+    left: 22px;
+    top: 50%;
+    transform: translateY(-50%);
+    padding: 8px 18px;
+    background: var(--amber);
+    border: 1px solid var(--amber);
+    border-radius: 4px;
+    color: #000;
+    font-family: var(--font-hud);
+    font-size: 0.72rem;
+    font-weight: bold;
+    letter-spacing: 0.14em;
+    cursor: pointer;
+    box-shadow: 0 0 8px 1px rgba(232,163,61,0.5);
+  }
+  .compendium-btn:hover { background: #ffc866; box-shadow: 0 0 12px 2px rgba(232,163,61,0.7); }
   .stats { display: flex; align-items: center; gap: 26px; flex-wrap: wrap; }
   .stat { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
   .stat-label {
@@ -266,6 +285,7 @@
   /* ---------- SECTOR BAR ---------- */
   .sector-bar {
     grid-area: sector;
+    position: relative;
     background: var(--bg-panel-raised);
     border-bottom: 1px solid var(--border);
     padding: 10px 22px;
@@ -585,6 +605,135 @@
     margin-top: 6px;
     letter-spacing: 0.02em;
   }
+
+  .compendium-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 300;
+    display: none;
+    background: #030305;
+  }
+  .compendium-overlay.open { display: flex; align-items: center; justify-content: center; }
+  .compendium-starfield {
+    position: absolute;
+    inset: 0;
+    background-image:
+      radial-gradient(1px 1px at 8% 12%, #fff, transparent),
+      radial-gradient(1px 1px at 22% 68%, #fff, transparent),
+      radial-gradient(1.5px 1.5px at 35% 24%, #fff, transparent),
+      radial-gradient(1px 1px at 48% 82%, #fff, transparent),
+      radial-gradient(1px 1px at 61% 15%, #fff, transparent),
+      radial-gradient(1.5px 1.5px at 74% 55%, #fff, transparent),
+      radial-gradient(1px 1px at 85% 30%, #fff, transparent),
+      radial-gradient(1px 1px at 93% 75%, #fff, transparent),
+      radial-gradient(1.5px 1.5px at 15% 45%, #fff, transparent),
+      radial-gradient(1px 1px at 55% 40%, #fff, transparent),
+      radial-gradient(1px 1px at 3% 90%, #fff, transparent),
+      radial-gradient(1px 1px at 68% 95%, #fff, transparent);
+    background-repeat: repeat;
+    background-size: 260px 260px;
+    opacity: 0.75;
+  }
+  .compendium-frame {
+    position: relative;
+    width: min(1100px, 94vw);
+    height: min(720px, 90vh);
+    background: rgba(8,8,12,0.92);
+    border: 2px solid var(--amber);
+    border-radius: 8px;
+    box-shadow: 0 0 24px 4px rgba(232,163,61,0.35), inset 0 0 40px rgba(232,163,61,0.06);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .compendium-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--amber-dim);
+    flex-shrink: 0;
+  }
+  .compendium-title {
+    font-family: var(--font-hud);
+    font-size: 1.1rem;
+    letter-spacing: 0.2em;
+    color: var(--amber);
+    text-shadow: 0 0 8px rgba(232,163,61,0.6);
+  }
+  .compendium-close-btn {
+    background: transparent;
+    border: 1px solid var(--amber-dim);
+    color: var(--amber);
+    padding: 5px 12px;
+    border-radius: 3px;
+    font-family: var(--font-hud);
+    font-size: 0.62rem;
+    letter-spacing: 0.08em;
+    cursor: pointer;
+  }
+  .compendium-close-btn:hover { border-color: var(--amber); background: rgba(232,163,61,0.1); }
+  .compendium-body {
+    flex: 1;
+    display: flex;
+    min-height: 0;
+  }
+  .compendium-nav {
+    width: 220px;
+    flex-shrink: 0;
+    border-right: 1px solid var(--amber-dim);
+    overflow-y: auto;
+    padding: 10px 0;
+  }
+  .compendium-nav-btn {
+    display: block;
+    width: 100%;
+    text-align: left;
+    background: transparent;
+    border: none;
+    border-left: 3px solid transparent;
+    color: #c9b98a;
+    padding: 10px 16px;
+    font-family: var(--font-hud);
+    font-size: 0.68rem;
+    letter-spacing: 0.06em;
+    cursor: pointer;
+  }
+  .compendium-nav-btn:hover { background: rgba(232,163,61,0.08); color: var(--amber); }
+  .compendium-nav-btn.active {
+    border-left-color: var(--amber);
+    background: rgba(232,163,61,0.12);
+    color: var(--amber);
+  }
+  .compendium-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 24px 30px;
+    color: #e8dfc8;
+    font-size: 0.82rem;
+    line-height: 1.6;
+  }
+  .compendium-content h3 {
+    font-family: var(--font-hud);
+    color: var(--amber);
+    letter-spacing: 0.08em;
+    font-size: 0.95rem;
+    margin: 0 0 14px 0;
+    text-shadow: 0 0 6px rgba(232,163,61,0.4);
+  }
+  .compendium-content h4 {
+    color: var(--amber);
+    font-size: 0.8rem;
+    letter-spacing: 0.04em;
+    margin: 18px 0 6px 0;
+  }
+  .compendium-content p { margin: 0 0 12px 0; }
+  .compendium-content ul { margin: 0 0 12px 0; padding-left: 20px; }
+  .compendium-content li { margin-bottom: 6px; }
+  .compendium-content .comp-tag {
+    color: var(--amber);
+    font-weight: bold;
+  }
   .map-panel {
     background: var(--bg-panel-raised);
     border: 1px solid var(--border-bright);
@@ -883,6 +1032,7 @@
 
   /* ---------- ACTIVITIES (left) ---------- */
   .activities { grid-area: left; }
+  .captain-column { grid-area: captain; }
   .activities h2, .sidebar h2 {
     font-family: var(--font-hud);
     font-size: 0.7rem;
@@ -1063,8 +1213,8 @@
     line-height: 1.65;
     background:
       repeating-linear-gradient(rgba(255,255,255,0.008) 0px, rgba(255,255,255,0.008) 1px, transparent 1px, transparent 3px);
-    min-height: 300px;
-    max-height: 60vh;
+    min-height: 360px;
+    max-height: 76vh;
   }
   .log-line { color: var(--text-dim); margin-bottom: 2px; opacity: 1; transition: opacity 0.6s ease; }
   .log-line.fading { opacity: 0; }
@@ -1340,8 +1490,8 @@
   .ship-listing {
     border: 1px solid var(--border-bright);
     border-radius: 3px;
-    padding: 8px 10px;
-    margin-bottom: 8px;
+    padding: 6px 8px;
+    margin-bottom: 6px;
   }
   .ship-listing-head {
     display: flex;
@@ -1349,10 +1499,10 @@
     align-items: baseline;
     margin-bottom: 4px;
   }
-  .ship-listing-class { font-family: var(--font-hud); font-size: 0.7rem; letter-spacing: 0.04em; }
-  .ship-listing-tier { font-size: 0.62rem; color: var(--text-dim); }
+  .ship-listing-class { font-family: var(--font-hud); font-size: 0.6rem; letter-spacing: 0.03em; }
+  .ship-listing-tier { font-size: 0.54rem; color: var(--text-dim); }
+  .ship-listing .buy-ship-btn { font-size: 0.54rem; padding: 5px 6px; }
   .ship-empty-note { font-size: 0.62rem; color: var(--text-dim); font-style: italic; }
-
 
   .auto-accept-row {
     display: flex;
@@ -1648,24 +1798,43 @@
     color: var(--text-dim);
     margin: -4px 0 10px;
   }
+  .equip-activity-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4px 10px;
+  }
+  .shipyard-upgrade-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px 10px;
+    margin-bottom: 10px;
+  }
+  .shipyard-upgrade-grid button {
+    margin-bottom: 0;
+    font-size: 0.58rem;
+    padding: 6px 8px;
+  }
+  .ship-marketplace-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
   .equip-activity-row {
     display: flex;
-    align-items: center;
-    gap: 6px;
-    flex-wrap: wrap;
+    flex-direction: column;
+    gap: 3px;
     margin-bottom: 8px;
   }
   .equip-activity-label {
     font-family: var(--font-hud);
-    font-size: 0.62rem;
-    letter-spacing: 0.06em;
+    font-size: 0.54rem;
+    letter-spacing: 0.05em;
     color: var(--text-dim);
-    min-width: 84px;
   }
   .equip-activity-row button {
-    flex: 1;
-    min-width: 120px;
     margin-bottom: 0;
+    font-size: 0.52rem;
+    padding: 4px 6px;
   }
 
   .cargo-row { margin-bottom: 12px; }
@@ -1835,6 +2004,13 @@
   .savebar button:hover:not(:disabled) { color: var(--cyan); border-color: var(--cyan); }
   .savebar button.danger:hover:not(:disabled) { color: var(--crimson); border-color: var(--crimson); }
   .savebar button:disabled { opacity: 0.35; cursor: not-allowed; }
+  .savebar button.bug-report {
+    background: var(--amber);
+    border-color: var(--amber);
+    color: #000;
+    font-weight: bold;
+  }
+  .savebar button.bug-report:hover:not(:disabled) { background: #ffc866; border-color: #ffc866; color: #000; }
 
   .footnote {
     font-size: 0.62rem;
@@ -1942,6 +2118,7 @@
   </header>
 
   <div class="sector-bar" id="sectorBar">
+    <button class="compendium-btn" id="compendiumBtn">COMPENDIUM</button>
     <div class="sector-current">
       <span class="sector-label">CURRENT SECTOR</span>
       <span class="sector-name" id="sectorName">Kaldur Reach</span>
@@ -2172,6 +2349,20 @@
     </div>
   </div>
 
+  <div class="compendium-overlay" id="compendiumOverlay">
+    <div class="compendium-starfield"></div>
+    <div class="compendium-frame">
+      <div class="compendium-header">
+        <span class="compendium-title">COMPENDIUM</span>
+        <button class="compendium-close-btn" id="compendiumCloseBtn">CLOSE ✕</button>
+      </div>
+      <div class="compendium-body">
+        <nav class="compendium-nav" id="compendiumNav"></nav>
+        <div class="compendium-content" id="compendiumContent"></div>
+      </div>
+    </div>
+  </div>
+
   <div class="map-overlay" id="perkSelectOverlay">
     <div class="map-panel">
       <div class="map-header">
@@ -2287,7 +2478,9 @@
       </span>
       <span class="activity-desc">Raid convoys for plunder. No cap on reward — or on ruin.</span>
     </button>
+  </aside>
 
+  <aside class="panel captain-column">
     <div class="panel captain-card">
       <div class="captain-header-row">
         <img class="captain-portrait" id="captainPortrait" src="data:image/jpeg;base64,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" alt="Captain portrait">
@@ -2515,12 +2708,14 @@
             <span class="depot-credits-label">CREDITS</span>
             <span class="depot-credits-value" id="shipyardCredits">250</span>
           </div>
-          <button id="upgradeBtn">UPGRADE HULL SYSTEMS — <span id="upgradeCost">500</span>cr</button>
-          <button id="repairBtn">REPAIR — 100cr</button>
-          <button id="sensorsBtn">BUY SECTOR MAP — <span id="sensorsCost">800</span>cr</button>
-          <button id="buyFuelBtn">BUY FUEL — <span id="fuelPrice">150</span>cr/unit</button>
-          <button id="cargoUpgradeBtn">EXPAND CARGO HOLD (+20) — <span id="cargoUpgradeCost">600</span>cr</button>
-          <button id="fuelTankUpgradeBtn">EXPAND FUEL TANK (+5) — <span id="fuelUpgradeCost">400</span>cr</button>
+          <div class="shipyard-upgrade-grid">
+            <button id="upgradeBtn">UPGRADE HULL SYSTEMS — <span id="upgradeCost">500</span>cr</button>
+            <button id="repairBtn">REPAIR — 100cr</button>
+            <button id="sensorsBtn">BUY SECTOR MAP — <span id="sensorsCost">800</span>cr</button>
+            <button id="buyFuelBtn">BUY FUEL — <span id="fuelPrice">150</span>cr/unit</button>
+            <button id="cargoUpgradeBtn">EXPAND CARGO HOLD (+20) — <span id="cargoUpgradeCost">600</span>cr</button>
+            <button id="fuelTankUpgradeBtn">EXPAND FUEL TANK (+5) — <span id="fuelUpgradeCost">400</span>cr</button>
+          </div>
 
           <div class="ore-section-label">SHIP MARKETPLACE</div>
           <div id="shipMarketplaceContainer"></div>
@@ -2540,25 +2735,27 @@
           <div class="equip-note">Boosts Bounty Hunting &amp; Piracy rolls. Current tier: <span id="weaponTierLabel">0</span></div>
 
           <div class="ore-section-label">ACTIVITY MODULES</div>
-          <div class="equip-activity-row">
-            <span class="equip-activity-label">TRADING</span>
-            <button id="tradingSpeedBtn">OVERCLOCK — <span id="tradingSpeedCost">800</span>cr</button>
-            <button id="tradingYieldBtn">EFFICIENCY MODULE — <span id="tradingYieldCost">900</span>cr</button>
-          </div>
-          <div class="equip-activity-row">
-            <span class="equip-activity-label">MINING</span>
-            <button id="miningSpeedBtn">OVERCLOCK — <span id="miningSpeedCost">800</span>cr</button>
-            <button id="miningYieldBtn">EFFICIENCY MODULE — <span id="miningYieldCost">900</span>cr</button>
-          </div>
-          <div class="equip-activity-row">
-            <span class="equip-activity-label">BOUNTY HUNTING</span>
-            <button id="bountySpeedBtn">OVERCLOCK — <span id="bountySpeedCost">800</span>cr</button>
-            <button id="bountyYieldBtn">EFFICIENCY MODULE — <span id="bountyYieldCost">900</span>cr</button>
-          </div>
-          <div class="equip-activity-row">
-            <span class="equip-activity-label">PIRACY</span>
-            <button id="piracySpeedBtn">OVERCLOCK — <span id="piracySpeedCost">800</span>cr</button>
-            <button id="piracyYieldBtn">EFFICIENCY MODULE — <span id="piracyYieldCost">900</span>cr</button>
+          <div class="equip-activity-grid">
+            <div class="equip-activity-row">
+              <span class="equip-activity-label">TRADING</span>
+              <button id="tradingSpeedBtn">OVERCLOCK — <span id="tradingSpeedCost">800</span>cr</button>
+              <button id="tradingYieldBtn">EFFICIENCY MODULE — <span id="tradingYieldCost">900</span>cr</button>
+            </div>
+            <div class="equip-activity-row">
+              <span class="equip-activity-label">MINING</span>
+              <button id="miningSpeedBtn">OVERCLOCK — <span id="miningSpeedCost">800</span>cr</button>
+              <button id="miningYieldBtn">EFFICIENCY MODULE — <span id="miningYieldCost">900</span>cr</button>
+            </div>
+            <div class="equip-activity-row">
+              <span class="equip-activity-label">BOUNTY HUNTING</span>
+              <button id="bountySpeedBtn">OVERCLOCK — <span id="bountySpeedCost">800</span>cr</button>
+              <button id="bountyYieldBtn">EFFICIENCY MODULE — <span id="bountyYieldCost">900</span>cr</button>
+            </div>
+            <div class="equip-activity-row">
+              <span class="equip-activity-label">PIRACY</span>
+              <button id="piracySpeedBtn">OVERCLOCK — <span id="piracySpeedCost">800</span>cr</button>
+              <button id="piracyYieldBtn">EFFICIENCY MODULE — <span id="piracyYieldCost">900</span>cr</button>
+            </div>
           </div>
 
           <div class="ore-section-label">NAVIGATION</div>
@@ -2703,6 +2900,7 @@
       <button id="exportSaveBtn">EXPORT FILE</button>
       <button id="importSaveBtn">IMPORT FILE</button>
       <button id="newGameBtn" class="danger">NEW GAME</button>
+      <button id="bugReportBtn" class="bug-report">REPORT A BUG</button>
       <input type="file" id="importFileInput" accept=".json,application/json" style="display:none;">
     </div>
     <span class="footnote-version">STARFARER V36.3 — design mockup · not a full game, illustrates the core allocation loop</span>
@@ -2751,6 +2949,7 @@
     dockedStationName: null,
     dockProcess: null,
     activeStationTab: 'shipyard',
+    activeCompendiumSection: 'overview',
     activeCaptainSubtab: 'skills',
     bountyTargetName: null,
     autoAcceptSmeltAll: false,
@@ -2815,6 +3014,213 @@
   const OVERALL_LEVEL_THRESHOLDS = [3, 8, 18, 28, 40];
   const RANK_NAMES = ['Unranked', 'Petty Officer 3rd Class', 'Petty Officer 2nd Class', 'Petty Officer 1st Class', 'Chief Petty Officer', 'Master Chief Petty Officer'];
 
+  // In-game reference compendium (accessible via the COMPENDIUM button in the topbar).
+  // Perks section is generated dynamically from PERKS below, rather than duplicated here,
+  // so it can never drift out of sync with the actual perk list.
+  const COMPENDIUM_SECTIONS = [
+    {
+      id: 'overview',
+      title: 'Overview',
+      html: `
+        <h3>WHAT YOU'RE LOOKING AT</h3>
+        <p>Starfarer is an idle ship-command game. Pick a ship, pick a captain, and set the ship to one of four actions — Trading, Mining, Bounty Hunting, or Piracy. Each action runs on its own, ticking through outcomes automatically while you check in as often or as rarely as you like.</p>
+        <p>Every action is governed by one Captain Skill, tied to one reputation Faction, and rewards a different currency. Nothing here is required knowledge to start playing — but if a number ever seems mysterious, it's documented somewhere in this compendium.</p>
+        <h4>THE SHORT VERSION</h4>
+        <ul>
+          <li>Assign an action, watch the Captain's Log for what happens</li>
+          <li>Sell what you earn at a station, repair and refuel as needed</li>
+          <li>Level skills, pick perks, and grow your ship's Tier to make everything safer and more automated</li>
+          <li>Watch your hull — running it to zero without enough credit for the insurance claim ends the run entirely</li>
+        </ul>
+      `
+    },
+    {
+      id: 'skills',
+      title: 'Captain Skills',
+      html: `
+        <h3>CAPTAIN SKILLS</h3>
+        <p>Every captain has four skills, each governing exactly one action. Skills level organically as you earn from their linked action — there's no separate "training" system. Each skill ranges 0-10.</p>
+        <h4><span class="comp-tag">NEGOTIATION</span> — Trading</h4>
+        <p>Adds directly to your bonus on each leg's success roll. Also feeds Trading's payout percentage alongside Merchant Guild reputation.</p>
+        <h4><span class="comp-tag">PROSPECTING</span> — Mining</h4>
+        <p>Combined with your ship's own bonus (if Mining is its linked action), reduces the chance of a Failure or Critical Failure tier. Also speeds up smelting for everyone, regardless of which action you're running.</p>
+        <h4><span class="comp-tag">SECURITY</span> — Bounty Hunting</h4>
+        <p>Reduces Bounty's Failure/Critical Failure chance (alongside Sector Authority reputation), and reduces hull damage taken on a failed hunt.</p>
+        <h4><span class="comp-tag">SKULLDUGGERY</span> — Piracy</h4>
+        <p>Reduces hull damage taken on a failed raid. Does not affect Piracy's Failure chance at all — that's driven by how much Plunder you're carrying and your Free Fleets standing instead.</p>
+      `
+    },
+    {
+      id: 'ship',
+      title: 'Ship & Tier',
+      html: `
+        <h3>SHIP CLASSES</h3>
+        <p>Four classes exist, each linked to one action: Hauler (Trading), Prospector (Mining), Interceptor (Bounty Hunting), Raider (Piracy). Your ship's class determines its base cargo, fuel, and hull — and which action gets its bonus.</p>
+        <h4>ACTION BONUS</h4>
+        <p>Every ship adds a bonus to its own linked action's roll, equal to <span class="comp-tag">Tier &times; 2</span>. A Tier 1 ship gives +2, a Tier 5 ship gives +10. This stacks with your captain's own skill in that action.</p>
+        <h3>SHIP TIER (1-5)</h3>
+        <p>Tier is tracked separately from Hull upgrades — buying more Hull no longer raises Tier. Tier only changes two ways:</p>
+        <ul>
+          <li><strong>Buy a new ship</strong> at a station's Shipyard — this replaces your current ship entirely, adopting the new one's Tier. Credits, cargo, captain, and reputation all carry over; the old ship and any Hull investment in it are gone.</li>
+          <li><strong>Pay to tier up</strong> your current ship at the Shipyard — same price as buying an equivalent-Tier ship outright, scaled by the station's Economy.</li>
+        </ul>
+        <h4>THE MARKETPLACE</h4>
+        <p>Every non-pirate station offers 2-3 ships for sale, fixed for that galaxy — stock never refreshes. Higher-Economy stations have a better chance of stocking high-Tier ships, but everything there costs more too, even lower-Tier listings. Tier 5 ships only ever appear at the highest Economy level.</p>
+        <h4>TIER 2+ AUTOMATION</h4>
+        <p>At Tier 2 and above, your ship gains a full automation loop for its own action — see each action's section for exactly what that means for it. All four actions also gain a universal auto-repair: if hull drops below a threshold you control (the slider under your ship's bonus line), the ship docks, repairs, undocks, and resumes on its own.</p>
+      `
+    },
+    {
+      id: 'trading',
+      title: 'Action: Trading',
+      html: `
+        <h3>TRADING</h3>
+        <p>Invest a lump sum, and the run resolves in 6 legs. Each leg rolls a d20 plus your bonus against a fixed DC of 14.</p>
+        <p><strong>Bonus</strong> = Negotiation + (Hull Upgrade tiers bought &minus; 1) &times; 2 + your ship's own bonus, if Trading is its linked action.</p>
+        <h4>OUTCOMES</h4>
+        <ul>
+          <li><strong>Success</strong> (roll meets or beats DC): that leg returns its stake plus a profit percentage, scaled by the sector's Economy and your Merchant Guild standing</li>
+          <li><strong>Failure</strong> (roll misses DC): that leg loses a small percentage of its stake</li>
+          <li><strong>Critical Failure</strong> (a natural roll of 1): triggers an ambush at double distance-based hull damage, guaranteed. A regular Failure only has a chance of an ambush, scaled by the sector's Threat.</li>
+        </ul>
+        <h4>REPUTATION</h4>
+        <p>Merchant Guild standing changes at the end of the run based on the balance of good vs. bad legs — more successes than failures raises it, more failures than successes lowers it, rolled in dice rather than a flat amount.</p>
+        <h4>TIER 2+ AUTOMATION</h4>
+        <p>Automatically reinvests the exact same stake into a new run the moment one completes. If that exact amount isn't available, automation stops and the ship sits at rest rather than investing whatever's left.</p>
+      `
+    },
+    {
+      id: 'mining',
+      title: 'Action: Mining',
+      html: `
+        <h3>MINING</h3>
+        <p>Every tick resolves into one of four outcomes. The chance of Failure scales down as Prospecting skill (plus your ship's own bonus, if Mining is its linked action) increases — at a combined value of 20, Failure becomes impossible.</p>
+        <h4>OUTCOMES</h4>
+        <ul>
+          <li><strong>Critical Failure</strong> (fixed 5%): hull damage, no ore, and a reputation loss with both Sector Authority (this sector only) and the Deep-Space Consortium</li>
+          <li><strong>Failure</strong> (scales with skill): nothing gained, no damage</li>
+          <li><strong>Success</strong>: one unit of ore, tier decided by the sector's Ore Richness (see Sector Traits), plus Consortium reputation</li>
+          <li><strong>Critical Success</strong> (fixed 5%): same as Success but double yield and double the reputation gain</li>
+        </ul>
+        <h4>ORE RICHNESS AND YIELD</h4>
+        <p>Richer sectors skew the ore-tier roll toward Silver and Gold instead of Copper. Separately, Prospecting skill and your ship's bonus give a chance at bonus units on top of whatever tier you rolled. A sector with an Ore Richness of exactly &minus;1 has no minable ore at all — Mining disables itself there and shows "NO ASTEROIDS."</p>
+        <h4>TIER 2+ AUTOMATION</h4>
+        <p>Requires the <strong>Careful Miner</strong> perk. When cargo fills, instead of just docking and stopping, a Tier 2+ ship automatically sells its ore, undocks, and resumes mining on its own.</p>
+      `
+    },
+    {
+      id: 'bounty',
+      title: 'Action: Bounty Hunting',
+      html: `
+        <h3>BOUNTY HUNTING</h3>
+        <p>Every tick resolves into one of four outcomes. Failure chance scales down as Security skill and Sector Authority reputation both rise — only maxed reputation makes you fully untouchable; skill alone reduces but never eliminates the risk.</p>
+        <h4>OUTCOMES</h4>
+        <ul>
+          <li><strong>Critical Failure</strong> (fixed 5%): triple distance-based hull damage (reduced by Security), no Vouchers, and a 1d6+3 loss to this sector's Sector Authority standing</li>
+          <li><strong>Failure</strong> (scales): distance-based hull damage, reduced by Security skill</li>
+          <li><strong>Success</strong>: Vouchers equal to (sector depth + 1) six-sided dice, plus 1d6+3 Sector Authority reputation</li>
+          <li><strong>Critical Success</strong> (fixed 5%): double Vouchers and double the reputation gain</li>
+        </ul>
+        <h4>VOUCHERS</h4>
+        <p>Bounty Hunting's reward currency — not credits directly. Redeem them at any non-pirate station's Sector Authority Office: sell outright for credits, or convert at a better rate directly into Sector Authority standing.</p>
+        <h4>TIER 2+ AUTOMATION</h4>
+        <p>Automatically repairs and resumes the hunt whenever hull drops below your auto-repair threshold.</p>
+      `
+    },
+    {
+      id: 'piracy',
+      title: 'Action: Piracy',
+      html: `
+        <h3>PIRACY</h3>
+        <p>Every tick resolves into one of four outcomes. Unlike the other combat-adjacent actions, Failure chance here isn't tied to skill at all — it's driven entirely by how much Plunder you're currently holding and your Sector Authority standing. An empty hold means near-zero Failure risk regardless of anything else.</p>
+        <h4>OUTCOMES</h4>
+        <ul>
+          <li><strong>Critical Failure</strong> (fixed 5%): double distance-based hull damage (reduced by Skullduggery), and reputation losses to every faction except Free Fleets — the Sector Authority portion specifically hits the galaxy-wide baseline, not just this sector</li>
+          <li><strong>Failure</strong> (scales with Plunder held and Authority rep): hull damage, no Plunder change, reputation losses to every faction except Free Fleets (sector-local this time)</li>
+          <li><strong>Success</strong>: Plunder gained, plus Free Fleets reputation and smaller losses elsewhere</li>
+          <li><strong>Critical Success</strong> (fixed 5%): double Plunder, bigger Free Fleets gain</li>
+        </ul>
+        <h4>PLUNDER</h4>
+        <p>Shares cargo space with ore (100 Plunder = 1 cargo slot). Only fenceable at a Pirate Space Station's Black Market — the rate scales with your Free Fleets standing.</p>
+        <h4>TIER 2+ AUTOMATION</h4>
+        <p>Automatically repairs and resumes the raid whenever hull drops below your auto-repair threshold.</p>
+      `
+    },
+    {
+      id: 'sectors',
+      title: 'Sector Traits',
+      html: `
+        <h3>SECTOR TRAITS</h3>
+        <p>Every sector in the galaxy has three independent traits, generated once at galaxy creation and drifting slowly over time.</p>
+        <h4>ECONOMY</h4>
+        <p>How prosperous the sector is. Higher Economy means better Trading profit percentages and pricier (but better-stocked) ship listings at the Shipyard.</p>
+        <h4>ORE RICHNESS</h4>
+        <p>How good the mining is here. Higher Richness skews Mining's ore-tier roll toward Silver and Gold. A Richness of exactly &minus;1 means no minable ore at all.</p>
+        <h4>THREAT</h4>
+        <p>How dangerous the sector is. Higher Threat increases Trading's ambush chance on a Failure leg, and factors into which sectors get a Pirate Space Station instead of a normal one.</p>
+        <h4>GALAXY DEPTH</h4>
+        <p>Shortest-path distance from the galaxy's center. Drives the universal hull-damage formula (further out hits harder) and a matching earnings multiplier (further out pays better) — risk and reward both scale with how far you've traveled.</p>
+      `
+    },
+    {
+      id: 'factions',
+      title: 'Reputation & Factions',
+      html: `
+        <h3>REPUTATION</h3>
+        <p>Four factions, each tied to one action and one skill. Reputation ranges from &minus;600 to 600, starting at 0 (neutral) for everyone. The bar is color-banded: red (worst) through orange, grey (neutral), blue, to purple (best).</p>
+        <h4>THE FOUR FACTIONS</h4>
+        <ul>
+          <li><strong>The Mercantile Guild</strong> (Trading) — trade routes, commodity exchange, commercial arbitration</li>
+          <li><strong>The Deep-Space Consortium</strong> (Mining) — mining claims, refineries, industrial contracts</li>
+          <li><strong>The Sector Authority</strong> (Bounty Hunting) — patrols, station security, anti-piracy operations</li>
+          <li><strong>The Free Fleets</strong> (Piracy) — independent raiders, smugglers, and couriers answering to no flag</li>
+        </ul>
+        <h4>SECTOR AUTHORITY IS DIFFERENT</h4>
+        <p>The other three factions track one value for your whole galaxy. Sector Authority instead tracks two things combined: a galaxy-wide <em>baseline</em> (raised only by spending credits at a station's Envoy's Office) plus each sector's own <em>earned</em> standing (moved by your actions there specifically). What you see at any given sector is the sum of both, clamped to the normal range.</p>
+        <h4>WARPING RESETS EVERYTHING</h4>
+        <p>Generating a new galaxy resets all four factions to neutral — the three galaxy-wide values, the Authority baseline, and every sector's individual earned standing. You'll get a warning before it happens.</p>
+      `
+    },
+    {
+      id: 'hull',
+      title: 'Hull, Auto-Repair & Insurance',
+      html: `
+        <h3>HULL DAMAGE</h3>
+        <p>All four actions can deal hull damage on a bad outcome, scaled by how far from the galaxy center you're operating. The further out, the harder a bad roll hits.</p>
+        <h3>AUTO-REPAIR</h3>
+        <p>At Ship Tier 2+, a slider under your ship's bonus line lets you set a hull percentage (10-90%, default 30%). If hull drops below it, your ship automatically docks, repairs, undocks, and resumes whatever it was doing — using the real docking sequence, not an instant fix.</p>
+        <h3>QUICK RETREAT</h3>
+        <p>If you have this perk equipped and charged, hull hitting exactly 0 is caught for free — hull is set to 1 and the perk needs to recharge (dock anywhere) before it can save you again. This always takes priority over the insurance system below.</p>
+        <h3>INSURANCE &amp; PERMADEATH</h3>
+        <p>If Quick Retreat isn't available and hull hits 0, an insurance claim is automatically filed: 30% of your ship's current market value (based on its Tier) in available credits.</p>
+        <ul>
+          <li><strong>If you can afford it:</strong> the ship survives at 1 hull, insurance paid</li>
+          <li><strong>If you can't:</strong> the run ends entirely. Your score is Total Credits Earned divided by 1,000,000, and the save resets completely — fresh captain, fresh ship, back to ship selection.</li>
+        </ul>
+        <p>There's no confirmation dialog for this — the moment you can't cover the claim <em>is</em> the event. Worth knowing your ship's insurance cost before pushing a run to the edge.</p>
+        <h3>ABORT</h3>
+        <p>The red ABORT button (top-right of Current Operation) stops whatever's running immediately. For an in-progress Trade run specifically, it refunds whatever legs hadn't resolved yet, at cost.</p>
+      `
+    },
+    {
+      id: 'economy',
+      title: 'Cargo & Economy',
+      html: `
+        <h3>CURRENCIES</h3>
+        <ul>
+          <li><strong>Credits</strong> — the universal currency, spent at any station</li>
+          <li><strong>Ore</strong> (Copper/Iron/Silver/Gold) — from Mining, sold raw or smelted into ingots first for a better rate</li>
+          <li><strong>Plunder</strong> — from Piracy, only fenceable at a Pirate Space Station's Black Market</li>
+          <li><strong>Vouchers</strong> — from Bounty Hunting, redeemed at any normal station's Sector Authority Office</li>
+        </ul>
+        <h3>CARGO</h3>
+        <p>Ore and Plunder share one cargo pool (100 Plunder counts as 1 slot). Vouchers don't take cargo space at all. Cargo capacity comes from your ship's class and any upgrades bought.</p>
+        <h3>SMELTING</h3>
+        <p>Converts raw ore into ingots at a better sell rate. Smelting speed scales with Prospecting skill for everyone, and continues running even if you undock or warp mid-cycle.</p>
+      `
+    }
+  ];
+
   const PERKS = [
     { id: 'silver_tongue', name: 'Silver Tongue', desc: 'One charge: the first failed trade leg rerolls, keeping the second roll. Recharges on docking.' },
     { id: 'careful_miner', name: 'Careful Miner', desc: 'When cargo fills during Mining, automatically dock (if a station exists) or hold position.' },
@@ -2829,6 +3235,16 @@
     { id: 'diplomat', name: 'Diplomat', desc: 'Any time an action would cost reputation, chance to negate it entirely = 10% per Negotiation level (100% at Negotiation 10). Unlimited uses.' },
     { id: 'quick_retreat', name: 'Quick Retreat', desc: 'One charge: hull hitting 0 is set to 1 instead and the ship rests, keeping any Plunder. Recharges on docking.' }
   ];
+
+  // Generated from PERKS itself, so this compendium section can never drift out of sync
+  // with the actual perk list.
+  COMPENDIUM_SECTIONS.push({
+    id: 'perks',
+    title: 'Perks',
+    html: '<h3>PERKS</h3><p>Unlocked one at a time as your captain levels up. Two have limited charges (shown by a small dot next to their name in the Captain Panel — filled means ready, empty means recharging); the rest are always active.</p>'
+      + PERKS.map(p => '<h4>' + p.name.toUpperCase() + '</h4><p>' + p.desc + '</p>').join('')
+  });
+
   const CHARGEABLE_PERKS = ['silver_tongue', 'quick_retreat'];
   const CREW_NAMES = ['Clint', 'Jake', 'Sean', 'Andy', 'Tito', 'Sarah', 'Mike', 'Chris', 'Dave', 'Lisa', 'Amy', 'Tom', 'Rachel', 'Kevin', 'Laura', 'Brian', 'Nicole', 'Steve', 'Emma'];
 
@@ -3518,20 +3934,33 @@
     // `<img src=x onerror=...>` execute. No caller passes intentional markup.
     line.textContent = '> ' + text;
     line._bornAt = Date.now();
-    logEl.appendChild(line);
 
     const cursorLine = document.createElement('div');
     cursorLine.className = 'log-line';
     cursorLine.innerHTML = '<span class="cursor"></span>';
-    logEl.appendChild(cursorLine);
 
-    logEl.scrollTop = logEl.scrollHeight;
+    // New entries insert at the top now, displacing older ones downward, so the newest
+    // is always visible without scrolling. Cursor goes above the newest line, marking
+    // where the next entry will land.
+    logEl.insertBefore(line, logEl.firstChild);
+    logEl.insertBefore(cursorLine, logEl.firstChild);
+
+    logEl.scrollTop = 0;
+
+    // Prune from the bottom (oldest entries) until content actually fits the visible
+    // height, so a scrollbar never appears — this is the primary mechanism now; the
+    // 60-entry cap below is just a hard backstop for pathological cases (e.g. very long
+    // individual lines) where height alone wouldn't have capped things in time.
+    while (logEl.scrollHeight > logEl.clientHeight && logEl.children.length > 1) {
+      logEl.removeChild(logEl.lastChild);
+    }
 
     // cap log length (safety net for a burst of messages within the 30s fade window —
     // Overclocked activities can tick every 0.5-0.75s, so a busy 30s stretch could still
-    // produce 40-60 entries before the fade sweep below catches up)
+    // produce 40-60 entries before the fade sweep below catches up). Oldest entries are
+    // now at the bottom of the list, so prune from there instead of the top.
     while (logEl.children.length > 60) {
-      logEl.removeChild(logEl.firstChild);
+      logEl.removeChild(logEl.lastChild);
     }
   }
 
@@ -5844,7 +6273,7 @@
       const cls = (node.className || '').split(/\s+/).filter(c => LOG_CLASSES.indexOf(c) !== -1)[0] || '';
       lines.push({ t: text, c: cls });
     }
-    return lines.slice(-SAVE_LOG_LINES);
+    return lines.slice(0, SAVE_LOG_LINES);
   }
 
   function buildSaveData() {
@@ -5992,7 +6421,11 @@
   function restoreLog(lines) {
     if (!Array.isArray(lines) || !lines.length) return;
     logEl.innerHTML = '';
-    lines.slice(-SAVE_LOG_LINES).forEach(entry => {
+    const cursorLine = document.createElement('div');
+    cursorLine.className = 'log-line';
+    cursorLine.innerHTML = '<span class="cursor"></span>';
+    logEl.appendChild(cursorLine);
+    lines.slice(0, SAVE_LOG_LINES).forEach(entry => {
       if (!entry || typeof entry.t !== 'string') return;
       const cls = vPick(entry.c, LOG_CLASSES, '');
       const line = document.createElement('div');
@@ -6000,11 +6433,7 @@
       line.textContent = entry.t.slice(0, 400);
       logEl.appendChild(line);
     });
-    const cursorLine = document.createElement('div');
-    cursorLine.className = 'log-line';
-    cursorLine.innerHTML = '<span class="cursor"></span>';
-    logEl.appendChild(cursorLine);
-    logEl.scrollTop = logEl.scrollHeight;
+    logEl.scrollTop = 0;
   }
 
   // Timer-driven operations can't be resumed mid-flight across a reload, so each is
@@ -6433,6 +6862,40 @@
     window.location.reload();
   });
 
+  function buildCompendiumNav() {
+    const nav = el('compendiumNav');
+    nav.innerHTML = COMPENDIUM_SECTIONS.map(s =>
+      '<button class="compendium-nav-btn" data-section="' + s.id + '">' + s.title + '</button>'
+    ).join('');
+    nav.querySelectorAll('.compendium-nav-btn').forEach(btn => {
+      btn.addEventListener('click', () => showCompendiumSection(btn.dataset.section));
+    });
+  }
+
+  function showCompendiumSection(id) {
+    const section = COMPENDIUM_SECTIONS.find(s => s.id === id) || COMPENDIUM_SECTIONS[0];
+    state.activeCompendiumSection = section.id;
+    el('compendiumContent').innerHTML = section.html;
+    el('compendiumContent').scrollTop = 0;
+    document.querySelectorAll('.compendium-nav-btn').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.section === section.id);
+    });
+  }
+
+  buildCompendiumNav();
+
+  el('compendiumBtn').addEventListener('click', () => {
+    showCompendiumSection(state.activeCompendiumSection);
+    el('compendiumOverlay').classList.add('open');
+  });
+  el('compendiumCloseBtn').addEventListener('click', () => {
+    el('compendiumOverlay').classList.remove('open');
+  });
+
+  el('bugReportBtn').addEventListener('click', () => {
+    window.open('https://docs.google.com/forms/d/e/1FAIpQLSc_tyj2ftEDFmQ5DH8AIpxcshksEodpiYOI3IkUZVDOwBC-0g/viewform?usp=publish-editor', '_blank');
+  });
+
   el('newGameBtn').addEventListener('click', () => {
     askConfirm(
       'ABANDON THIS RUN',
@@ -6513,7 +6976,7 @@
       container.innerHTML = '<span class="ship-empty-note">No ships for sale at this station.</span>';
     } else {
       const stock = SECTORS[state.sector].shipStock;
-      let html = '';
+      let html = '<div class="ship-marketplace-grid">';
       stock.forEach((listing, idx) => {
         const label = SHIP_CLASS_LABELS[listing.classKey] || listing.classKey;
         html += '<div class="ship-listing">'
@@ -6525,6 +6988,7 @@
           + (listing.sold || !state.docked ? ' disabled' : '') + '>BUY — ' + fmt(listing.price) + 'cr</button>'
           + '</div>';
       });
+      html += '</div>';
       container.innerHTML = html;
     }
 
