@@ -779,8 +779,11 @@
   .leaderboard-initials {
     flex: 1;
     font-size: 0.85rem;
-    letter-spacing: 0.1em;
+    letter-spacing: 0.02em;
     color: var(--text-primary);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
   .leaderboard-score { font-size: 0.85rem; color: var(--cyan); }
   .map-panel {
@@ -2400,12 +2403,7 @@
         FINAL SCORE<br><span id="gameOverScoreValue">0.00</span>
       </div>
       <div id="gameOverLeaderboardPrompt" style="display:none;">
-        <div class="trade-invest-desc">Top 5 score! Enter your initials:</div>
-        <div class="trade-invest-row" id="gameOverSubmitRow">
-          <input type="text" id="gameOverInitialsInput" maxlength="3" placeholder="AAA" style="text-transform:uppercase; width:80px; text-align:center; letter-spacing:0.2em;">
-          <button id="gameOverSubmitScoreBtn">SUBMIT</button>
-        </div>
-        <div class="leaderboard-status" id="gameOverSubmitStatus" style="display:none;"></div>
+        <div class="leaderboard-status" id="gameOverSubmitStatus"></div>
       </div>
       <div class="trade-invest-row">
         <button id="gameOverNewRunBtn">START NEW RUN</button>
@@ -2503,7 +2501,7 @@
   <aside class="panel activities">
     <h2>ASSIGN ACTIVITY</h2>
 
-    <button class="rest-btn" id="restBtn">REST — HOLD POSITION</button>
+    <button class="rest-btn" id="restBtn">REST</button>
 
     <button class="activity-btn dock-btn" id="dockBtn">
       <span class="activity-head">
@@ -2521,7 +2519,6 @@
         </svg>
         <span class="activity-name" id="dockBtnLabel">DOCK AT STATION</span>
       </span>
-      <span class="activity-desc" id="dockBtnDesc">Approach the nearest station and engage docking clamps.</span>
     </button>
 
     <button class="activity-btn" data-activity="trading">
@@ -2533,7 +2530,6 @@
         </svg>
         <span class="activity-name">TRADING</span>
       </span>
-      <span class="activity-desc">Run cargo between stations for steady margin. Low risk.</span>
     </button>
 
     <button class="activity-btn" data-activity="mining">
@@ -2543,7 +2539,7 @@
         </svg>
         <span class="activity-name">MINING</span>
       </span>
-      <span class="activity-desc" id="miningActivityDesc">Extract ore from the belt. Passive, reliable, slow.</span>
+      <span class="activity-desc" id="miningActivityDesc"></span>
     </button>
 
     <button class="activity-btn" data-activity="bounty">
@@ -2557,7 +2553,6 @@
         </svg>
         <span class="activity-name">BOUNTY HUNTING</span>
       </span>
-      <span class="activity-desc">Hunt marked targets for Authority contracts. Moderate risk.</span>
     </button>
 
     <button class="activity-btn" data-activity="piracy">
@@ -2570,7 +2565,6 @@
         </svg>
         <span class="activity-name">PIRACY</span>
       </span>
-      <span class="activity-desc">Raid convoys for plunder. No cap on reward — or on ruin.</span>
     </button>
   </aside>
 
@@ -3120,11 +3114,12 @@
     shipBonusActivity: null,
     shipBonusAmount: 0,
     shipTier: 1,
+    warpDepthOffset: 0,
     totalCreditsEarned: 0,
     sectorAuthorityMaxCount: 0,
     sectorAuthorityMaxFlags: {},
-    otherFactionMaxedBonusEarned: false,
-    pendingLeaderboardScore: null,
+    otherFactionMaxedCount: 0,
+    otherFactionMaxedThisGalaxy: false,
     tradingAutoReinvestAmount: 0,
     pendingCarefulMinerAutoSell: false,
     pendingAutoRepair: false,
@@ -3307,7 +3302,9 @@
         <h4>THREAT</h4>
         <p>How dangerous the sector is. Higher Threat increases Trading's ambush chance on a Failure leg, and factors into which sectors get a Pirate Space Station instead of a normal one.</p>
         <h4>GALAXY DEPTH</h4>
-        <p>Shortest-path distance from the galaxy's center. Drives the universal hull-damage formula (further out hits harder) and a matching earnings multiplier (further out pays better) — risk and reward both scale with how far you've traveled.</p>
+        <p>What actually matters now is <strong>Effective Depth</strong>, not raw distance from center. Effective Depth = a sector's local distance from its galaxy's center (0-4) <em>plus</em> a permanent counter that only ever goes up by 4 every time you warp to a new galaxy. Warping doesn't just reshuffle the map — it makes everywhere in the new galaxy, including the center, more dangerous and more rewarding than local distance alone would suggest.</p>
+        <p>Hull damage and earnings both scale with Effective Depth, uncapped — there's no ceiling on either the further you push.</p>
+        <p>Every action's chance of failure also gets harder with Effective Depth, added on top of whatever your skill and reputation already produce — this is a hard, deliberate wall: at 5 warps' worth of depth, failure becomes effectively guaranteed no matter how strong your build is. Pushing further than that is meant to require better equipment, perks, and skill caps in the future, not just grinding what already exists.</p>
       `
     },
     {
@@ -3368,13 +3365,13 @@
         <p><span class="comp-tag">2 points every time any sector's Sector Authority standing reaches 600</span></p>
         <p>Tracked invisibly in the background for the whole run, not just checked at the end. Every individual sector that hits maximum Sector Authority standing counts separately, and dropping below 600 then climbing back up to it again later counts as a second occurrence. There's no upper limit on how many times this can trigger over a long run.</p>
         <h4>4. OTHER FACTIONS MAXED</h4>
-        <p><span class="comp-tag">+10, once ever, if any of the other three factions (Mercantile Guild, Deep-Space Consortium, or Free Fleets) ever reaches 600</span></p>
-        <p>This is a one-time bonus for the whole run, not per faction — the first of the three to hit maximum standing grants it, and reaching it again (with the same or a different faction) doesn't grant it a second time. Also tracked live, so it still counts even if that faction's standing drops back down before the run ends.</p>
+        <p><span class="comp-tag">+10 per galaxy, if any of the other three factions (Mercantile Guild, Deep-Space Consortium, or Free Fleets) reaches 600 in that galaxy</span></p>
+        <p>Not per faction — the first of the three to hit maximum standing in a given galaxy grants the +10, and reaching it again with a different faction in that same galaxy doesn't grant it twice. But since warping resets all reputation to neutral, it can be earned again in each new galaxy — a long run through several warps can stack this bonus multiple times. Also tracked live, so it still counts even if that faction's standing drops back down before the run (or the warp) happens.</p>
       `
     },
     {
       id: 'economy',
-      title: 'Cargo & Economy',
+      title: 'Cargo, Economy, & Docking',
       html: `
         <h3>CURRENCIES</h3>
         <ul>
@@ -3387,6 +3384,15 @@
         <p>Ore and Plunder share one cargo pool (100 Plunder counts as 1 slot). Vouchers don't take cargo space at all. Cargo capacity comes from your ship's class and any upgrades bought.</p>
         <h3>SMELTING</h3>
         <p>Converts raw ore into ingots at a better sell rate. Smelting speed scales with Prospecting skill for everyone, and continues running even if you undock or warp mid-cycle.</p>
+        <h3>DOCKING</h3>
+        <p>The DOCK button (below REST, above the four actions) approaches the nearest station and engages docking clamps. What it actually does depends on what's in your current sector:</p>
+        <ul>
+          <li><strong>DOCK AT STATION</strong> — a normal station is present; docking gives access to the Shipyard, Resource Depot, and Equipment tabs</li>
+          <li><strong>DOCK AT PIRATE STATION</strong> — a lawless station willing to take your business, and your Plunder, through its Black Market. The whole Shipyard is inaccessible here.</li>
+          <li><strong>NO SPACE DOCK IN SYSTEM</strong> — this sector is too dangerous or too remote for station infrastructure. Nothing to dock at here.</li>
+          <li><strong>UNDOCK FROM STATION</strong> — release clamps and return to open space, shown whenever you're currently docked</li>
+        </ul>
+        <p>Docking and undocking both take a few real seconds, shown as a countdown on the button itself, unless you've bought the Docking Computer or own the Docking Master perk (which makes it instant and retires the Docking Computer from sale).</p>
       `
     }
   ];
@@ -3809,26 +3815,46 @@
     return SECTOR_DISTANCES[sectorId];
   }
 
-  // Universal hull-damage formula: Xd4+1, where X is shortest-path distance from center.
-  // Replaces every activity's previously-fixed hullDmg values (bounty risk events, the
-  // trading/mining ambush pool, and piracy's new tiered outcomes) with one shared formula
-  // so risk scales consistently with how far out the player has actually traveled,
-  // regardless of which activity triggered it. Distance 0 (home sector) still deals a
-  // flat 1 — 0d4 rolls nothing, +1 keeps it non-zero rather than harmless.
+  // Effective Depth (Build 038 follow-up) — a sector's local distance-from-center (0-4)
+  // plus warpDepthOffset, a permanent counter that only ever increases, +4 per warp cell
+  // spent. This is now what "how deep are you" actually means everywhere in the game:
+  // a center sector in a galaxy reached after 3 warps is effectively as dangerous (and as
+  // rewarding) as local depth 12 used to be. Local depth alone no longer means anything
+  // on its own.
+  function effectiveDepth(sectorId) {
+    return sectorDistance(sectorId) + state.warpDepthOffset;
+  }
+
+  // Universal hull-damage formula: Xd4+1, where X is Effective Depth. Uncapped — there is
+  // no ceiling on how hard a bad roll can hit the deeper (in the warp-cell sense) a player
+  // has pushed. Distance 0 (home sector, no warps used) still deals a flat 1.
   function rollDistanceDamage(sectorId) {
-    const dist = sectorDistance(sectorId);
+    const dist = effectiveDepth(sectorId);
     let total = 1;
     for (let i = 0; i < dist; i++) total += Math.floor(Math.random() * 4) + 1;
     return total;
   }
 
-  // Earnings multiplier: 1.0x at the center, scaling linearly up to 2.25x at distance 4+
-  // (capped there — going further out doesn't keep compounding). Applies to Trading/Bounty
-  // credits, Mining ore yield, and Piracy plunder yield alike, so every activity's reward
-  // scales with the same risk the damage formula is already scaling.
+  // Earnings multiplier: 1.0x at Effective Depth 0, scaling linearly, uncapped — matches
+  // rollDistanceDamage() having no ceiling either, so reward keeps pace with risk no
+  // matter how far a player has pushed via warp cells.
   function distanceEarningsMultiplier(sectorId) {
-    const dist = Math.min(sectorDistance(sectorId), 4);
+    const dist = effectiveDepth(sectorId);
     return 1 + (dist / 4) * 1.25;
+  }
+
+  // Depth penalty (Build 038 follow-up): additive, not multiplicative, on top of whatever
+  // skill/rep/plunder already produces — +20 percentage points per warp cell spent for the
+  // three percentage-based activities, +5 DC for Trading's fixed-DC check. Additive is the
+  // deliberate choice here: it eventually walls out any build regardless of stats (5 warp
+  // cells' worth = +100 points = guaranteed failure, no matter what), rather than just
+  // making things proportionally harder forever. That wall is the intended design — future
+  // equipment/perks/skill-cap increases are what's meant to push back against it.
+  function depthFailPenalty(sectorId) {
+    return (effectiveDepth(sectorId) / 4) * 20;
+  }
+  function depthDcPenalty(sectorId) {
+    return (effectiveDepth(sectorId) / 4) * 5;
   }
 
   function regenerateMap(seed) {
@@ -3847,6 +3873,10 @@
     // this function is ever reached.
     state.rep = { merchant: 0, freefleets: 0, consortium: 0 };
     state.sectorAuthorityBaseline = 0;
+    // The per-galaxy gate resets too, so the other-faction score bonus can be earned
+    // again in this new galaxy — otherFactionMaxedCount itself is untouched, since that's
+    // the cumulative score contribution and should keep growing across the whole run.
+    state.otherFactionMaxedThisGalaxy = false;
   }
 
   function isAdjacentSector(a, b) {
@@ -4077,6 +4107,16 @@
   }
 
   function fmt(n) { return Math.round(n).toLocaleString(); }
+
+  // Needed once the leaderboard started displaying full captain names instead of
+  // 3-letter, regex-validated initials — those entries come from other players'
+  // Firestore submissions, which only enforce length/type server-side, not content.
+  // Anything shown via innerHTML from that source has to be escaped first.
+  function escapeHtml(str) {
+    return String(str).replace(/[&<>"']/g, c => ({
+      '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+    }[c]));
+  }
 
   // Total cargo slots used: raw ore is 1 slot/unit, Plunder is 1 slot per 100 (rounded
   // up), sharing the same pool. Used everywhere cargo capacity is checked so ore and
@@ -4466,8 +4506,8 @@
       el('currentActivity').textContent = 'TRADE RUN — Leg ' + Math.min(TRADE_LEG_COUNT, state.tradeRun.legsCompleted + 1) + '/' + TRADE_LEG_COUNT;
       el('currentActivity').style.color = 'var(--amber)';
     } else if (activeConf) {
-      el('currentActivity').textContent = state.activity === 'bounty'
-        ? 'BOUNTY CONTRACT — Tracking target: "' + (state.bountyTargetName || 'Unknown') + '"'
+      el('currentActivity').innerHTML = state.activity === 'bounty'
+        ? 'BOUNTY CONTRACT — Tracking target:<br>' + (state.bountyTargetName || 'Unknown')
         : activeConf.label;
       const colorMap = { trading: 'var(--amber)', mining: 'var(--green)', bounty: 'var(--cyan)', piracy: 'var(--crimson)' };
       el('currentActivity').style.color = colorMap[state.activity];
@@ -4486,7 +4526,7 @@
     });
     el('miningActivityDesc').textContent = noAsteroids
       ? 'NO ASTEROIDS — nothing worth mining in this sector.'
-      : 'Extract ore from the belt. Passive, reliable, slow.';
+      : '';
     el('miningActivityDesc').classList.toggle('no-asteroids', noAsteroids);
     el('restBtn').classList.toggle('active', state.activity === null && !state.transit && !state.docked && !state.dockProcess && !state.tradeRun);
     el('restBtn').disabled = !!state.transit || !!state.dockProcess || state.docked || !!state.tradeRun || perkSelectionActive();
@@ -4702,8 +4742,9 @@
       total = d20 + bonus;
     }
 
+    const effectiveDC = TRADE_DC + depthDcPenalty(state.sector);
     let legReturn;
-    if (total >= TRADE_DC) {
+    if (total >= effectiveDC) {
       run.successCount += 1;
       let pct = tier.maxPct * (0.5 + Math.random() * 0.5);
       if (state.activityUpgrades.trading.yield) pct = Math.min(0.9, pct * 2);
@@ -4718,14 +4759,14 @@
       }
       legReturn = run.legAmount + profit;
       grantSkillXP('neg', profit);
-      addLog('Leg ' + legNum + '/' + TRADE_LEG_COUNT + ': the deal closes at a ' + (pct * 100).toFixed(1) + '% markup. (d20 ' + d20 + '+' + bonus + ' vs DC ' + TRADE_DC + ')', 'trading');
+      addLog('Leg ' + legNum + '/' + TRADE_LEG_COUNT + ': the deal closes at a ' + (pct * 100).toFixed(1) + '% markup. (d20 ' + d20 + '+' + bonus + ' vs DC ' + effectiveDC.toFixed(0) + ')', 'trading');
     } else {
       run.failCount += 1;
       const isCritFail = d20 === 1;
       const pct = Math.max(0.02, tier.maxPct * (0.08 + Math.random() * 0.27));
       const loss = run.legAmount * pct;
       legReturn = run.legAmount - loss;
-      addLog('Leg ' + legNum + '/' + TRADE_LEG_COUNT + ': the deal sours — lost ' + (pct * 100).toFixed(1) + '% of that leg. (d20 ' + d20 + '+' + bonus + ' vs DC ' + TRADE_DC + ')', 'risk');
+      addLog('Leg ' + legNum + '/' + TRADE_LEG_COUNT + ': the deal sours — lost ' + (pct * 100).toFixed(1) + '% of that leg. (d20 ' + d20 + '+' + bonus + ' vs DC ' + effectiveDC.toFixed(0) + ')', 'risk');
 
       // Ambush risk (Build 036 follow-up) — this used to live in the shared tick function,
       // but Trading never actually ran through that function, so it was silently dead
@@ -4835,7 +4876,6 @@
   function updateDockButton() {
     const btn = el('dockBtn');
     const label = el('dockBtnLabel');
-    const desc = el('dockBtnDesc');
     const noStation = state.sector && SECTORS[state.sector].stationType === 'none';
     const isPirateStation = state.sector && SECTORS[state.sector].stationType === 'pirate';
 
@@ -4843,19 +4883,14 @@
       const verb = state.dockProcess.type === 'docking' ? 'DOCKING' : 'UNDOCKING';
       const remainingS = Math.max(0, (state.dockProcess.arrivalAt - Date.now()) / 1000);
       label.textContent = verb + ' — ' + remainingS.toFixed(1) + 's';
-      desc.textContent = state.dockProcess.type === 'docking' ? 'Engaging docking clamps...' : 'Releasing docking clamps...';
     } else if (state.docked) {
       label.textContent = 'UNDOCK FROM STATION';
-      desc.textContent = 'Release clamps and return to open space.';
     } else if (noStation) {
       label.textContent = 'NO SPACE DOCK IN SYSTEM';
-      desc.textContent = 'This frontier sector is too dangerous for station infrastructure. Nowhere to dock here.';
     } else if (isPirateStation) {
       label.textContent = 'DOCK AT PIRATE STATION';
-      desc.textContent = 'A lawless station willing to take your business — and your Plunder.';
     } else {
       label.textContent = 'DOCK AT STATION';
-      desc.textContent = 'Approach the nearest station and engage docking clamps.';
     }
 
     btn.classList.toggle('active', state.docked);
@@ -5345,7 +5380,7 @@
     const shipBonus = state.shipBonusActivity === 'mining' ? state.shipBonusAmount : 0;
     const skillAndShip = state.captain.prospect + shipBonus;
     const failFactor = Math.max(0, 1 - skillAndShip / 20);
-    const failChance = 45 * failFactor;
+    const failChance = Math.min(90, (45 * failFactor) + depthFailPenalty(state.sector));
 
     const r = Math.random() * 100;
     let tier;
@@ -5563,9 +5598,13 @@
       }
     });
 
-    if (!state.otherFactionMaxedBonusEarned) {
+    // Other-faction bonus now stacks once per galaxy rather than once per lifetime — the
+    // per-galaxy gate resets on warp (see regenerateMap()), letting this trigger again in
+    // each new galaxy, while the counter itself only ever accumulates for scoring.
+    if (!state.otherFactionMaxedThisGalaxy) {
       if (state.rep.merchant >= REP_MAX || state.rep.consortium >= REP_MAX || state.rep.freefleets >= REP_MAX) {
-        state.otherFactionMaxedBonusEarned = true;
+        state.otherFactionMaxedThisGalaxy = true;
+        state.otherFactionMaxedCount += 1;
       }
     }
   }
@@ -5639,7 +5678,7 @@
     const creditsScore = Math.floor(state.totalCreditsEarned / 10000);
     const skillScore = state.captain.sec + state.captain.skull + state.captain.neg + state.captain.prospect;
     const authorityScore = state.sectorAuthorityMaxCount * 2;
-    const otherFactionScore = state.otherFactionMaxedBonusEarned ? 10 : 0;
+    const otherFactionScore = state.otherFactionMaxedCount * 10;
     const score = creditsScore + skillScore + authorityScore + otherFactionScore;
 
     el('gameOverTitle').textContent = 'RUN ENDED';
@@ -5648,8 +5687,7 @@
       : "The hull gave out, and there was no credit on file to cover the insurance claim. The underwriters have repossessed what's left of the ship.";
     el('gameOverScoreValue').textContent = fmt(score);
     el('gameOverLeaderboardPrompt').style.display = 'none';
-    el('gameOverSubmitStatus').style.display = 'none';
-    el('gameOverInitialsInput').value = '';
+    el('gameOverSubmitStatus').textContent = '';
     el('gameOverOverlay').classList.add('open');
 
     checkLeaderboardQualification(score);
@@ -5657,7 +5695,9 @@
 
   // Checked asynchronously, separate from showing the game-over overlay itself — the
   // score and the option to start a new run must appear immediately, not wait on a
-  // network round-trip. The initials prompt just appears a moment later if it qualifies.
+  // network round-trip. If the score qualifies, it's submitted automatically using the
+  // captain's own name (no initials prompt anymore) — this only shows a brief status
+  // line, there's nothing for the player to do.
   async function checkLeaderboardQualification(score) {
     if (!window.__starfarerDb || score <= 0) return;
     try {
@@ -5665,7 +5705,14 @@
       const qualifies = top.length < 5 || score > Math.min(...top.map(r => r.score || 0));
       if (qualifies && el('gameOverOverlay').classList.contains('open')) {
         el('gameOverLeaderboardPrompt').style.display = 'block';
-        state.pendingLeaderboardScore = score;
+        const statusEl = el('gameOverSubmitStatus');
+        statusEl.textContent = 'Submitting to the leaderboard…';
+        try {
+          await window.__starfarerDb.submitScore(state.captain.name, score);
+          statusEl.textContent = 'Top 5 score! Submitted as ' + state.captain.name + '.';
+        } catch (e) {
+          statusEl.textContent = "Top 5 score, but couldn't submit — check your connection.";
+        }
       }
     } catch (e) {
       // Leaderboard being unreachable shouldn't block or alarm anyone at the exact
@@ -5724,7 +5771,7 @@
     const conf = ACTIVITIES.piracy;
     const plunderFactor = Math.min(state.plunder, 2000) / 2000;
     const repFactor = (REP_MAX - effectiveAuthorityRep(state.sector)) / (REP_MAX - REP_MIN);
-    const failPct = 35 * plunderFactor * repFactor;
+    const failPct = Math.min(90, (35 * plunderFactor * repFactor) + depthFailPenalty(state.sector));
 
     const r = Math.random() * 100;
     let tier;
@@ -5805,10 +5852,15 @@
   // reputation effect (a loss), matching the confirmed design — no routine per-tick rep
   // gain on success, unlike Piracy's direct Free Fleets gain.
   function resolveBountyTick() {
+    // Target rerolls every tick now, not just when the activity starts — placed here at
+    // the very top so it fires exactly once per call regardless of which branch below
+    // this tick resolves into (several return early on hull-0 or auto-repair).
+    state.bountyTargetName = BOUNTY_TARGET_NAMES[Math.floor(Math.random() * BOUNTY_TARGET_NAMES.length)];
+
     const conf = ACTIVITIES.bounty;
     const skillFactor = 1 - state.captain.sec / 20;
     const repFactor = (REP_MAX - effectiveAuthorityRep(state.sector)) / (REP_MAX - REP_MIN);
-    const failPct = 35 * skillFactor * repFactor;
+    const failPct = Math.min(90, (35 * skillFactor * repFactor) + depthFailPenalty(state.sector));
 
     const r = Math.random() * 100;
     let tier;
@@ -5818,7 +5870,7 @@
     else tier = 'success';
 
     if (tier === 'success' || tier === 'critSuccess') {
-      const depth = sectorDistance(state.sector);
+      const depth = effectiveDepth(state.sector);
       const diceCount = depth + 1;
       let vouchersGained = 0;
       for (let i = 0; i < diceCount; i++) vouchersGained += Math.floor(Math.random() * 6) + 1;
@@ -6406,12 +6458,13 @@
     }
     askConfirm(
       'WARP TO A NEW GALAXY',
-      'This resets ALL reputation — the Mercantile Guild, Deep-Space Consortium, and Free Fleets standings, plus every sector\'s Sector Authority standing and the galaxy-wide Authority baseline. This cannot be undone.',
+      'This resets ALL reputation — the Mercantile Guild, Deep-Space Consortium, and Free Fleets standings, plus every sector\'s Sector Authority standing and the galaxy-wide Authority baseline. It also permanently increases Effective Depth galaxy-wide by 4 — every sector in the new galaxy is that much more dangerous and rewarding than local distance alone would suggest, and this never decreases. This cannot be undone.',
       'WARP ANYWAY',
       () => {
         state.warpCells -= 1;
+        state.warpDepthOffset += 4;
         regenerateMap(seed);
-        addLog('Warp drive engaged — the galaxy reshuffles around the ship. Seed: ' + seed + '. (-1 warp cell)', 'system');
+        addLog('Warp drive engaged — the galaxy reshuffles around the ship, and the depths grow deeper. Seed: ' + seed + '. (-1 warp cell, Effective Depth +4)', 'system');
         renderMapGraph();
         el('mapSeedValue').textContent = state.mapSeed;
         render();
@@ -6587,10 +6640,12 @@
         shipBonusActivity: state.shipBonusActivity,
         shipBonusAmount: state.shipBonusAmount,
         shipTier: state.shipTier,
+        warpDepthOffset: state.warpDepthOffset,
         totalCreditsEarned: state.totalCreditsEarned,
         sectorAuthorityMaxCount: state.sectorAuthorityMaxCount,
         sectorAuthorityMaxFlags: state.sectorAuthorityMaxFlags,
-        otherFactionMaxedBonusEarned: state.otherFactionMaxedBonusEarned,
+        otherFactionMaxedCount: state.otherFactionMaxedCount,
+        otherFactionMaxedThisGalaxy: state.otherFactionMaxedThisGalaxy,
         tradingAutoReinvestAmount: state.tradingAutoReinvestAmount,
         captain: state.captain,
         pendingPerkQueue: state.pendingPerkQueue,
@@ -6794,10 +6849,20 @@
     state.shipName = vStr(s.shipName, 'WAYWARD', 20);
     state.shipBonusActivity = vPick(s.shipBonusActivity, ACTIVITY_KEYS, null);
     state.shipTier = vInt(s.shipTier, 1, 1, 5);
+    state.warpDepthOffset = vInt(s.warpDepthOffset, 0, 0, 1e6);
     state.totalCreditsEarned = vNum(s.totalCreditsEarned, 0, 0, 1e15);
     state.sectorAuthorityMaxCount = vInt(s.sectorAuthorityMaxCount, 0, 0, 1e6);
     state.sectorAuthorityMaxFlags = (s.sectorAuthorityMaxFlags && typeof s.sectorAuthorityMaxFlags === 'object') ? s.sectorAuthorityMaxFlags : {};
-    state.otherFactionMaxedBonusEarned = !!s.otherFactionMaxedBonusEarned;
+    // Migration (Build 038): the one-time boolean became a per-galaxy-stacking counter.
+    // An old save with the flag already true had earned exactly one bonus under the old
+    // system — preserve that as a starting count of 1 rather than silently losing it.
+    if (s.otherFactionMaxedCount !== undefined) {
+      state.otherFactionMaxedCount = vInt(s.otherFactionMaxedCount, 0, 0, 1e6);
+      state.otherFactionMaxedThisGalaxy = !!s.otherFactionMaxedThisGalaxy;
+    } else {
+      state.otherFactionMaxedCount = s.otherFactionMaxedBonusEarned ? 1 : 0;
+      state.otherFactionMaxedThisGalaxy = !!s.otherFactionMaxedBonusEarned;
+    }
     state.tradingAutoReinvestAmount = vNum(s.tradingAutoReinvestAmount, 0, 0, 1e12);
     state.shipBonusAmount = vInt(s.shipBonusAmount, state.shipTier * 2, 0, 100);
 
@@ -7115,30 +7180,6 @@
     }
   });
 
-  el('gameOverSubmitScoreBtn').addEventListener('click', async () => {
-    const initials = el('gameOverInitialsInput').value.trim().toUpperCase();
-    const statusEl = el('gameOverSubmitStatus');
-    statusEl.style.display = 'block';
-    if (initials.length !== 3 || !/^[A-Z]{3}$/.test(initials)) {
-      statusEl.textContent = 'Enter exactly 3 letters.';
-      return;
-    }
-    if (!window.__starfarerDb || state.pendingLeaderboardScore == null) {
-      statusEl.textContent = 'Leaderboard unavailable right now.';
-      return;
-    }
-    el('gameOverSubmitScoreBtn').disabled = true;
-    statusEl.textContent = 'Submitting…';
-    try {
-      await window.__starfarerDb.submitScore(initials, state.pendingLeaderboardScore);
-      statusEl.textContent = 'Submitted!';
-      el('gameOverSubmitRow').style.display = 'none';
-    } catch (e) {
-      statusEl.textContent = "Couldn't submit — check your connection and try again.";
-      el('gameOverSubmitScoreBtn').disabled = false;
-    }
-  });
-
   el('gameOverNewRunBtn').addEventListener('click', () => {
     saveSuppressed = true;
     if (autosaveTimer) { clearTimeout(autosaveTimer); autosaveTimer = null; }
@@ -7192,7 +7233,7 @@
       listEl.innerHTML = rows.map((r, i) =>
         '<div class="leaderboard-row">'
         + '<span class="leaderboard-rank">#' + (i + 1) + '</span>'
-        + '<span class="leaderboard-initials">' + String(r.initials || '???').toUpperCase().slice(0, 3) + '</span>'
+        + '<span class="leaderboard-initials">' + escapeHtml(String(r.initials || 'Unknown')) + '</span>'
         + '<span class="leaderboard-score">' + fmt(r.score || 0) + '</span>'
         + '</div>'
       ).join('');
