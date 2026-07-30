@@ -426,6 +426,62 @@
     font-size: 0.58rem;
     color: #fff;
   }
+  .systems-boxes {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .systems-box {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    padding: 8px 10px;
+    border-radius: 4px;
+    min-width: 150px;
+  }
+  .systems-box-title {
+    font-family: var(--font-hud);
+    font-size: 0.6rem;
+    letter-spacing: 0.08em;
+    margin-bottom: 1px;
+  }
+  .systems-box-trading { background: rgba(232,163,61,0.08); border: 1px solid var(--amber-dim); }
+  .systems-box-trading .systems-box-title { color: var(--amber); }
+  .systems-box-mining { background: rgba(94,232,154,0.08); border: 1px solid var(--green-dim); }
+  .systems-box-mining .systems-box-title { color: var(--green); }
+  .systems-box-bounty { background: rgba(61,219,232,0.08); border: 1px solid var(--cyan-dim); }
+  .systems-box-bounty .systems-box-title { color: var(--cyan); }
+  .systems-box-piracy { background: rgba(232,80,106,0.08); border: 1px solid var(--crimson-dim); }
+  .systems-box-piracy .systems-box-title { color: var(--crimson); }
+  .systems-bar-row { display: flex; align-items: center; gap: 5px; }
+  .systems-bar-label {
+    font-family: var(--font-hud);
+    font-size: 0.56rem;
+    color: var(--text-dim);
+    white-space: nowrap;
+    min-width: 62px;
+  }
+  .systems-bar-wrap {
+    position: relative;
+    flex: 1;
+    height: 12px;
+    background: var(--bg-void);
+    border: 1px solid var(--border-bright);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .systems-bar-fill { position: absolute; left: 0; top: 0; bottom: 0; }
+  .systems-box-trading .systems-bar-fill { background: var(--amber); }
+  .systems-box-mining .systems-bar-fill { background: var(--green); }
+  .systems-box-bounty .systems-bar-fill { background: var(--cyan); }
+  .systems-box-piracy .systems-bar-fill { background: var(--crimson); }
+  .systems-bar-value {
+    font-family: var(--font-hud);
+    font-size: 0.56rem;
+    color: var(--text-dim);
+    min-width: 26px;
+    text-align: right;
+  }
   .mod span:last-child {
     font-family: var(--font-hud);
     font-size: 0.85rem;
@@ -2094,6 +2150,60 @@
         INSURANCE CLAIM: <span id="insuranceClaimValue">0</span>
       </div>
     </div>
+    <div class="systems-boxes">
+      <div class="systems-box systems-box-trading">
+        <div class="systems-box-title">TRADING SYSTEMS</div>
+        <div class="systems-bar-row">
+          <span class="systems-bar-label">OPTIMIZATION:</span>
+          <div class="systems-bar-wrap"><div class="systems-bar-fill" id="tradingSpeedBar"></div></div>
+          <span class="systems-bar-value" id="tradingSpeedBarValue">0/10</span>
+        </div>
+        <div class="systems-bar-row">
+          <span class="systems-bar-label">EFFICIENCY:</span>
+          <div class="systems-bar-wrap"><div class="systems-bar-fill" id="tradingYieldBar"></div></div>
+          <span class="systems-bar-value" id="tradingYieldBarValue">0/5</span>
+        </div>
+      </div>
+      <div class="systems-box systems-box-mining">
+        <div class="systems-box-title">MINING SYSTEMS</div>
+        <div class="systems-bar-row">
+          <span class="systems-bar-label">OPTIMIZATION:</span>
+          <div class="systems-bar-wrap"><div class="systems-bar-fill" id="miningSpeedBar"></div></div>
+          <span class="systems-bar-value" id="miningSpeedBarValue">0/10</span>
+        </div>
+        <div class="systems-bar-row">
+          <span class="systems-bar-label">EFFICIENCY:</span>
+          <div class="systems-bar-wrap"><div class="systems-bar-fill" id="miningYieldBar"></div></div>
+          <span class="systems-bar-value" id="miningYieldBarValue">0/5</span>
+        </div>
+      </div>
+      <div class="systems-box systems-box-bounty">
+        <div class="systems-box-title">BOUNTY SYSTEMS</div>
+        <div class="systems-bar-row">
+          <span class="systems-bar-label">OPTIMIZATION:</span>
+          <div class="systems-bar-wrap"><div class="systems-bar-fill" id="bountySpeedBar"></div></div>
+          <span class="systems-bar-value" id="bountySpeedBarValue">0/10</span>
+        </div>
+        <div class="systems-bar-row">
+          <span class="systems-bar-label">EFFICIENCY:</span>
+          <div class="systems-bar-wrap"><div class="systems-bar-fill" id="bountyYieldBar"></div></div>
+          <span class="systems-bar-value" id="bountyYieldBarValue">0/5</span>
+        </div>
+      </div>
+      <div class="systems-box systems-box-piracy">
+        <div class="systems-box-title">PIRACY SYSTEMS</div>
+        <div class="systems-bar-row">
+          <span class="systems-bar-label">OPTIMIZATION:</span>
+          <div class="systems-bar-wrap"><div class="systems-bar-fill" id="piracySpeedBar"></div></div>
+          <span class="systems-bar-value" id="piracySpeedBarValue">0/10</span>
+        </div>
+        <div class="systems-bar-row">
+          <span class="systems-bar-label">EFFICIENCY:</span>
+          <div class="systems-bar-wrap"><div class="systems-bar-fill" id="piracyYieldBar"></div></div>
+          <span class="systems-bar-value" id="piracyYieldBarValue">0/5</span>
+        </div>
+      </div>
+    </div>
     <div class="stats">
       <div class="stat">
         <span class="stat-label">CREDITS</span>
@@ -3078,7 +3188,6 @@
     tickMs: 1500,
     tickEndAt: null,
     hullUpgradeLevel: 1,
-    upgradeCost: 500,
     sector: null,
     sectorGraph: null,
     mapSeed: null,
@@ -3095,20 +3204,19 @@
     smelting: null,
     smeltAllQueue: null,
     sensorsCost: 800,
-    cargoUpgradeCost: 600,
-    fuelUpgradeCost: 400,
+    cargoUpgradeLevel: 0,
+    fuelUpgradeLevel: 0,
     weaponTier: 0,
-    weaponCost: 700,
     dockingComputerOwned: false,
     jumpDriveOwned: false,
     warpCells: 0,
     foundFirstWarpCell: false,
     warpCellCapacity: 1,
     activityUpgrades: {
-      trading: { speed: false, yield: false },
-      mining: { speed: false, yield: false },
-      bounty: { speed: false, yield: false },
-      piracy: { speed: false, yield: false }
+      trading: { speed: 0, yield: 0 },
+      mining: { speed: 0, yield: 0 },
+      bounty: { speed: 0, yield: 0 },
+      piracy: { speed: 0, yield: 0 }
     },
     shipClassName: null,
     shipBonusActivity: null,
@@ -3337,7 +3445,7 @@
         <h3>QUICK RETREAT</h3>
         <p>If you have this perk equipped and charged, hull hitting exactly 0 is caught for free — hull is set to 1 and the perk needs to recharge (dock anywhere) before it can save you again. This always takes priority over the insurance system below.</p>
         <h3>INSURANCE &amp; PERMADEATH</h3>
-        <p>If Quick Retreat isn't available and hull hits 0, an insurance claim is automatically filed: 30% of your ship's current market value (based on its Tier) in available credits.</p>
+        <p>If Quick Retreat isn't available and hull hits 0, an insurance claim is automatically filed: 30% of your ship's Tier base price (the flat table price, not scaled by the local Economy the way buying or tiering up at a Shipyard is) in available credits.</p>
         <ul>
           <li><strong>If you can afford it:</strong> the ship survives at 1 hull, insurance paid</li>
           <li><strong>If you can't:</strong> the run ends entirely. Your score is calculated from several things, not just credits — see the Scoring section of this Compendium for the exact breakdown — and the save resets completely: fresh captain, fresh ship, back to ship selection.</li>
@@ -3452,6 +3560,38 @@
   const CARGO_UPGRADE_AMOUNT = 20;
   const FUEL_TANK_UPGRADE_AMOUNT = 5;
   const WEAPON_ROLL_BONUS = 5;
+
+  // Economy rework (Build 039). Baseline prices for the four repeatable Shipyard/Equipment
+  // upgrades, and the arithmetic growth curve confirmed for all of them: purchase N costs
+  // baseline × (2N-1) — 1x, 3x, 5x, 7x, 9x... rather than the old flat compounding
+  // multiplier. purchasesMade is 0-indexed (0 before the first purchase).
+  const HULL_UPGRADE_BASE = 1000;
+  const CARGO_UPGRADE_BASE = 50000;
+  const FUEL_UPGRADE_BASE = 50000;
+  const WEAPON_UPGRADE_BASE = 1000;
+  const REPAIR_COST_PER_HULL_POINT = 50;
+  function arithmeticUpgradeCost(baseline, purchasesMade) {
+    return baseline * (2 * purchasesMade + 1);
+  }
+
+  // Overclock: 10 levels, geometric growth solved so level 1 = 1,500cr and level 10 =
+  // 10,000,000cr exactly (ratio ≈2.66x/level). A fixed table rather than a formula
+  // computed at runtime, so the exact intended costs are auditable here and never drift
+  // from floating-point rounding across many compounding purchases.
+  const OVERCLOCK_COSTS = [1500, 3990, 10613, 28231, 75094, 199749, 531329, 1413326, 3759423, 10000000];
+  // Each level removes another 5 percentage points of tick time, linearly — level 10
+  // reaches exactly the confirmed halfway point (50% of base time).
+  const OVERCLOCK_SPEED_STEP = 0.05;
+
+  // Efficiency: 5 levels, geometric growth solved so level 1 = 500,000cr and level 5 =
+  // 1,000,000,000cr exactly (ratio ≈6.69x/level).
+  const EFFICIENCY_COSTS = [500000, 3343702, 22360680, 149534878, 1000000000];
+  // Each level doubles output — level N's cumulative multiplier is 2^N, so level 5 reaches
+  // the confirmed 32x (2^5), not just a 5x-in-a-row-of-doublings misreading.
+  function efficiencyMultiplier(level) {
+    return Math.pow(2, level);
+  }
+
   const DOCKING_COMPUTER_COST = 1200;
   const JUMP_DRIVE_COST = 1500;
   const WARP_CELL_COST = 2500;
@@ -3460,7 +3600,6 @@
   const VOUCHER_TO_REP_GAIN = 10;
   const ENVOY_REP_COST = 10000;
   const ENVOY_REP_GAIN = 10;
-  const ACTIVITY_UPGRADE_COST = { speed: 800, yield: 900 };
 
   // Sector generation strategy: archetype-first trait ranges (sectors stay legible at a
   // glance instead of three arbitrary numbers), a seeded PRNG (mulberry32 — runs are
@@ -4310,8 +4449,9 @@
     }
 
     const priceMult = sectorPriceMultiplier();
-    const displayedUpgradeCost = Math.round(state.upgradeCost * priceMult);
-    const displayedRepairCost = Math.round(100 * priceMult);
+    const displayedUpgradeCost = Math.round(arithmeticUpgradeCost(HULL_UPGRADE_BASE, state.hullUpgradeLevel - 1) * priceMult);
+    const missingHull = Math.max(0, state.maxHull - state.hull);
+    const displayedRepairCost = Math.round(missingHull * REPAIR_COST_PER_HULL_POINT * priceMult);
     const displayedSensorsCost = Math.round(state.sensorsCost * priceMult);
     const displayedFuelPrice = Math.round(FUEL_PRICE * priceMult);
 
@@ -4360,10 +4500,8 @@
       ? '<span style="color:' + shipTheme.color + '">' + shipTheme.icon + ' +' + state.shipBonusAmount + ' ' + shipTheme.label + '</span>'
       : '';
 
-    if (state.sector && SECTORS[state.sector]) {
-      const economyIdx = SECTORS[state.sector].economy;
-      const shipValue = shipPriceForTier(state.shipTier, economyIdx);
-      const claimCost = Math.round(shipValue * 0.3);
+    if (state.sector) {
+      const claimCost = Math.round(SHIP_TIER_PRICES[state.shipTier] * 0.3);
       el('insuranceClaimRow').style.display = 'block';
       el('insuranceClaimValue').textContent = fmt(claimCost) + 'cr';
       el('insuranceClaimValue').className = state.credits < claimCost ? 'unaffordable' : 'affordable';
@@ -4385,30 +4523,39 @@
       ? 'BUY FUEL — TANK FULL'
       : 'BUY FUEL — ' + displayedFuelPrice + 'cr/unit';
 
-    const displayedCargoUpgradeCost = Math.round(state.cargoUpgradeCost * priceMult);
+    const displayedCargoUpgradeCost = Math.round(arithmeticUpgradeCost(CARGO_UPGRADE_BASE, state.cargoUpgradeLevel) * priceMult);
     el('cargoUpgradeCost').textContent = fmt(displayedCargoUpgradeCost);
     el('cargoUpgradeBtn').disabled = state.credits < displayedCargoUpgradeCost || !state.docked;
 
-    const displayedFuelUpgradeCost = Math.round(state.fuelUpgradeCost * priceMult);
+    const displayedFuelUpgradeCost = Math.round(arithmeticUpgradeCost(FUEL_UPGRADE_BASE, state.fuelUpgradeLevel) * priceMult);
     el('fuelUpgradeCost').textContent = fmt(displayedFuelUpgradeCost);
     el('fuelTankUpgradeBtn').disabled = state.credits < displayedFuelUpgradeCost || !state.docked;
 
-    const displayedWeaponCost = Math.round(state.weaponCost * priceMult);
+    const displayedWeaponCost = Math.round(arithmeticUpgradeCost(WEAPON_UPGRADE_BASE, state.weaponTier) * priceMult);
     el('weaponCost').textContent = fmt(displayedWeaponCost);
     el('weaponUpgradeBtn').disabled = state.credits < displayedWeaponCost || !state.docked;
     el('weaponTierLabel').textContent = state.weaponTier;
 
     ['trading', 'mining', 'bounty', 'piracy'].forEach(key => {
-      const speedCost = Math.round(ACTIVITY_UPGRADE_COST.speed * priceMult);
-      const yieldCost = Math.round(ACTIVITY_UPGRADE_COST.yield * priceMult);
+      const speedLevel = state.activityUpgrades[key].speed;
+      const yieldLevel = state.activityUpgrades[key].yield;
+      const speedMaxed = speedLevel >= OVERCLOCK_COSTS.length;
+      const yieldMaxed = yieldLevel >= EFFICIENCY_COSTS.length;
+      const speedCost = speedMaxed ? 0 : Math.round(OVERCLOCK_COSTS[speedLevel] * priceMult);
+      const yieldCost = yieldMaxed ? 0 : Math.round(EFFICIENCY_COSTS[yieldLevel] * priceMult);
       const speedBtn = el(key + 'SpeedBtn');
       const yieldBtn = el(key + 'YieldBtn');
       el(key + 'SpeedCost').textContent = fmt(speedCost);
       el(key + 'YieldCost').textContent = fmt(yieldCost);
-      speedBtn.disabled = state.activityUpgrades[key].speed || state.credits < speedCost || !state.docked;
-      speedBtn.textContent = state.activityUpgrades[key].speed ? 'OVERCLOCK — INSTALLED' : 'OVERCLOCK — ' + fmt(speedCost) + 'cr';
-      yieldBtn.disabled = state.activityUpgrades[key].yield || state.credits < yieldCost || !state.docked;
-      yieldBtn.textContent = state.activityUpgrades[key].yield ? 'EFFICIENCY MODULE — INSTALLED' : 'EFFICIENCY MODULE — ' + fmt(yieldCost) + 'cr';
+      speedBtn.disabled = speedMaxed || state.credits < speedCost || !state.docked;
+      speedBtn.textContent = speedMaxed ? 'OVERCLOCK — MAXED (10/10)' : 'OVERCLOCK ' + (speedLevel + 1) + '/10 — ' + fmt(speedCost) + 'cr';
+      yieldBtn.disabled = yieldMaxed || state.credits < yieldCost || !state.docked;
+      yieldBtn.textContent = yieldMaxed ? 'EFFICIENCY — MAXED (5/5)' : 'EFFICIENCY ' + (yieldLevel + 1) + '/5 — ' + fmt(yieldCost) + 'cr';
+
+      el(key + 'SpeedBar').style.width = (speedLevel / 10 * 100) + '%';
+      el(key + 'SpeedBarValue').textContent = speedLevel + '/10';
+      el(key + 'YieldBar').style.width = (yieldLevel / 5 * 100) + '%';
+      el(key + 'YieldBarValue').textContent = yieldLevel + '/5';
     });
 
     const displayedDockingComputerCost = Math.round(DOCKING_COMPUTER_COST * priceMult);
@@ -4700,7 +4847,7 @@
     state.credits -= investAmount;
     state.activity = 'trading';
     state.tradingAutoReinvestAmount = investAmount;
-    const legMs = state.activityUpgrades.trading.speed ? TRADE_LEG_MS / 2 : TRADE_LEG_MS;
+    const legMs = TRADE_LEG_MS * (1 - state.activityUpgrades.trading.speed * OVERCLOCK_SPEED_STEP);
     state.tradeRun = {
       totalInvested: investAmount,
       legAmount: investAmount / TRADE_LEG_COUNT,
@@ -4747,7 +4894,7 @@
     if (total >= effectiveDC) {
       run.successCount += 1;
       let pct = tier.maxPct * (0.5 + Math.random() * 0.5);
-      if (state.activityUpgrades.trading.yield) pct = Math.min(0.9, pct * 2);
+      if (state.activityUpgrades.trading.yield) pct = Math.min(0.9, pct * efficiencyMultiplier(state.activityUpgrades.trading.yield));
       // Merchant Guild standing inflates or deflates the payout within the same run it's
       // measured — a modest ±15% swing across the full -600..600 range, centered on 1.0x
       // at neutral rep. Previously rep had no effect on trading payout at all.
@@ -5415,7 +5562,7 @@
       const oreTier = rollOreTierByRichness(sector.ore);
       let units = tier === 'critSuccess' ? 2 : 1;
       units += miningBonusUnits(skillAndShip);
-      if (state.activityUpgrades.mining.yield) units *= 2;
+      if (state.activityUpgrades.mining.yield) units *= efficiencyMultiplier(state.activityUpgrades.mining.yield);
       let miningLucky = false;
       if (luckyProc()) { units *= 2; miningLucky = true; }
       units = Math.max(1, Math.round(units * distanceEarningsMultiplier(state.sector)));
@@ -5645,9 +5792,7 @@
   function handleHullZero() {
     if (handleQuickRetreat()) return 'retreated';
 
-    const economyIdx = state.sector && SECTORS[state.sector] ? SECTORS[state.sector].economy : 2;
-    const shipValue = shipPriceForTier(state.shipTier, economyIdx);
-    const insuranceCost = Math.round(shipValue * 0.3);
+    const insuranceCost = Math.round(SHIP_TIER_PRICES[state.shipTier] * 0.3);
 
     if (state.credits >= insuranceCost) {
       state.credits -= insuranceCost;
@@ -5783,6 +5928,7 @@
     if (tier === 'success' || tier === 'critSuccess') {
       let amount = computeRoll('piracy') * distanceEarningsMultiplier(state.sector);
       if (tier === 'critSuccess') amount *= 2;
+      if (state.activityUpgrades.piracy.yield) amount *= efficiencyMultiplier(state.activityUpgrades.piracy.yield);
       let piracyLucky = false;
       if (luckyProc()) { amount *= 2; piracyLucky = true; }
 
@@ -5875,6 +6021,7 @@
       let vouchersGained = 0;
       for (let i = 0; i < diceCount; i++) vouchersGained += Math.floor(Math.random() * 6) + 1;
       if (tier === 'critSuccess') vouchersGained *= 2;
+      if (state.activityUpgrades.bounty.yield) vouchersGained *= efficiencyMultiplier(state.activityUpgrades.bounty.yield);
       let bountyLucky = false;
       if (luckyProc()) { vouchersGained *= 2; bountyLucky = true; }
 
@@ -5981,7 +6128,8 @@
   // of just visually finishing after one tick's worth of time.
   function activityTickMs(key) {
     if (!key || !state.activityUpgrades[key]) return state.tickMs;
-    return state.activityUpgrades[key].speed ? state.tickMs / 2 : state.tickMs;
+    const level = state.activityUpgrades[key].speed;
+    return state.tickMs * (1 - level * OVERCLOCK_SPEED_STEP);
   }
 
   function currentTransitDurationMs() {
@@ -6157,11 +6305,10 @@
   });
 
   el('upgradeBtn').addEventListener('click', () => {
-    const cost = Math.round(state.upgradeCost * sectorPriceMultiplier());
+    const cost = Math.round(arithmeticUpgradeCost(HULL_UPGRADE_BASE, state.hullUpgradeLevel - 1) * sectorPriceMultiplier());
     if (state.credits < cost) return;
     state.credits -= cost;
     state.hullUpgradeLevel += 1;
-    state.upgradeCost = Math.round(state.upgradeCost * 1.7);
     state.maxHull += 5;
     state.hull = Math.min(state.maxHull, state.hull + 4);
     addLog(resolveLogTemplate('Hull systems upgraded — output level ' + state.hullUpgradeLevel + ' — {crew} says she\'ll hit harder and take more punishment now. (-' + fmt(cost) + 'cr)'), 'system');
@@ -6169,7 +6316,8 @@
   });
 
   el('repairBtn').addEventListener('click', () => {
-    const cost = Math.round(100 * sectorPriceMultiplier());
+    const missingHull = Math.max(0, state.maxHull - state.hull);
+    const cost = Math.round(missingHull * REPAIR_COST_PER_HULL_POINT * sectorPriceMultiplier());
     if (state.credits < cost || state.hull >= state.maxHull) return;
     state.credits -= cost;
     state.hull = state.maxHull;
@@ -6205,52 +6353,53 @@
   });
 
   el('cargoUpgradeBtn').addEventListener('click', () => {
-    const cost = Math.round(state.cargoUpgradeCost * sectorPriceMultiplier());
+    const cost = Math.round(arithmeticUpgradeCost(CARGO_UPGRADE_BASE, state.cargoUpgradeLevel) * sectorPriceMultiplier());
     if (state.credits < cost) return;
     state.credits -= cost;
     state.cargoCapacity += CARGO_UPGRADE_AMOUNT;
-    state.cargoUpgradeCost = Math.round(state.cargoUpgradeCost * 1.6);
+    state.cargoUpgradeLevel += 1;
     addLog('Extra racking bolted into the hold — capacity up by ' + CARGO_UPGRADE_AMOUNT + ' (now ' + state.cargoCapacity + '). (-' + fmt(cost) + 'cr)', 'system');
     render();
   });
 
   el('fuelTankUpgradeBtn').addEventListener('click', () => {
-    const cost = Math.round(state.fuelUpgradeCost * sectorPriceMultiplier());
+    const cost = Math.round(arithmeticUpgradeCost(FUEL_UPGRADE_BASE, state.fuelUpgradeLevel) * sectorPriceMultiplier());
     if (state.credits < cost) return;
     state.credits -= cost;
     state.fuelCapacity += FUEL_TANK_UPGRADE_AMOUNT;
-    state.fuelUpgradeCost = Math.round(state.fuelUpgradeCost * 1.6);
+    state.fuelUpgradeLevel += 1;
     addLog('A second tank welded into place — fuel capacity up by ' + FUEL_TANK_UPGRADE_AMOUNT + ' (now ' + state.fuelCapacity + '). (-' + fmt(cost) + 'cr)', 'system');
     render();
   });
 
   el('weaponUpgradeBtn').addEventListener('click', () => {
-    const cost = Math.round(state.weaponCost * sectorPriceMultiplier());
+    const cost = Math.round(arithmeticUpgradeCost(WEAPON_UPGRADE_BASE, state.weaponTier) * sectorPriceMultiplier());
     if (state.credits < cost) return;
     state.credits -= cost;
     state.weaponTier += 1;
-    state.weaponCost = Math.round(state.weaponCost * 1.7);
     addLog(resolveLogTemplate('Weapon systems upgraded to Tier ' + state.weaponTier + ' — {crew} test-fires it once, just to hear it sing. (-' + fmt(cost) + 'cr)'), 'piracy');
     render();
   });
 
   ['trading', 'mining', 'bounty', 'piracy'].forEach(key => {
     el(key + 'SpeedBtn').addEventListener('click', () => {
-      if (state.activityUpgrades[key].speed) return;
-      const cost = Math.round(ACTIVITY_UPGRADE_COST.speed * sectorPriceMultiplier());
+      const level = state.activityUpgrades[key].speed;
+      if (level >= OVERCLOCK_COSTS.length) return;
+      const cost = Math.round(OVERCLOCK_COSTS[level] * sectorPriceMultiplier());
       if (state.credits < cost) return;
       state.credits -= cost;
-      state.activityUpgrades[key].speed = true;
-      addLog('Overclock module wired in for ' + key.toUpperCase() + ' — everything runs faster now, whether the ship likes it or not. (-' + fmt(cost) + 'cr)', 'system');
+      state.activityUpgrades[key].speed += 1;
+      addLog('Overclock module tuned further for ' + key.toUpperCase() + ' — level ' + state.activityUpgrades[key].speed + '/10 now, and everything runs faster for it. (-' + fmt(cost) + 'cr)', 'system');
       render();
     });
     el(key + 'YieldBtn').addEventListener('click', () => {
-      if (state.activityUpgrades[key].yield) return;
-      const cost = Math.round(ACTIVITY_UPGRADE_COST.yield * sectorPriceMultiplier());
+      const level = state.activityUpgrades[key].yield;
+      if (level >= EFFICIENCY_COSTS.length) return;
+      const cost = Math.round(EFFICIENCY_COSTS[level] * sectorPriceMultiplier());
       if (state.credits < cost) return;
       state.credits -= cost;
-      state.activityUpgrades[key].yield = true;
-      addLog(resolveLogTemplate('Efficiency module installed for ' + key.toUpperCase() + ' — {crew} squeezes twice the yield out of the same run. (-' + fmt(cost) + 'cr)'), 'system');
+      state.activityUpgrades[key].yield += 1;
+      addLog(resolveLogTemplate('Efficiency module upgraded for ' + key.toUpperCase() + ' — level ' + state.activityUpgrades[key].yield + '/5 now, {crew} squeezes even more out of the same run. (-' + fmt(cost) + 'cr)'), 'system');
       render();
     });
   });
@@ -6605,7 +6754,6 @@
         activity: state.activity,
         bountyTargetName: state.bountyTargetName,
         hullUpgradeLevel: state.hullUpgradeLevel,
-        upgradeCost: state.upgradeCost,
         sector: state.sector,
         mapSeed: state.mapSeed,
         docked: state.docked,
@@ -6625,10 +6773,9 @@
           return acc;
         }, {}),
         sensorsCost: state.sensorsCost,
-        cargoUpgradeCost: state.cargoUpgradeCost,
-        fuelUpgradeCost: state.fuelUpgradeCost,
+        cargoUpgradeLevel: state.cargoUpgradeLevel,
+        fuelUpgradeLevel: state.fuelUpgradeLevel,
         weaponTier: state.weaponTier,
-        weaponCost: state.weaponCost,
         dockingComputerOwned: state.dockingComputerOwned,
         jumpDriveOwned: state.jumpDriveOwned,
         warpCells: state.warpCells,
@@ -6819,12 +6966,15 @@
     // upgrade progress to 1 rather than actually losing nothing.
     const legacyUpgradeLevel = s.hullUpgradeLevel !== undefined ? s.hullUpgradeLevel : s.upgradeLevel;
     state.hullUpgradeLevel = vInt(legacyUpgradeLevel, 1, 1, 999);
-    state.upgradeCost = vInt(s.upgradeCost, 500, 0, 1e12);
     state.sensorsCost = vInt(s.sensorsCost, 800, 0, 1e12);
-    state.cargoUpgradeCost = vInt(s.cargoUpgradeCost, 600, 0, 1e12);
-    state.fuelUpgradeCost = vInt(s.fuelUpgradeCost, 400, 0, 1e12);
+    // Migration (Build 039 economy rework): cargo/fuel used to track a mutable cost that
+    // got multiplied after each purchase; now they track a purchase count instead, with
+    // cost computed fresh from arithmeticUpgradeCost() each time. An old save has no
+    // count to migrate from — 0 (no purchases yet) is the only safe default, since the
+    // old cost value doesn't map cleanly onto "how many times bought."
+    state.cargoUpgradeLevel = vInt(s.cargoUpgradeLevel, 0, 0, 999);
+    state.fuelUpgradeLevel = vInt(s.fuelUpgradeLevel, 0, 0, 999);
     state.weaponTier = vInt(s.weaponTier, 0, 0, 999);
-    state.weaponCost = vInt(s.weaponCost, 700, 0, 1e12);
     state.dockingComputerOwned = vBool(s.dockingComputerOwned);
     state.jumpDriveOwned = vBool(s.jumpDriveOwned);
     state.warpCellCapacity = vInt(s.warpCellCapacity, 1, 1, 999);
@@ -6839,10 +6989,20 @@
     state.docked = vBool(s.docked);
     state.dockedStationName = state.docked ? vStr(s.dockedStationName, 'Station', 60) : null;
 
+    // Migration (Build 039 economy rework): speed/yield were booleans (one flat purchase
+    // each) and are now 0-10 / 0-5 numeric levels. A raw boolean value in an old save
+    // means the old system, not a stale numeric level, so it's handled first and
+    // separately. Mapped to preserve the exact effect magnitude the player already
+    // owned, not to just "convert" the flag: old speed:true gave the full 50% tick-time
+    // reduction, which is what level 10 gives now, so it maps to 10 (not 1, which would
+    // be a steep unannounced nerf). Old yield:true gave exactly a 2x multiplier, which is
+    // what level 1 gives now (2^1), so it maps to 1 — a direct, effect-preserving match.
     state.activityUpgrades = {};
     ACTIVITY_KEYS.forEach(key => {
       const raw = (s.activityUpgrades && s.activityUpgrades[key]) || {};
-      state.activityUpgrades[key] = { speed: vBool(raw.speed), yield: vBool(raw.yield) };
+      const speed = typeof raw.speed === 'boolean' ? (raw.speed ? 10 : 0) : vInt(raw.speed, 0, 0, 10);
+      const yieldLvl = typeof raw.yield === 'boolean' ? (raw.yield ? 1 : 0) : vInt(raw.yield, 0, 0, 5);
+      state.activityUpgrades[key] = { speed: speed, yield: yieldLvl };
     });
 
     state.shipClassName = vStr(s.shipClassName, 'Hauler', 40);
@@ -6922,6 +7082,14 @@
     const seed = vInt(s.mapSeed, NaN, -2147483648, 2147483647);
     let seedMissing = !isFinite(seed);
     rebuildSectorsFromSeed(seedMissing ? Math.floor(Math.random() * 1e9) : seed);
+    // BUG FIX: rebuildSectorsFromSeed() restores SECTORS and state.sectorGraph but never
+    // touched SECTOR_DISTANCES — regenerateMap() (new game/warp) had its own explicit
+    // follow-up call for this, but loading a save was missing it entirely. Every sector's
+    // distance-from-center silently fell back to 0 after any save/load cycle, which fed
+    // directly into effectiveDepth() and therefore into every activity's damage, rewards,
+    // and depth-based fail penalties — not just Bounty Vouchers, everything distance-based,
+    // for any player who reloaded rather than staying in one continuous session.
+    SECTOR_DISTANCES = computeSectorDistances();
     if (Array.isArray(s.mappedSectors)) {
       s.mappedSectors.forEach(id => { if (SECTORS[id]) SECTORS[id].mapped = true; });
     }
