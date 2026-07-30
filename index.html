@@ -817,6 +817,7 @@
     cursor: not-allowed;
     pointer-events: none;
   }
+  .activity-desc.no-asteroids { color: var(--crimson); opacity: 1; }
 
   @keyframes bannerSweep {
     from { background-position: -50% 0; }
@@ -1139,25 +1140,57 @@
     font-style: italic;
   }
 
-  .faction-row { margin-bottom: 12px; }
-  .faction-row span {
-    display: block;
-    font-size: 0.7rem;
-    color: var(--text-dim);
+  .faction-row { margin-bottom: 14px; }
+  .faction-name-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
     margin-bottom: 5px;
-    letter-spacing: 0.02em;
   }
+  .faction-icon { width: 15px; height: 15px; flex-shrink: 0; }
+  .faction-name {
+    display: block;
+    font-size: 0.84rem;
+    letter-spacing: 0.02em;
+    cursor: help;
+  }
+  .faction-icon.theme-trading, .faction-name.theme-trading { color: var(--amber); }
+  .faction-icon.theme-mining, .faction-name.theme-mining { color: var(--green); }
+  .faction-icon.theme-bounty, .faction-name.theme-bounty { color: var(--cyan); }
+  .faction-icon.theme-piracy, .faction-name.theme-piracy { color: var(--crimson); }
   .rep-track {
-    height: 5px;
+    position: relative;
+    height: 20px;
     background: var(--bg-void);
     border: 1px solid var(--border-bright);
-    border-radius: 2px;
+    border-radius: 3px;
     overflow: hidden;
   }
   .rep-fill { height: 100%; transition: width 0.4s ease, background 0.4s ease; }
-  .rep-fill.amber { background: var(--amber); }
-  .rep-fill.cyan { background: var(--cyan); }
-  .rep-fill.crimson { background: var(--crimson); }
+  .rep-fill.rep-red { background: var(--crimson); }
+  .rep-fill.rep-orange { background: var(--amber); }
+  .rep-fill.rep-grey { background: #8a97a6; }
+  .rep-fill.rep-blue { background: #4a9eff; }
+  .rep-fill.rep-purple { background: var(--purple); }
+  .rep-overlay-value {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-hud);
+    font-size: 0.84rem;
+    font-weight: bold;
+    color: #fff;
+    text-shadow: -1.5px -1.5px 0 #000, 1.5px -1.5px 0 #000, -1.5px 1.5px 0 #000, 1.5px 1.5px 0 #000, 0 0 3px #000;
+    pointer-events: none;
+  }
+  .faction-sub-note {
+    font-size: 0.58rem;
+    color: var(--text-dim);
+    margin-top: 3px;
+    font-style: italic;
+  }
 
   .upgrade-card button {
     display: block;
@@ -1208,10 +1241,10 @@
   .station-tab.active { color: var(--cyan); border-color: var(--cyan); background: #0e1c1e; }
   .station-tab:disabled { opacity: 0.4; cursor: not-allowed; }
 
-  .black-market-btn {
+  #stationContent .black-market-btn {
     display: block;
     width: 100%;
-    background: #1e0e2e;
+    background: #2a1440;
     border: 1px solid var(--purple);
     color: var(--purple);
     padding: 5px 8px;
@@ -1222,8 +1255,25 @@
     letter-spacing: 0.1em;
     cursor: pointer;
   }
-  .black-market-btn:hover { background: #2a1440; }
-  .black-market-btn.active { background: #2a1440; box-shadow: 0 0 0 1px var(--purple); }
+  #stationContent .black-market-btn:hover { background: #3a1c58; }
+  #stationContent .black-market-btn.active { background: #3a1c58; box-shadow: 0 0 0 1px var(--purple); }
+
+  #stationContent .sector-authority-btn {
+    display: block;
+    width: 100%;
+    background: #163458;
+    border: 1px solid #4a9eff;
+    color: #4a9eff;
+    padding: 5px 8px;
+    margin-bottom: 14px;
+    border-radius: 3px;
+    font-family: var(--font-hud);
+    font-size: 0.62rem;
+    letter-spacing: 0.1em;
+    cursor: pointer;
+  }
+  #stationContent .sector-authority-btn:hover { background: #1f4874; }
+  #stationContent .sector-authority-btn.active { background: #1f4874; box-shadow: 0 0 0 1px #4a9eff; }
 
   .auto-accept-row {
     display: flex;
@@ -1715,6 +1765,7 @@
     padding: 10px;
     grid-column: 1 / -1;
   }
+  .footnote-version { color: #fff; }
 </style>
 </head>
 <body>
@@ -1730,6 +1781,10 @@
       <div class="stat">
         <span class="stat-label">CREDITS</span>
         <span class="stat-value" id="credits">250</span>
+      </div>
+      <div class="stat">
+        <span class="stat-label">VOUCHERS</span>
+        <span class="stat-value" id="vouchers" style="color: var(--cyan);">0</span>
       </div>
       <div class="stat ore-stat" id="oreStatWrap" tabindex="0">
         <span class="stat-label">CARGO</span>
@@ -2103,7 +2158,7 @@
         </svg>
         <span class="activity-name">MINING</span>
       </span>
-      <span class="activity-desc">Extract ore from the belt. Passive, reliable, slow.</span>
+      <span class="activity-desc" id="miningActivityDesc">Extract ore from the belt. Passive, reliable, slow.</span>
     </button>
 
     <button class="activity-btn" data-activity="bounty">
@@ -2154,35 +2209,6 @@
       <div class="captain-subtab-content" id="skillsSubtab">
         <div class="captain-stats">
           <div class="stat-row">
-            <span class="stat-icon-label stat-color-bounty">
-              <svg class="stat-action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
-                <circle cx="12" cy="12" r="7.5"/>
-                <line x1="12" y1="1" x2="12" y2="6"/>
-                <line x1="12" y1="18" x2="12" y2="23"/>
-                <line x1="1" y1="12" x2="6" y2="12"/>
-                <line x1="18" y1="12" x2="23" y2="12"/>
-              </svg>
-              PILOTING
-            </span>
-            <span id="statPil">0</span><svg class="skill-star bronze" id="starPil" viewBox="0 0 24 24"><path d="M12 1.5l3.09 6.26 6.91 1.0-5 4.87 1.18 6.88L12 17.27l-6.18 3.25L7 13.63l-5-4.87 6.91-1.0z"/></svg>
-          </div>
-          <div class="skill-xp-track"><div class="skill-xp-fill bounty" id="skillXpFillPil"></div></div>
-
-          <div class="stat-row">
-            <span class="stat-icon-label stat-color-piracy">
-              <svg class="stat-action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round">
-                <path d="M12 2.5c-4.7 0-7.8 3.3-7.8 7.5 0 2.7 1.4 4.6 2.8 5.9v2.4c0 .8.6 1.4 1.4 1.4h.6v-1.8h1.4v1.8h2.2v-1.8h1.4v1.8h.6c.8 0 1.4-.6 1.4-1.4v-2.4c1.4-1.3 2.8-3.2 2.8-5.9 0-4.2-3.1-7.5-7.8-7.5Z"/>
-                <circle cx="9" cy="10.5" r="1.5" fill="currentColor" stroke="none"/>
-                <circle cx="15" cy="10.5" r="1.5" fill="currentColor" stroke="none"/>
-                <path d="M11 13.2 L10.2 15 L11.4 15Z" fill="currentColor" stroke="none"/>
-              </svg>
-              COMBAT
-            </span>
-            <span id="statCmb">0</span><svg class="skill-star bronze" id="starCmb" viewBox="0 0 24 24"><path d="M12 1.5l3.09 6.26 6.91 1.0-5 4.87 1.18 6.88L12 17.27l-6.18 3.25L7 13.63l-5-4.87 6.91-1.0z"/></svg>
-          </div>
-          <div class="skill-xp-track"><div class="skill-xp-fill piracy" id="skillXpFillCmb"></div></div>
-
-          <div class="stat-row">
             <span class="stat-icon-label stat-color-trading">
               <svg class="stat-action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
                 <ellipse cx="12" cy="17.5" rx="7" ry="2.6"/>
@@ -2200,11 +2226,40 @@
               <svg class="stat-action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M5 9 L12 3 L19 9 M12 3 L18 20"/>
               </svg>
-              ENGINEERING
+              PROSPECTING
             </span>
-            <span id="statEng">0</span><svg class="skill-star bronze" id="starEng" viewBox="0 0 24 24"><path d="M12 1.5l3.09 6.26 6.91 1.0-5 4.87 1.18 6.88L12 17.27l-6.18 3.25L7 13.63l-5-4.87 6.91-1.0z"/></svg>
+            <span id="statProspect">0</span><svg class="skill-star bronze" id="starProspect" viewBox="0 0 24 24"><path d="M12 1.5l3.09 6.26 6.91 1.0-5 4.87 1.18 6.88L12 17.27l-6.18 3.25L7 13.63l-5-4.87 6.91-1.0z"/></svg>
           </div>
-          <div class="skill-xp-track"><div class="skill-xp-fill mining" id="skillXpFillEng"></div></div>
+          <div class="skill-xp-track"><div class="skill-xp-fill mining" id="skillXpFillProspect"></div></div>
+
+          <div class="stat-row">
+            <span class="stat-icon-label stat-color-bounty">
+              <svg class="stat-action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+                <circle cx="12" cy="12" r="7.5"/>
+                <line x1="12" y1="1" x2="12" y2="6"/>
+                <line x1="12" y1="18" x2="12" y2="23"/>
+                <line x1="1" y1="12" x2="6" y2="12"/>
+                <line x1="18" y1="12" x2="23" y2="12"/>
+              </svg>
+              SECURITY
+            </span>
+            <span id="statSec">0</span><svg class="skill-star bronze" id="starSec" viewBox="0 0 24 24"><path d="M12 1.5l3.09 6.26 6.91 1.0-5 4.87 1.18 6.88L12 17.27l-6.18 3.25L7 13.63l-5-4.87 6.91-1.0z"/></svg>
+          </div>
+          <div class="skill-xp-track"><div class="skill-xp-fill bounty" id="skillXpFillSec"></div></div>
+
+          <div class="stat-row">
+            <span class="stat-icon-label stat-color-piracy">
+              <svg class="stat-action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round">
+                <path d="M12 2.5c-4.7 0-7.8 3.3-7.8 7.5 0 2.7 1.4 4.6 2.8 5.9v2.4c0 .8.6 1.4 1.4 1.4h.6v-1.8h1.4v1.8h2.2v-1.8h1.4v1.8h.6c.8 0 1.4-.6 1.4-1.4v-2.4c1.4-1.3 2.8-3.2 2.8-5.9 0-4.2-3.1-7.5-7.8-7.5Z"/>
+                <circle cx="9" cy="10.5" r="1.5" fill="currentColor" stroke="none"/>
+                <circle cx="15" cy="10.5" r="1.5" fill="currentColor" stroke="none"/>
+                <path d="M11 13.2 L10.2 15 L11.4 15Z" fill="currentColor" stroke="none"/>
+              </svg>
+              SKULLDUGGERY
+            </span>
+            <span id="statSkull">0</span><svg class="skill-star bronze" id="starSkull" viewBox="0 0 24 24"><path d="M12 1.5l3.09 6.26 6.91 1.0-5 4.87 1.18 6.88L12 17.27l-6.18 3.25L7 13.63l-5-4.87 6.91-1.0z"/></svg>
+          </div>
+          <div class="skill-xp-track"><div class="skill-xp-fill piracy" id="skillXpFillSkull"></div></div>
         </div>
 
         <div class="ore-section-label">PERKS</div>
@@ -2213,16 +2268,62 @@
 
       <div class="captain-subtab-content" id="standingSubtab" style="display:none;">
         <div class="faction-row">
-          <span>Merchant Consortium — <b id="repMerchantVal">50</b></span>
-          <div class="rep-track"><div class="rep-fill amber" id="repMerchant" style="width:50%"></div></div>
+          <div class="faction-name-row">
+            <svg class="faction-icon theme-trading" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+              <ellipse cx="12" cy="17.5" rx="7" ry="2.6"/>
+              <ellipse cx="12" cy="13" rx="7" ry="2.6"/>
+              <ellipse cx="12" cy="8.5" rx="7" ry="2.6"/>
+            </svg>
+            <span class="faction-name theme-trading" title="The Mercantile Guild controls licensed trade routes, commodity exchanges, and commercial arbitration across settled space. Reputation is gained through profitable contracts and fair dealing, while smuggling, price manipulation, and abandoned deliveries earn its hostility.">The Mercantile Guild</span>
+          </div>
+          <div class="rep-track">
+            <div class="rep-fill" id="repMerchant" style="width:50%"></div>
+            <span class="rep-overlay-value" id="repMerchantVal">0</span>
+          </div>
         </div>
         <div class="faction-row">
-          <span>Sector Authority — <b id="repAuthorityVal">50</b></span>
-          <div class="rep-track"><div class="rep-fill cyan" id="repAuthority" style="width:50%"></div></div>
+          <div class="faction-name-row">
+            <svg class="faction-icon theme-mining" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M5 9 L12 3 L19 9 M12 3 L18 20"/>
+            </svg>
+            <span class="faction-name theme-mining" title="The Deep-Space Consortium manages mining claims, refinery stations, industrial contracts, and heavy engineering projects. Extracting valuable resources and maintaining industrial infrastructure improves reputation, while claim jumping and sabotaging mining operations provoke retaliation.">The Deep-Space Consortium</span>
+          </div>
+          <div class="rep-track">
+            <div class="rep-fill" id="repConsortium" style="width:50%"></div>
+            <span class="rep-overlay-value" id="repConsortiumVal">0</span>
+          </div>
         </div>
         <div class="faction-row">
-          <span>Free Fleets — <b id="repFreeVal">20</b></span>
-          <div class="rep-track"><div class="rep-fill crimson" id="repFree" style="width:20%"></div></div>
+          <div class="faction-name-row">
+            <svg class="faction-icon theme-bounty" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+              <circle cx="12" cy="12" r="7.5"/>
+              <line x1="12" y1="1" x2="12" y2="6"/>
+              <line x1="12" y1="18" x2="12" y2="23"/>
+              <line x1="1" y1="12" x2="6" y2="12"/>
+              <line x1="18" y1="12" x2="23" y2="12"/>
+            </svg>
+            <span class="faction-name theme-bounty" title="The Sector Authority maintains military patrols, station security, and anti-piracy operations throughout civilized systems. Capturing wanted criminals and defending civilian ships builds reputation, while piracy and attacks on lawful vessels quickly turn the Authority against you.">The Sector Authority</span>
+          </div>
+          <div class="rep-track">
+            <div class="rep-fill" id="repAuthority" style="width:50%"></div>
+            <span class="rep-overlay-value" id="repAuthorityVal">0</span>
+          </div>
+          <div class="faction-sub-note">This sector's standing — Sector Authority is tracked per-sector, not galaxy-wide.</div>
+        </div>
+        <div class="faction-row">
+          <div class="faction-name-row">
+            <svg class="faction-icon theme-piracy" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round">
+              <path d="M12 2.5c-4.7 0-7.8 3.3-7.8 7.5 0 2.7 1.4 4.6 2.8 5.9v2.4c0 .8.6 1.4 1.4 1.4h.6v-1.8h1.4v1.8h2.2v-1.8h1.4v1.8h.6c.8 0 1.4-.6 1.4-1.4v-2.4c1.4-1.3 2.8-3.2 2.8-5.9 0-4.2-3.1-7.5-7.8-7.5Z"/>
+              <circle cx="9" cy="10.5" r="1.5" fill="currentColor" stroke="none"/>
+              <circle cx="15" cy="10.5" r="1.5" fill="currentColor" stroke="none"/>
+              <path d="M11 13.2 L10.2 15 L11.4 15Z" fill="currentColor" stroke="none"/>
+            </svg>
+            <span class="faction-name theme-piracy" title="No charter, no capital, no law but what a captain can enforce with a full magazine — the Free Fleets are what's left when you strip away every flag and license and just take what the void will let you keep. Ruthless, successful raids build a reputation worth having; hesitation, mercy toward the wrong ship, or talking to the Authority gets a captain marked as a liability.">The Free Fleets</span>
+          </div>
+          <div class="rep-track">
+            <div class="rep-fill" id="repFree" style="width:50%"></div>
+            <span class="rep-overlay-value" id="repFreeVal">0</span>
+          </div>
         </div>
       </div>
 
@@ -2306,6 +2407,7 @@
           <button class="station-tab" data-tab="equipment" id="tabEquipment">EQUIPMENT</button>
         </div>
         <button class="black-market-btn" id="blackMarketBtn" data-tab="blackmarket" style="display:none;">BLACK MARKET</button>
+        <button class="sector-authority-btn" id="sectorAuthorityBtn" data-tab="sectorauthority" style="display:none;">SECTOR AUTHORITY OFFICE</button>
 
         <div class="station-tab-content" id="shipyardTab">
           <div class="depot-credits">
@@ -2366,6 +2468,25 @@
           <div class="ore-section-label">SALVAGE</div>
           <button id="fencePlunderBtn">FENCE PLUNDER — <span id="plunderRateLabel">5</span>cr/unit</button>
           <div class="equip-note">No questions asked here — this is the only place Plunder ever gets fenced.</div>
+        </div>
+
+        <div class="station-tab-content" id="sectorAuthorityTab" style="display:none;">
+          <div class="depot-credits">
+            <span class="depot-credits-label">CREDITS</span>
+            <span class="depot-credits-value" id="sectorAuthorityCredits">250</span>
+          </div>
+
+          <div class="ore-section-label">VOUCHER SHOP — <span id="voucherCountLabel">0</span> held</div>
+          <button id="sellVouchersBtn">SELL ALL VOUCHERS — <span id="voucherSellValue">0</span>cr</button>
+          <button id="convertVouchersBtn">CONVERT 15 VOUCHERS → 10 REP</button>
+          <div class="equip-note">Vouchers sell for 30cr each, or convert at a much better rate toward this sector's Sector Authority standing.</div>
+
+          <div class="ore-section-label">ENVOY'S OFFICE</div>
+          <button id="envoyMerchantBtn" data-faction="merchant">RAISE MERCANTILE GUILD REP (+10) — 10,000cr</button>
+          <button id="envoyConsortiumBtn" data-faction="consortium">RAISE DEEP-SPACE CONSORTIUM REP (+10) — 10,000cr</button>
+          <button id="envoyAuthorityBtn" data-faction="authority" title="Unlike the other three factions, this raises the galaxy-wide Sector Authority baseline — every sector's standing goes up by the same amount at once, not just this one.">RAISE SECTOR AUTHORITY REP (+10) — 10,000cr</button>
+          <button id="envoyFreefleetsBtn" data-faction="freefleets">RAISE FREE FLEETS REP (+10) — 10,000cr</button>
+          <div class="equip-note">Sector Authority purchases raise the galaxy-wide baseline, not just this sector — hover the button for details.</div>
         </div>
 
         <div class="station-tab-content" id="depotTab" style="display:none;">
@@ -2476,7 +2597,7 @@
       <button id="newGameBtn" class="danger">NEW GAME</button>
       <input type="file" id="importFileInput" accept=".json,application/json" style="display:none;">
     </div>
-    STARFARER — design mockup · not a full game, illustrates the core allocation loop
+    <span class="footnote-version">STARFARER V36.3 — design mockup · not a full game, illustrates the core allocation loop</span>
   </div>
 </div>
 
@@ -2504,6 +2625,7 @@
     ingots: { copper: 0, iron: 0, silver: 0, gold: 0 },
     cargoCapacity: 50,
     plunder: 0,
+    vouchers: 0,
     fuel: 10,
     fuelCapacity: 10,
     hull: 25,
@@ -2534,7 +2656,7 @@
     weaponCost: 700,
     dockingComputerOwned: false,
     jumpDriveOwned: false,
-    warpCells: 0,
+    warpCells: 1,
     warpCellCapacity: 1,
     activityUpgrades: {
       trading: { speed: false, yield: false },
@@ -2548,8 +2670,8 @@
     captain: {
       name: 'Rhea Okonkwo',
       avatarIndex: null,
-      pil: 0, cmb: 0, neg: 0, eng: 0,
-      skillXP: { pil: 0, cmb: 0, neg: 0, eng: 0 },
+      sec: 0, skull: 0, neg: 0, prospect: 0,
+      skillXP: { sec: 0, skull: 0, neg: 0, prospect: 0 },
       overallLevel: 0,
       overallXP: 0,
       perks: [],
@@ -2559,7 +2681,8 @@
     pendingPerkExcluded: [],
     pendingPerkQueue: 0,
     stardate: 2276.5,
-    rep: { merchant: 50, authority: 50, freefleets: 20 }
+    rep: { merchant: 0, freefleets: 0, consortium: 0 },
+    sectorAuthorityBaseline: 0,
   };
 
   // Per-skill XP is earned from the profit of that skill's governing activity, not from a
@@ -2567,7 +2690,7 @@
   // grows when ingots are sold, so there's no run-ending financial trap: dumping raw ore
   // for cash never trades off against captain progression.
   const XP_PER_CREDIT = 0.2; // 1 skill XP per 5cr of profit
-  const SKILL_LABELS = { pil: 'Piloting', cmb: 'Combat', neg: 'Negotiation', eng: 'Engineering' };
+  const SKILL_LABELS = { sec: 'Security', skull: 'Skullduggery', neg: 'Negotiation', prospect: 'Prospecting' };
   function skillXPNeeded(level) { return Math.round(20 * Math.pow(1.4, level)); }
 
   // Overall Captain Level is derived from total skill level-ups across all 4 skills (each
@@ -2581,14 +2704,14 @@
     { id: 'silver_tongue', name: 'Silver Tongue', desc: 'One charge: the first failed trade leg rerolls, keeping the second roll. Recharges on docking.' },
     { id: 'careful_miner', name: 'Careful Miner', desc: 'When cargo fills during Mining, automatically dock (if a station exists) or hold position.' },
     { id: 'prototype_stealth', name: 'Prototype Stealth Systems', desc: 'Any hull damage has a 60% chance to be avoided entirely — the ship goes undetected.' },
-    { id: 'bounty_instinct', name: 'Bounty Instinct', desc: 'A bounty target escaping never costs Sector Authority reputation.' },
+    { id: 'bounty_instinct', name: 'Bounty Instinct', desc: 'A Critical Failure on a bounty contract never costs Sector Authority reputation.' },
     { id: 'docking_master', name: 'Docking Master', desc: 'Docking and undocking are always instant. Retires the Docking Computer from sale.' },
     { id: 'sector_knowledge', name: 'Sector Knowledge', desc: 'Sector Traits are always visible, for every sector, without buying a map.' },
     { id: 'old_contact', name: 'Old Contact', desc: 'Free Fleets plunder-fencing rate has a guaranteed floor.' },
     { id: 'master_haggler', name: 'Master Haggler', desc: 'Station buy-side markups are capped, scaling tighter with your Negotiation skill.' },
     { id: 'lucky', name: 'Lucky', desc: 'Small flat chance per tick/leg to instantly double that action\'s output.' },
-    { id: 'speed_smelting', name: 'Speed Smelting', desc: 'Smelting time drops with your Engineering skill — max skill smelts in 0.1s.' },
-    { id: 'diplomat', name: 'Diplomat', desc: 'Piracy no longer damages Merchant Consortium or Sector Authority reputation.' },
+    { id: 'speed_smelting', name: 'Speed Smelting', desc: 'Smelting time is halved on top of the normal Prospecting speed bonus everyone gets.' },
+    { id: 'diplomat', name: 'Diplomat', desc: 'Any time an action would cost reputation, chance to negate it entirely = 10% per Negotiation level (100% at Negotiation 10). Unlimited uses.' },
     { id: 'quick_retreat', name: 'Quick Retreat', desc: 'One charge: hull hitting 0 is set to 1 instead and the ship rests, keeping any Plunder. Recharges on docking.' }
   ];
   const CHARGEABLE_PERKS = ['silver_tongue', 'quick_retreat'];
@@ -2625,6 +2748,11 @@
   const DOCKING_COMPUTER_COST = 1200;
   const JUMP_DRIVE_COST = 1500;
   const WARP_CELL_COST = 2500;
+  const VOUCHER_SELL_RATE = 30;
+  const VOUCHER_TO_REP_COST = 15;
+  const VOUCHER_TO_REP_GAIN = 10;
+  const ENVOY_REP_COST = 10000;
+  const ENVOY_REP_GAIN = 10;
   const ACTIVITY_UPGRADE_COST = { speed: 800, yield: 900 };
 
   // Sector generation strategy: archetype-first trait ranges (sectors stay legible at a
@@ -2723,6 +2851,11 @@
     const arc = SECTOR_ARCHETYPES[n.archetype];
     n.economy = rollTraitByDepth(rand, arc.economyRange[0], arc.economyRange[1], n.depth, PINWHEEL_DEPTH);
     n.ore = rollTraitByDepth(rand, arc.oreRange[0], arc.oreRange[1], n.depth, PINWHEEL_DEPTH);
+    // Negative Ore Richness is no longer graduated — anything that would have rolled below
+    // -1 clamps to exactly -1, which now means one specific thing: no minable ore in this
+    // sector at all (Mining is disabled here entirely, see updateActivityButtons/"NO
+    // ASTEROIDS"), rather than a spectrum of "somewhat bad" to "very bad" mining.
+    if (n.ore < -1) n.ore = -1;
     n.threat = rollTraitByDepth(rand, arc.threatRange[0], arc.threatRange[1], n.depth, PINWHEEL_DEPTH);
     // Dangerous frontier space tends to be unclaimed and mineral-rich, but also
     // stationless — nobody's built civilian infrastructure somewhere this hazardous.
@@ -2892,7 +3025,7 @@
     const map = generateSectorMap(seed);
     SECTORS = {};
     map.nodes.forEach(n => {
-      SECTORS[n.id] = { name: n.name, desc: n.desc, archetype: n.archetype, economy: n.economy, ore: n.ore, threat: n.threat, stationType: n.stationType, stationName: n.stationName, arm: n.arm, depth: n.depth, mapped: false };
+      SECTORS[n.id] = { name: n.name, desc: n.desc, archetype: n.archetype, economy: n.economy, ore: n.ore, threat: n.threat, stationType: n.stationType, stationName: n.stationName, arm: n.arm, depth: n.depth, mapped: false, authorityRep: 0 };
     });
     state.sectorGraph = { edges: map.edges };
     state.mapSeed = seed;
@@ -2964,6 +3097,13 @@
     state.dockProcess = null;
     state.transit = null;
     SECTOR_DISTANCES = computeSectorDistances();
+    // A new galaxy means a fresh reputation slate — every faction, galaxy-wide and the
+    // Sector Authority baseline alike. Per-sector Sector Authority components reset
+    // automatically since SECTORS is rebuilt from scratch above (each new sector starts
+    // authorityRep: 0). The player is warned about this in the confirmation dialog before
+    // this function is ever reached.
+    state.rep = { merchant: 0, freefleets: 0, consortium: 0 };
+    state.sectorAuthorityBaseline = 0;
   }
 
   function isAdjacentSector(a, b) {
@@ -3015,7 +3155,7 @@
       label: 'MINING OPERATION — Threnody Belt, Node 7',
       accent: 'mining',
       risky: false,
-      threatPenalized: true,
+      threatPenalized: false,
       lines: [
         'Mining laser cycling steady. {crew} is watching the vein readouts.',
         'Sensor sweep clear. Continuing extraction.',
@@ -3025,14 +3165,14 @@
     bounty: {
       label: 'BOUNTY CONTRACT — Tracking target: "Vex the Hollow"',
       accent: 'bounty',
-      resource: 'credits',
+      resource: 'vouchers',
       base: 30,
-      statKey: 'pil',
+      statKey: 'sec',
       statSlope: 3,
       sectorKey: 'threat',
       sectorSlope: 5,
       upgradeSlope: 12,
-      risky: true,
+      risky: false,
       threatPenalized: false,
       combat: true,
       lines: [
@@ -3048,7 +3188,7 @@
       accent: 'piracy',
       resource: 'plunder',
       base: 40,
-      statKey: 'cmb',
+      statKey: 'skull',
       statSlope: 3,
       sectorKey: 'threat',
       sectorSlope: 6,
@@ -3097,11 +3237,21 @@
     return state.captain.perks.indexOf('lucky') !== -1 && Math.random() < 0.08;
   }
   function currentSmeltDurationMs() {
+    // Prospecting speeds up smelting for everyone as a base mechanic (Build 036 follow-up)
+    // — previously this only worked at all with the Speed Smelting perk equipped, and even
+    // then referenced a variable name left over from the pre-rename skill keys, which would
+    // have thrown an error the moment anyone actually tried to use it.
+    const prospect = state.captain.prospect;
+    let duration = Math.round(SMELT_DURATION_MS - (prospect / 10) * (SMELT_DURATION_MS - 400));
+    // Speed Smelting was originally a further multiplier on the *same* Prospecting value
+    // driving the line above — meaning at 0 Prospecting it provided literally zero benefit
+    // (verified: 1000ms either way), gating the perk's value behind already having the
+    // skill it's meant to complement. Changed to a flat 50% reduction on top of whatever
+    // the base duration already is, so it's worth taking at any skill level.
     if (state.captain.perks.indexOf('speed_smelting') !== -1) {
-      const eng = state.captain.eng;
-      return Math.round(SMELT_DURATION_MS - (eng / 10) * (SMELT_DURATION_MS - 100));
+      duration = Math.round(duration * 0.5);
     }
-    return SMELT_DURATION_MS;
+    return Math.max(100, duration);
   }
 
   const MINING_FLAVOR = {
@@ -3123,12 +3273,9 @@
     ]
   };
 
-  const RISK_EVENTS = {
-    bounty: [
-      { text: 'Target got a shot off before capitulating.', repShift: { authority: 1 } },
-      { text: 'Target escaped into an asteroid field. Contract voided.', repShift: { authority: -2 }, noReward: true }
-    ]
-  };
+  // RISK_EVENTS retired in Build 036 Phase 4 — Bounty Hunting now has its own dedicated
+  // 4-tier resolver (resolveBountyTick), same as Piracy. This was the last activity still
+  // using the generic risk-event system.
 
   const BANNER_INFO = {
     standby: { text: 'STANDBY — NO ACTIVE OPERATION', color: 'var(--text-dim)' },
@@ -3256,6 +3403,7 @@
     if (!state.sector) return; // game hasn't started yet — still on the ship-select screen
     el('shipName').textContent = 'S.S. ' + (state.shipName || 'WAYWARD').toUpperCase();
     el('credits').textContent = fmt(state.credits);
+    el('vouchers').textContent = fmt(state.vouchers);
     el('ore').textContent = fmt(totalCargoUsed()) + '/' + fmt(state.cargoCapacity);
     if (state.fuelCapacity <= 19) {
       el('fuelBarWrap').style.display = 'none';
@@ -3291,11 +3439,11 @@
     }
     el('captainRankName').textContent = RANK_NAMES[state.captain.overallLevel] || 'Unranked';
 
-    el('statPil').textContent = state.captain.pil;
-    el('statCmb').textContent = state.captain.cmb;
+    el('statSec').textContent = state.captain.sec;
+    el('statSkull').textContent = state.captain.skull;
     el('statNeg').textContent = state.captain.neg;
-    el('statEng').textContent = state.captain.eng;
-    [['Pil', 'pil'], ['Cmb', 'cmb'], ['Neg', 'neg'], ['Eng', 'eng']].forEach(([tag, key]) => {
+    el('statProspect').textContent = state.captain.prospect;
+    [['Sec', 'sec'], ['Skull', 'skull'], ['Neg', 'neg'], ['Prospect', 'prospect']].forEach(([tag, key]) => {
       const level = state.captain[key];
       const fillEl = el('skillXpFill' + tag);
       if (level >= 10) {
@@ -3320,12 +3468,24 @@
       }).join('');
     }
 
-    el('repMerchantVal').textContent = Math.round(state.rep.merchant);
-    el('repAuthorityVal').textContent = Math.round(state.rep.authority);
-    el('repFreeVal').textContent = Math.round(state.rep.freefleets);
-    el('repMerchant').style.width = state.rep.merchant + '%';
-    el('repAuthority').style.width = state.rep.authority + '%';
-    el('repFree').style.width = state.rep.freefleets + '%';
+    function renderRepBar(valId, barId, value) {
+      el(valId).textContent = Math.round(value);
+      const pct = ((value - REP_MIN) / (REP_MAX - REP_MIN)) * 100;
+      el(barId).style.width = pct + '%';
+      const barEl = el(barId);
+      barEl.classList.remove('rep-red', 'rep-orange', 'rep-grey', 'rep-blue', 'rep-purple');
+      let band;
+      if (value < -360) band = 'rep-red';
+      else if (value < -120) band = 'rep-orange';
+      else if (value < 120) band = 'rep-grey';
+      else if (value < 360) band = 'rep-blue';
+      else band = 'rep-purple';
+      barEl.classList.add(band);
+    }
+    renderRepBar('repMerchantVal', 'repMerchant', state.rep.merchant);
+    renderRepBar('repConsortiumVal', 'repConsortium', state.rep.consortium);
+    renderRepBar('repFreeVal', 'repFree', state.rep.freefleets);
+    renderRepBar('repAuthorityVal', 'repAuthority', effectiveAuthorityRep(state.sector));
 
     document.querySelectorAll('.captain-subtab').forEach(btn => {
       btn.classList.toggle('active', btn.dataset.subtab === state.activeCaptainSubtab);
@@ -3476,6 +3636,15 @@
     el('plunderRateLabel').textContent = plunderRate.toFixed(1);
     el('fencePlunderBtn').disabled = state.plunder < 1 || !state.docked || !state.sector || SECTORS[state.sector].stationType !== 'pirate';
 
+    el('voucherCountLabel').textContent = fmt(state.vouchers);
+    el('voucherSellValue').textContent = fmt(state.vouchers * VOUCHER_SELL_RATE);
+    el('sellVouchersBtn').disabled = state.vouchers < 1 || !state.docked;
+    el('convertVouchersBtn').disabled = state.vouchers < 15 || !state.docked;
+    ['Merchant', 'Consortium', 'Authority', 'Freefleets'].forEach(cap => {
+      el('envoy' + cap + 'Btn').disabled = state.credits < ENVOY_REP_COST || !state.docked;
+    });
+    el('sectorAuthorityCredits').textContent = fmt(state.credits);
+
     el('depotCredits').textContent = fmt(state.credits);
     el('shipyardCredits').textContent = fmt(state.credits);
     el('equipmentCredits').textContent = fmt(state.credits);
@@ -3506,10 +3675,17 @@
       el('currentActivity').style.color = 'var(--text-dim)';
     }
 
+    const noAsteroids = state.sector && SECTORS[state.sector] && SECTORS[state.sector].ore === -1;
     document.querySelectorAll('.activity-btn:not(.dock-btn)').forEach(btn => {
       btn.classList.toggle('active', btn.dataset.activity === state.activity);
-      btn.disabled = !!state.transit || !!state.dockProcess || state.docked || !!state.tradeRun || perkSelectionActive();
+      let disabled = !!state.transit || !!state.dockProcess || state.docked || !!state.tradeRun || perkSelectionActive();
+      if (btn.dataset.activity === 'mining' && noAsteroids) disabled = true;
+      btn.disabled = disabled;
     });
+    el('miningActivityDesc').textContent = noAsteroids
+      ? 'NO ASTEROIDS — nothing worth mining in this sector.'
+      : 'Extract ore from the belt. Passive, reliable, slow.';
+    el('miningActivityDesc').classList.toggle('no-asteroids', noAsteroids);
     el('restBtn').classList.toggle('active', state.activity === null && !state.transit && !state.docked && !state.dockProcess && !state.tradeRun);
     el('restBtn').disabled = !!state.transit || !!state.dockProcess || state.docked || !!state.tradeRun || perkSelectionActive();
 
@@ -3689,7 +3865,9 @@
       totalReturned: 0,
       legMs: legMs,
       startAt: Date.now(),
-      totalMs: legMs * TRADE_LEG_COUNT
+      totalMs: legMs * TRADE_LEG_COUNT,
+      successCount: 0,
+      failCount: 0
     };
     closeTradeInvestOverlay();
     updateBanner('trading');
@@ -3723,9 +3901,14 @@
 
     let legReturn;
     if (total >= TRADE_DC) {
+      run.successCount += 1;
       let pct = tier.maxPct * (0.5 + Math.random() * 0.5);
       if (state.activityUpgrades.trading.yield) pct = Math.min(0.9, pct * 2);
-      let profit = run.legAmount * pct * distanceEarningsMultiplier(state.sector);
+      // Merchant Guild standing inflates or deflates the payout within the same run it's
+      // measured — a modest ±15% swing across the full -600..600 range, centered on 1.0x
+      // at neutral rep. Previously rep had no effect on trading payout at all.
+      const merchantMultiplier = 1 + (state.rep.merchant / REP_MAX) * 0.15;
+      let profit = run.legAmount * pct * distanceEarningsMultiplier(state.sector) * merchantMultiplier;
       if (luckyProc()) {
         profit *= 2;
         addLog('A lucky break doubles that leg\'s take. — Lucky', 'trading');
@@ -3734,10 +3917,51 @@
       grantSkillXP('neg', profit);
       addLog('Leg ' + legNum + '/' + TRADE_LEG_COUNT + ': the deal closes at a ' + (pct * 100).toFixed(1) + '% markup. (d20 ' + d20 + '+' + bonus + ' vs DC ' + TRADE_DC + ')', 'trading');
     } else {
+      run.failCount += 1;
+      const isCritFail = d20 === 1;
       const pct = Math.max(0.02, tier.maxPct * (0.08 + Math.random() * 0.27));
       const loss = run.legAmount * pct;
       legReturn = run.legAmount - loss;
       addLog('Leg ' + legNum + '/' + TRADE_LEG_COUNT + ': the deal sours — lost ' + (pct * 100).toFixed(1) + '% of that leg. (d20 ' + d20 + '+' + bonus + ' vs DC ' + TRADE_DC + ')', 'risk');
+
+      // Ambush risk (Build 036 follow-up) — this used to live in the shared tick function,
+      // but Trading never actually ran through that function, so it was silently dead
+      // code. Now gated to failed legs specifically: a regular failure rolls the normal
+      // ambushChance() odds; a critical failure (natural 1 on the d20) guarantees an
+      // ambush at double damage, matching how every other activity treats its worst tier.
+      const ambushRoll = isCritFail || Math.random() < ambushChance();
+      if (ambushRoll) {
+        let ambushDmg = rollDistanceDamage(state.sector);
+        if (isCritFail) ambushDmg *= 2;
+        if (ambushDmg > 0 && state.captain.perks.indexOf('prototype_stealth') !== -1) {
+          const stealthRoll = Math.floor(Math.random() * 20) + 1;
+          if (stealthRoll >= 8) {
+            addLog('Stealth systems held — the ship went undetected. (d20 ' + stealthRoll + ' vs DC 8) — Prototype Stealth Systems', 'system');
+            ambushDmg = 0;
+          }
+        }
+        state.hull = Math.max(0, state.hull - ambushDmg);
+        if (ambushDmg > 0) {
+          addLog((isCritFail ? 'A critical misjudgment leaves the convoy exposed — raiders hit hard. ' : 'Raiders spotted the exposed convoy. ') + '(' + ambushDmg + ' hull damage)', 'risk');
+        }
+
+        if (state.hull <= 0) {
+          // handleQuickRetreat() was built for the shared activity-tick system and doesn't
+          // know about Trading's separate leg timer — even if it saves the ship, it won't
+          // stop tradeRunTimer, which would keep firing legs in an inconsistent state
+          // (state.activity null, but the run still running). So regardless of whether the
+          // perk saves the ship, the run itself ends here; Quick Retreat only changes
+          // whether the ship survives to see the result.
+          const retreated = handleQuickRetreat();
+          if (!retreated) {
+            addLog(resolveLogTemplate('Hull integrity critical — {crew} pulls back from the line before she comes apart. Repair before redeploying.'), 'risk');
+          }
+          run.totalReturned += legReturn;
+          run.legsCompleted += 1;
+          completeTradeRun();
+          return;
+        }
+      }
     }
 
     run.totalReturned += legReturn;
@@ -3756,6 +3980,17 @@
     state.credits += run.totalReturned;
     const net = run.totalReturned - run.totalInvested;
     addLog("Captain's log. Route closed — " + fmt(run.totalReturned) + 'cr back in the hold (' + (net >= 0 ? '+' : '') + fmt(net) + 'cr net).', net >= 0 ? 'trading' : 'risk');
+
+    const lean = run.successCount - run.failCount;
+    if (lean !== 0) {
+      const dice = Math.abs(lean);
+      let repRoll = 0;
+      for (let i = 0; i < dice; i++) repRoll += Math.floor(Math.random() * 4) + 1;
+      const repChange = lean > 0 ? repRoll : -repRoll;
+      shiftRep({ merchant: repChange });
+      addLog('Route record with the Mercantile Guild: ' + run.successCount + ' good legs, ' + run.failCount + ' bad. (' + (repChange >= 0 ? '+' : '') + repChange + ' rep)', repChange >= 0 ? 'trading' : 'risk');
+    }
+
     state.tradeRun = null;
     state.activity = null;
     updateBanner(null);
@@ -3796,6 +4031,7 @@
   function updateStationPanel() {
     const noStation = state.sector && SECTORS[state.sector].stationType === 'none';
     const atPirateStation = state.docked && state.sector && SECTORS[state.sector].stationType === 'pirate';
+    const atNormalStation = state.docked && state.sector && SECTORS[state.sector].stationType === 'normal';
     el('stationName').textContent = state.docked ? state.dockedStationName : (noStation ? 'NO SPACE DOCK' : 'UNDOCKED');
     el('stationContent').classList.toggle('locked', !state.docked);
     el('stationLockOverlay').classList.toggle('hidden', state.docked);
@@ -3806,6 +4042,10 @@
     el('blackMarketBtn').classList.toggle('active', state.activeStationTab === 'blackmarket');
     if (!atPirateStation && state.activeStationTab === 'blackmarket') state.activeStationTab = 'shipyard';
 
+    el('sectorAuthorityBtn').style.display = atNormalStation ? 'block' : 'none';
+    el('sectorAuthorityBtn').classList.toggle('active', state.activeStationTab === 'sectorauthority');
+    if (!atNormalStation && state.activeStationTab === 'sectorauthority') state.activeStationTab = 'shipyard';
+
     document.querySelectorAll('.station-tab').forEach(btn => {
       btn.classList.toggle('active', btn.dataset.tab === state.activeStationTab);
     });
@@ -3813,6 +4053,7 @@
     el('depotTab').style.display = state.activeStationTab === 'depot' ? 'block' : 'none';
     el('equipmentTab').style.display = state.activeStationTab === 'equipment' ? 'block' : 'none';
     el('blackMarketTab').style.display = state.activeStationTab === 'blackmarket' ? 'block' : 'none';
+    el('sectorAuthorityTab').style.display = state.activeStationTab === 'sectorauthority' ? 'block' : 'none';
   }
 
   function setStationTab(tab) {
@@ -4095,7 +4336,11 @@
 
   function currentPlunderRate() {
     const floor = state.captain.perks.indexOf('old_contact') !== -1 ? 4 : 2;
-    return Math.max(floor, 5 + (state.rep.freefleets - 50) * 0.04) * 2;
+    // Rescaled for the -600..600 rep range (Build 036 Phase 3) — preserves the exact same
+    // ±2 swing around the base rate of 5 that the old 0-100-scale formula produced; only
+    // the mapping from rep value to that swing changed. Old Contact's floor is a minimum
+    // on the output rate, not rep-scale-dependent, so it needed no change here.
+    return Math.max(floor, 5 + (state.rep.freefleets / 600) * 2) * 2;
   }
 
   // Station buy-side prices (upgrades, repairs, sensors, fuel, refining) scale with the
@@ -4150,22 +4395,117 @@
     return Math.min(0.3, sector.threat * 0.05);
   }
 
-  function resolveMiningRoll() {
-    const sector = SECTORS[state.sector];
-    const base = Math.floor(Math.random() * 100) + 1; // d100
-    let modifier = state.captain.eng * MINING_ENG_SLOPE
-      + sector.ore * MINING_RICHNESS_SLOPE
-      + (state.upgradeLevel - 1) * MINING_UPGRADE_SLOPE;
-    if (state.shipBonusActivity === 'mining') {
-      modifier += state.shipBonusAmount;
+  // Richness-weighted ore tier table (Build 036 Mining rewrite) — replaces the old
+  // DC-chart roll entirely. Richness 0 is the base table; each +1 shifts weight away from
+  // Copper toward the higher tiers. Richness is clamped 0-5 here since -1 ("no ore") is
+  // handled upstream by disabling Mining entirely before this ever gets called.
+  const ORE_RICHNESS_TABLES = {
+    0: [0.40, 0.30, 0.20, 0.10],
+    1: [0.30, 0.40, 0.20, 0.10],
+    2: [0.20, 0.40, 0.25, 0.15],
+    3: [0.10, 0.40, 0.30, 0.20],
+    4: [0.00, 0.40, 0.30, 0.30],
+    5: [0.00, 0.30, 0.30, 0.40]
+  };
+  function rollOreTierByRichness(richness) {
+    const weights = ORE_RICHNESS_TABLES[Math.max(0, Math.min(5, richness))];
+    const roll = Math.random();
+    let cumulative = 0;
+    for (let i = 0; i < ORE_TIERS.length; i++) {
+      cumulative += weights[i];
+      if (roll < cumulative) return ORE_TIERS[i];
     }
-    const roll = base + modifier;
+    return ORE_TIERS[ORE_TIERS.length - 1];
+  }
 
-    let awarded = ORE_TIERS[0];
-    for (const tier of ORE_TIERS) {
-      if (roll >= tier.dc) awarded = tier;
+  // Prospecting + the ship's mining bonus (if any) give a modest chance at a bonus unit,
+  // independent of which tier the outcome roll landed on.
+  function miningBonusUnits(skillAndShip) {
+    const bonusChance = Math.min(0.5, skillAndShip * 0.03);
+    return Math.random() < bonusChance ? 1 : 0;
+  }
+
+  // Mining's 4-tier resolution (Build 036 follow-up) — mirrors Piracy/Bounty's shape, but
+  // scales off Prospecting + ship bonus only (no rep, no sector Threat), with a 50/50
+  // Success/Failure base at zero skill+bonus, per explicit design direction. Ore *tier* is
+  // decided separately by sector Richness (above) — skill and ship bonus affect whether
+  // you succeed and how much you get, not which ore you get.
+  function resolveMiningTick() {
+    const sector = SECTORS[state.sector];
+    const conf = ACTIVITIES.mining;
+    const shipBonus = state.shipBonusActivity === 'mining' ? state.shipBonusAmount : 0;
+    const skillAndShip = state.captain.prospect + shipBonus;
+    const failFactor = Math.max(0, 1 - skillAndShip / 20);
+    const failChance = 45 * failFactor;
+
+    const r = Math.random() * 100;
+    let tier;
+    if (r < 5) tier = 'critSuccess';
+    else if (r < 5 + failChance) tier = 'failure';
+    else if (r < 5 + failChance + 5) tier = 'critFailure';
+    else tier = 'success';
+
+    if (tier === 'critFailure') {
+      let dmg = rollDistanceDamage(state.sector);
+      if (dmg > 0 && state.captain.perks.indexOf('prototype_stealth') !== -1) {
+        const stealthRoll = Math.floor(Math.random() * 20) + 1;
+        if (stealthRoll >= 8) {
+          addLog('Stealth systems held — the ship went undetected. (d20 ' + stealthRoll + ' vs DC 8) — Prototype Stealth Systems', 'system');
+          dmg = 0;
+        }
+      }
+      state.hull = Math.max(0, state.hull - dmg);
+      shiftRep({ authority: -10, consortium: -10 });
+      addLog('A support strut gives way mid-extraction — no ore this pass, and the mess draws unwanted attention. (' + dmg + ' hull damage)', 'risk');
+
+      if (state.hull <= 0) {
+        if (handleQuickRetreat()) return;
+        state.activity = null;
+        updateBanner(null);
+        addLog(resolveLogTemplate('Hull integrity critical — {crew} pulls back from the line before she comes apart. Repair before redeploying.'), 'risk');
+        render();
+        stopTicking();
+        return;
+      }
+    } else if (tier === 'failure') {
+      addLog('Sensor sweep clear, but the seam\'s already tapped out. Nothing this pass.', 'mining');
+    } else {
+      const oreTier = rollOreTierByRichness(sector.ore);
+      let units = tier === 'critSuccess' ? 2 : 1;
+      units += miningBonusUnits(skillAndShip);
+      if (state.activityUpgrades.mining.yield) units *= 2;
+      let miningLucky = false;
+      if (luckyProc()) { units *= 2; miningLucky = true; }
+      units = Math.max(1, Math.round(units * distanceEarningsMultiplier(state.sector)));
+
+      const cargoUsed = totalCargoUsed();
+      if (cargoUsed + units > state.cargoCapacity) {
+        addLog('No room left in the hold (' + fmt(cargoUsed) + '/' + fmt(state.cargoCapacity) + ') — that ' + oreTier.label.toLowerCase() + ' ore spills back into the belt.', 'risk');
+      } else {
+        state.ore[oreTier.key] += units;
+        if (miningLucky) addLog('A rich seam turns up right where you were about to give up. — Lucky', 'mining');
+        const pool = MINING_FLAVOR[oreTier.key];
+        const line = resolveLogTemplate(pool[Math.floor(Math.random() * pool.length)]);
+        addLog(line + '  (+' + units + ' ' + oreTier.label + ')', conf.accent);
+
+        shiftRep({ consortium: tier === 'critSuccess' ? 10 : 5 });
+
+        const newCargoUsed = cargoUsed + units;
+        if (state.captain.perks.indexOf('careful_miner') !== -1 && newCargoUsed >= state.cargoCapacity) {
+          if (SECTORS[state.sector].stationType !== 'none') {
+            addLog('Hold\'s full to the seams — calling it and heading in to dock. — Careful Miner', 'system');
+            startDocking();
+          } else {
+            addLog('Hold\'s full, but there\'s nowhere to dock out here — holding position. — Careful Miner', 'system');
+            state.activity = null;
+            updateBanner(null);
+            stopTicking();
+          }
+        }
+      }
     }
-    return { tier: awarded, roll, base, modifier };
+
+    render();
   }
 
   function grantSkillXP(skillKey, profitCredits) {
@@ -4265,10 +4605,32 @@
     render();
   }
 
+  const REP_MIN = -600, REP_MAX = 600;
+
+  // Sector Authority is the one faction tracked per-sector rather than galaxy-wide: a
+  // galaxy-wide baseline (raised only by Envoy's Office purchases) plus each sector's own
+  // earned component (moved by actions taken there). Effective rep at any sector is the
+  // sum, clamped to the same -600..600 range as every other faction.
+  function effectiveAuthorityRep(sectorId) {
+    const sector = SECTORS[sectorId];
+    const earned = (sector && sector.authorityRep) || 0;
+    return Math.max(REP_MIN, Math.min(REP_MAX, state.sectorAuthorityBaseline + earned));
+  }
+
+  function shiftAuthorityBaseline(amount) {
+    state.sectorAuthorityBaseline = Math.max(REP_MIN, Math.min(REP_MAX, state.sectorAuthorityBaseline + amount));
+  }
+
   function shiftRep(shifts) {
     for (const key in shifts) {
-      const map = { merchant: 'merchant', authority: 'authority', freefleets: 'freefleets' };
-      state.rep[map[key]] = Math.max(0, Math.min(100, state.rep[map[key]] + shifts[key]));
+      if (key === 'authority') {
+        const sector = SECTORS[state.sector];
+        if (!sector) continue;
+        sector.authorityRep = Math.max(REP_MIN, Math.min(REP_MAX, sector.authorityRep + shifts[key]));
+        continue;
+      }
+      if (state.rep[key] === undefined) continue;
+      state.rep[key] = Math.max(REP_MIN, Math.min(REP_MAX, state.rep[key] + shifts[key]));
     }
   }
 
@@ -4290,10 +4652,42 @@
   // either makes Authority patrols more likely to find you); Success absorbs whatever's
   // left. Maxed Authority rep (100) makes Failure impossible regardless of plunder held —
   // a fully-trusted captain is untouchable, by design.
+  function diplomatSaves() {
+    if (state.captain.perks.indexOf('diplomat') === -1) return false;
+    const chance = Math.min(100, state.captain.neg * 10);
+    return Math.random() * 100 < chance;
+  }
+
+  // Piracy's per-tier reputation effects: Free Fleets gains on the two success tiers,
+  // every other faction takes a loss on every tier (worse on the failure tiers) — except
+  // Critical Failure's Authority hit, which lands on the galaxy-wide baseline rather than
+  // just the current sector, since a raid gone that badly wrong is a bigger, more lasting
+  // black mark than routine local friction. Diplomat, if owned, rolls once per event to
+  // try to save the whole loss bundle at once — it never blocks the Free Fleets gain.
+  function applyPiracyRepEffects(tier) {
+    const freeFleetsGain = { critSuccess: 10, success: 5, failure: 0, critFailure: 0 }[tier];
+    const nonFFLoss = { critSuccess: 2, success: 4, failure: 8, critFailure: 10 }[tier];
+
+    if (freeFleetsGain > 0) shiftRep({ freefleets: freeFleetsGain });
+
+    if (nonFFLoss > 0) {
+      if (diplomatSaves()) {
+        addLog('Diplomat smooths it over — reputation losses avoided this time. — Diplomat', 'system');
+      } else {
+        shiftRep({ merchant: -nonFFLoss, consortium: -nonFFLoss });
+        if (tier === 'critFailure') {
+          shiftAuthorityBaseline(-nonFFLoss);
+        } else {
+          shiftRep({ authority: -nonFFLoss });
+        }
+      }
+    }
+  }
+
   function resolvePiracyTick() {
     const conf = ACTIVITIES.piracy;
     const plunderFactor = Math.min(state.plunder, 2000) / 2000;
-    const repFactor = (100 - state.rep.authority) / 100;
+    const repFactor = (REP_MAX - effectiveAuthorityRep(state.sector)) / (REP_MAX - REP_MIN);
     const failPct = 35 * plunderFactor * repFactor;
 
     const r = Math.random() * 100;
@@ -4316,7 +4710,7 @@
       state.plunder = Math.min(state.plunder + amount, maxPlunder);
       const actuallyGained = state.plunder - before;
 
-      grantSkillXP('cmb', actuallyGained);
+      grantSkillXP('skull', actuallyGained);
       if (piracyLucky) addLog('A lucky break doubles the take this round. — Lucky', 'piracy');
 
       if (actuallyGained < amount - 0.5) {
@@ -4330,6 +4724,7 @@
       addLog(line + '  (+' + fmt(actuallyGained) + ' plunder)', 'piracy');
     } else {
       let dmg = rollDistanceDamage(state.sector);
+      dmg = Math.max(1, dmg - state.captain.skull);
       if (tier === 'critFailure') dmg *= 2;
 
       if (dmg > 0 && state.captain.perks.indexOf('prototype_stealth') !== -1) {
@@ -4366,11 +4761,84 @@
       }
     }
 
-    if (state.captain.perks.indexOf('diplomat') !== -1) {
-      shiftRep({ freefleets: 0.8 });
+    applyPiracyRepEffects(tier);
+    render();
+  }
+
+  // Bounty Hunting's 4-tier resolution, mirroring Piracy's structure. Vouchers (not
+  // credits) are the reward — they get turned in at the Sector Authority Office (built in
+  // a later phase) for credits or rep, which is where Bounty's actual reputation
+  // connection to the Sector Authority lives. Only Critical Failure has a direct
+  // reputation effect (a loss), matching the confirmed design — no routine per-tick rep
+  // gain on success, unlike Piracy's direct Free Fleets gain.
+  function resolveBountyTick() {
+    const conf = ACTIVITIES.bounty;
+    const skillFactor = 1 - state.captain.sec / 20;
+    const repFactor = (REP_MAX - effectiveAuthorityRep(state.sector)) / (REP_MAX - REP_MIN);
+    const failPct = 35 * skillFactor * repFactor;
+
+    const r = Math.random() * 100;
+    let tier;
+    if (r < 5) tier = 'critSuccess';
+    else if (r < 5 + failPct) tier = 'failure';
+    else if (r < 5 + failPct + 5) tier = 'critFailure';
+    else tier = 'success';
+
+    if (tier === 'success' || tier === 'critSuccess') {
+      const depth = sectorDistance(state.sector);
+      const diceCount = depth + 1;
+      let vouchersGained = 0;
+      for (let i = 0; i < diceCount; i++) vouchersGained += Math.floor(Math.random() * 6) + 1;
+      if (tier === 'critSuccess') vouchersGained *= 2;
+      let bountyLucky = false;
+      if (luckyProc()) { vouchersGained *= 2; bountyLucky = true; }
+
+      state.vouchers += vouchersGained;
+      grantSkillXP('sec', vouchersGained);
+      if (bountyLucky) addLog('A lucky break doubles the take this round. — Lucky', 'bounty');
+
+      const linePool = tier === 'critSuccess'
+        ? ['Clean capture — {crew} has the target in irons before they even see it coming.', 'Textbook hunt. {captain} radios it in early.', "Perfect intercept — {crew} calls it the easiest bounty in weeks."]
+        : conf.lines;
+      const line = resolveLogTemplate(linePool[Math.floor(Math.random() * linePool.length)]);
+      addLog(line + '  (+' + fmt(vouchersGained) + ' vouchers)', 'bounty');
     } else {
-      shiftRep({ freefleets: 0.8, merchant: -0.4, authority: -0.3 });
+      let dmg = rollDistanceDamage(state.sector);
+      dmg = Math.max(1, dmg - state.captain.sec);
+      if (tier === 'critFailure') dmg *= 3;
+
+      if (dmg > 0 && state.captain.perks.indexOf('prototype_stealth') !== -1) {
+        const stealthRoll = Math.floor(Math.random() * 20) + 1;
+        if (stealthRoll >= 8) {
+          addLog('Stealth systems held — the ship went undetected. (d20 ' + stealthRoll + ' vs DC 8) — Prototype Stealth Systems', 'system');
+          dmg = 0;
+        }
+      }
+      state.hull = Math.max(0, state.hull - dmg);
+
+      if (tier === 'critFailure') {
+        const repLoss = Math.floor(Math.random() * 6) + 1 + 3; // 1d6+3
+        if (state.captain.perks.indexOf('bounty_instinct') !== -1) {
+          addLog('Authority patrol intercepts the hunt — the botched contract costs no standing this time. (' + dmg + ' hull damage) — Bounty Instinct', 'risk');
+        } else {
+          shiftRep({ authority: -repLoss });
+          addLog('The target turns the tables — the botched contract costs ' + repLoss + ' Sector Authority standing. (' + dmg + ' hull damage)', 'risk');
+        }
+      } else {
+        addLog('The target puts up a real fight. (' + dmg + ' hull damage)', 'risk');
+      }
+
+      if (state.hull <= 0) {
+        if (handleQuickRetreat()) return;
+        state.activity = null;
+        updateBanner(null);
+        addLog(resolveLogTemplate('Hull integrity critical — {crew} pulls back from the line before she comes apart. Repair before redeploying.'), 'risk');
+        render();
+        stopTicking();
+        return;
+      }
     }
+
     render();
   }
 
@@ -4384,42 +4852,17 @@
       resolvePiracyTick();
       return;
     }
-
-    // existing risk-event system, now bounty-only (piracy has its own resolver above)
-    if (conf.risky && Math.random() < 0.28) {
-      const pool = RISK_EVENTS[state.activity];
-      const event = pool[Math.floor(Math.random() * pool.length)];
-
-      let dmg = rollDistanceDamage(state.sector);
-      if (dmg > 0 && state.captain.perks.indexOf('prototype_stealth') !== -1) {
-        const stealthRoll = Math.floor(Math.random() * 20) + 1;
-        if (stealthRoll >= 8) {
-          addLog('Stealth systems held — the ship went undetected. (d20 ' + stealthRoll + ' vs DC 8) — Prototype Stealth Systems', 'system');
-          dmg = 0;
-        }
-      }
-      state.hull = Math.max(0, state.hull - dmg);
-
-      let repShift = event.repShift;
-      if (state.activity === 'bounty' && event.noReward && state.captain.perks.indexOf('bounty_instinct') !== -1) {
-        repShift = Object.assign({}, repShift, { authority: 0 });
-      }
-      shiftRep(repShift);
-      addLog(event.text + ' (' + dmg + ' hull damage)', 'risk');
-      if (event.noReward) blocked = true;
-
-      if (state.hull <= 0) {
-        if (handleQuickRetreat()) return;
-        state.activity = null;
-        updateBanner(null);
-        addLog(resolveLogTemplate('Hull integrity critical — {crew} pulls back from the line before she comes apart. Repair before redeploying.'), 'risk');
-        render();
-        stopTicking();
-        return;
-      }
+    if (state.activity === 'bounty') {
+      resolveBountyTick();
+      return;
+    }
+    if (state.activity === 'mining') {
+      resolveMiningTick();
+      return;
     }
 
-    // sector-threat-driven ambush risk for Trading/Mining
+    // sector-threat-driven ambush risk — Trading only now (Mining has its own dedicated
+    // resolver above, same as Piracy/Bounty)
     if (conf.threatPenalized && Math.random() < ambushChance()) {
       const event = AMBUSH_EVENTS[Math.floor(Math.random() * AMBUSH_EVENTS.length)];
       let ambushDmg = rollDistanceDamage(state.sector);
@@ -4443,60 +4886,6 @@
         return;
       }
     }
-
-    if (!blocked) {
-      if (state.activity === 'mining') {
-        const result = resolveMiningRoll();
-        let units = state.activityUpgrades.mining.yield ? 2 : 1;
-        let miningLucky = false;
-        if (luckyProc()) { units *= 2; miningLucky = true; }
-        units = Math.max(1, Math.round(units * distanceEarningsMultiplier(state.sector)));
-
-        const cargoUsed = totalCargoUsed();
-        if (cargoUsed + units > state.cargoCapacity) {
-          addLog('No room left in the hold (' + fmt(cargoUsed) + '/' + fmt(state.cargoCapacity) + ') — that ' + result.tier.label.toLowerCase() + ' ore spills back into the belt.', 'risk');
-        } else {
-          state.ore[result.tier.key] += units;
-          if (miningLucky) addLog('A rich seam turns up right where you were about to give up. — Lucky', 'mining');
-          const pool = MINING_FLAVOR[result.tier.key];
-          const line = resolveLogTemplate(pool[Math.floor(Math.random() * pool.length)]);
-          addLog(line + '  (+' + units + ' ' + result.tier.label + ')', conf.accent);
-
-          const newCargoUsed = cargoUsed + units;
-          if (state.captain.perks.indexOf('careful_miner') !== -1 && newCargoUsed >= state.cargoCapacity) {
-            if (SECTORS[state.sector].stationType !== 'none') {
-              addLog('Hold\'s full to the seams — calling it and heading in to dock. — Careful Miner', 'system');
-              startDocking();
-            } else {
-              addLog('Hold\'s full, but there\'s nowhere to dock out here — holding position. — Careful Miner', 'system');
-              state.activity = null;
-              updateBanner(null);
-              stopTicking();
-            }
-          }
-        }
-      } else {
-        const yieldMult = state.activityUpgrades[state.activity].yield ? 2 : 1;
-        let amount = computeRoll(state.activity) * yieldMult * distanceEarningsMultiplier(state.sector);
-        if (luckyProc()) {
-          amount *= 2;
-          addLog('A lucky break doubles the take this round. — Lucky', conf.accent);
-        }
-        state[conf.resource] += amount;
-        grantSkillXP(state.activity === 'bounty' ? 'pil' : 'cmb', amount);
-
-        const line = resolveLogTemplate(conf.lines[Math.floor(Math.random() * conf.lines.length)]);
-        const unitLabel = conf.resource === 'plunder' ? ' plunder' : ' cr';
-        addLog(line + '  (+' + (conf.resource === 'credits' ? fmt(amount) : fmt(amount)) + unitLabel + ')', conf.accent);
-      }
-
-      // reputation drift from routine activity
-      if (state.activity === 'trading') shiftRep({ merchant: 0.6 });
-      if (state.activity === 'bounty') shiftRep({ authority: 0.6 });
-      if (state.activity === 'mining') { /* neutral */ }
-    }
-
-    render();
   }
 
   // Returns timing info for whichever operation currently owns the progress bar,
@@ -4675,6 +5064,7 @@
     btn.addEventListener('click', () => setStationTab(btn.dataset.tab));
   });
   el('blackMarketBtn').addEventListener('click', () => setStationTab('blackmarket'));
+  el('sectorAuthorityBtn').addEventListener('click', () => setStationTab('sectorauthority'));
 
   document.querySelectorAll('.captain-subtab').forEach(btn => {
     btn.addEventListener('click', () => setCaptainSubtab(btn.dataset.subtab));
@@ -4686,7 +5076,7 @@
     state.credits -= cost;
     state.upgradeLevel += 1;
     state.upgradeCost = Math.round(state.upgradeCost * 1.7);
-    state.maxHull += 4;
+    state.maxHull += 5;
     state.hull = Math.min(state.maxHull, state.hull + 4);
     addLog(resolveLogTemplate('Hull systems upgraded to Tier ' + state.upgradeLevel + ' — {crew} says she\'ll hit harder and take more punishment now. (-' + fmt(cost) + 'cr)'), 'system');
     render();
@@ -4855,7 +5245,7 @@
     addLog('Sold ' + parts.join(', ') + ' off the rack — good, clean ingots. (+' + fmt(ingotValue) + 'cr)', 'mining');
 
     state.credits += ingotValue;
-    grantSkillXP('eng', ingotValue);
+    grantSkillXP('prospect', ingotValue);
     ORE_TIERS.forEach(tier => { state.ingots[tier.key] = 0; });
     render();
   });
@@ -4872,6 +5262,39 @@
     state.credits += payout;
     state.plunder = 0;
     render();
+  });
+
+  el('sellVouchersBtn').addEventListener('click', () => {
+    if (state.vouchers < 1 || !state.docked) return;
+    const payout = state.vouchers * VOUCHER_SELL_RATE;
+    addLog('Vouchers cashed in at the Sector Authority Office — ' + fmt(state.vouchers) + ' vouchers redeemed. (+' + fmt(payout) + 'cr)', 'bounty');
+    state.credits += payout;
+    state.vouchers = 0;
+    render();
+  });
+
+  el('convertVouchersBtn').addEventListener('click', () => {
+    if (state.vouchers < VOUCHER_TO_REP_COST || !state.docked) return;
+    state.vouchers -= VOUCHER_TO_REP_COST;
+    shiftRep({ authority: VOUCHER_TO_REP_GAIN });
+    addLog('Vouchers converted directly to standing with this sector\'s Authority office. (-' + VOUCHER_TO_REP_COST + ' vouchers, +' + VOUCHER_TO_REP_GAIN + ' rep)', 'bounty');
+    render();
+  });
+
+  ['Merchant', 'Consortium', 'Authority', 'Freefleets'].forEach(cap => {
+    el('envoy' + cap + 'Btn').addEventListener('click', () => {
+      if (state.credits < ENVOY_REP_COST || !state.docked) return;
+      state.credits -= ENVOY_REP_COST;
+      const faction = el('envoy' + cap + 'Btn').dataset.faction;
+      if (faction === 'authority') {
+        shiftAuthorityBaseline(ENVOY_REP_GAIN);
+        addLog('Envoy\'s Office payment accepted — the Sector Authority baseline rises galaxy-wide. (-' + fmt(ENVOY_REP_COST) + 'cr, +' + ENVOY_REP_GAIN + ' rep baseline)', 'system');
+      } else {
+        shiftRep({ [faction]: ENVOY_REP_GAIN });
+        addLog('Envoy\'s Office payment accepted — standing improves. (-' + fmt(ENVOY_REP_COST) + 'cr, +' + ENVOY_REP_GAIN + ' rep)', 'system');
+      }
+      render();
+    });
   });
 
   el('oreStatWrap').addEventListener('click', (event) => {
@@ -4931,12 +5354,19 @@
     } else {
       seed = Math.floor(Math.random() * 1e9);
     }
-    state.warpCells -= 1;
-    regenerateMap(seed);
-    addLog('Warp drive engaged — the galaxy reshuffles around the ship. Seed: ' + seed + '. (-1 warp cell)', 'system');
-    renderMapGraph();
-    el('mapSeedValue').textContent = state.mapSeed;
-    render();
+    askConfirm(
+      'WARP TO A NEW GALAXY',
+      'This resets ALL reputation — the Mercantile Guild, Deep-Space Consortium, and Free Fleets standings, plus every sector\'s Sector Authority standing and the galaxy-wide Authority baseline. This cannot be undone.',
+      'WARP ANYWAY',
+      () => {
+        state.warpCells -= 1;
+        regenerateMap(seed);
+        addLog('Warp drive engaged — the galaxy reshuffles around the ship. Seed: ' + seed + '. (-1 warp cell)', 'system');
+        renderMapGraph();
+        el('mapSeedValue').textContent = state.mapSeed;
+        render();
+      }
+    );
   });
 
   /* ===================================================================
@@ -5022,7 +5452,7 @@
 
   const ORE_KEYS = ORE_TIERS.map(t => t.key);
   const ACTIVITY_KEYS = ['trading', 'mining', 'bounty', 'piracy'];
-  const SKILL_KEYS = ['pil', 'cmb', 'neg', 'eng'];
+  const SKILL_KEYS = ['sec', 'skull', 'neg', 'prospect'];
 
   function vOreBag(raw) {
     const out = {};
@@ -5060,6 +5490,7 @@
       },
       state: {
         credits: state.credits,
+        vouchers: state.vouchers,
         ore: state.ore,
         ingots: state.ingots,
         cargoCapacity: state.cargoCapacity,
@@ -5078,6 +5509,10 @@
         dockedStationName: state.dockedStationName,
         activeStationTab: state.activeStationTab,
         mappedSectors: Object.keys(SECTORS).filter(id => SECTORS[id].mapped),
+        sectorAuthorityRepMap: Object.keys(SECTORS).reduce((acc, id) => {
+          if (SECTORS[id].authorityRep) acc[id] = SECTORS[id].authorityRep;
+          return acc;
+        }, {}),
         sensorsCost: state.sensorsCost,
         cargoUpgradeCost: state.cargoUpgradeCost,
         fuelUpgradeCost: state.fuelUpgradeCost,
@@ -5095,6 +5530,7 @@
         captain: state.captain,
         pendingPerkQueue: state.pendingPerkQueue,
         rep: state.rep,
+        sectorAuthorityBaseline: state.sectorAuthorityBaseline,
         // In-flight operations. These are timer-driven and cannot simply be resumed
         // across a reload, so they are settled deterministically on load — see
         // reconcileInFlight().
@@ -5244,6 +5680,7 @@
     const s = data.state;
 
     state.credits = vNum(s.credits, 0, 0, 1e12);
+    state.vouchers = vNum(s.vouchers, 0, 0, 1e12);
     state.ore = vOreBag(s.ore);
     state.ingots = vOreBag(s.ingots);
     state.cargoCapacity = vInt(s.cargoCapacity, 20, 1, 1e6);
@@ -5283,6 +5720,20 @@
     state.shipBonusAmount = vInt(s.shipBonusAmount, 0, 0, 100);
 
     const cap = s.captain || {};
+    // Skill key migration (Build 036): old saves used pil/cmb/eng; renamed to sec/skull/prospect
+    // for thematic consistency with the activities they represent. Map old -> new in place on
+    // the loaded object, before the normal per-key restoration below reads from it, so existing
+    // saves upgrade cleanly instead of silently losing skill progress.
+    const LEGACY_SKILL_KEY_MAP = { pil: 'sec', cmb: 'skull', eng: 'prospect' };
+    Object.keys(LEGACY_SKILL_KEY_MAP).forEach(oldKey => {
+      const newKey = LEGACY_SKILL_KEY_MAP[oldKey];
+      if (cap[oldKey] !== undefined && cap[newKey] === undefined) {
+        cap[newKey] = cap[oldKey];
+      }
+      if (cap.skillXP && cap.skillXP[oldKey] !== undefined && cap.skillXP[newKey] === undefined) {
+        cap.skillXP[newKey] = cap.skillXP[oldKey];
+      }
+    });
     state.captain.name = vStr(cap.name, 'Rhea Okonkwo', 28);
     state.captain.avatarIndex = vInt(cap.avatarIndex, Math.floor(Math.random() * 20) + 1, 1, 20);
     SKILL_KEYS.forEach(key => {
@@ -5300,12 +5751,23 @@
     state.pendingPerkOptions = [];
     state.pendingPerkExcluded = [];
 
+    // Rep scale migration (Build 036): old saves stored rep on a 0-100 scale, Authority
+    // was a single galaxy-wide value, and Deep-Space Consortium didn't exist yet. Detect
+    // an old-format save by the absence of the new sectorAuthorityBaseline field, and
+    // linearly rescale old values (old 50 == new 0, i.e. old-neutral maps to new-neutral)
+    // rather than just resetting everyone's standing to zero on upgrade.
     const rep = s.rep || {};
+    const isLegacyRepScale = s.sectorAuthorityBaseline === undefined;
+    const rescale = (oldVal) => (oldVal - 50) * 12;
     state.rep = {
-      merchant: vNum(rep.merchant, 50, 0, 100),
-      authority: vNum(rep.authority, 50, 0, 100),
-      freefleets: vNum(rep.freefleets, 20, 0, 100)
+      merchant: vNum(isLegacyRepScale && rep.merchant !== undefined ? rescale(rep.merchant) : rep.merchant, 0, REP_MIN, REP_MAX),
+      freefleets: vNum(isLegacyRepScale && rep.freefleets !== undefined ? rescale(rep.freefleets) : rep.freefleets, 0, REP_MIN, REP_MAX),
+      consortium: vNum(rep.consortium, 0, REP_MIN, REP_MAX)
     };
+    state.sectorAuthorityBaseline = vNum(
+      isLegacyRepScale && rep.authority !== undefined ? rescale(rep.authority) : s.sectorAuthorityBaseline,
+      0, REP_MIN, REP_MAX
+    );
 
     // Rebuild the map from its seed. mulberry32 takes any int32, so the seed is coerced
     // rather than range-checked; if it's missing entirely a fresh map is charted and the
@@ -5315,6 +5777,11 @@
     rebuildSectorsFromSeed(seedMissing ? Math.floor(Math.random() * 1e9) : seed);
     if (Array.isArray(s.mappedSectors)) {
       s.mappedSectors.forEach(id => { if (SECTORS[id]) SECTORS[id].mapped = true; });
+    }
+    if (s.sectorAuthorityRepMap && typeof s.sectorAuthorityRepMap === 'object') {
+      Object.keys(s.sectorAuthorityRepMap).forEach(id => {
+        if (SECTORS[id]) SECTORS[id].authorityRep = vNum(s.sectorAuthorityRepMap[id], 0, REP_MIN, REP_MAX);
+      });
     }
 
     const savedSector = typeof s.sector === 'string' ? s.sector : null;
