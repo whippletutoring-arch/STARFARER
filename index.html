@@ -130,6 +130,22 @@
     letter-spacing: 0.04em;
     margin-top: 2px;
   }
+  .auto-repair-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 4px;
+  }
+  .auto-repair-label {
+    font-size: 0.58rem;
+    letter-spacing: 0.03em;
+    color: var(--text-dim);
+    white-space: nowrap;
+  }
+  .auto-repair-row input[type="range"] {
+    width: 70px;
+    accent-color: var(--cyan);
+  }
   .stats { display: flex; align-items: center; gap: 26px; flex-wrap: wrap; }
   .stat { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
   .stat-label {
@@ -554,6 +570,21 @@
      so the sector map / trade-invest / smelt-confirm / perk-select modals — which never
      need to appear over the ship-select screen — are unaffected. */
   #confirmOverlay { z-index: 210; }
+  .game-over-score {
+    text-align: center;
+    font-family: var(--font-hud);
+    font-size: 0.7rem;
+    letter-spacing: 0.1em;
+    color: var(--text-dim);
+    margin: 16px 0;
+  }
+  .game-over-score span {
+    display: block;
+    font-size: 2.2rem;
+    color: var(--crimson);
+    margin-top: 6px;
+    letter-spacing: 0.02em;
+  }
   .map-panel {
     background: var(--bg-panel-raised);
     border: 1px solid var(--border-bright);
@@ -692,6 +723,17 @@
     margin: 2px 4px 2px 0;
     cursor: help;
   }
+  .perk-charge-dot {
+    display: inline-block;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    border: 1.3px solid var(--amber);
+    margin-left: 5px;
+    vertical-align: middle;
+    background: transparent;
+  }
+  .perk-charge-dot.charged { background: var(--green); }
   .map-graph-wrap { margin-bottom: 14px; }
   .map-graph { width: 100%; height: auto; display: block; }
   .map-node-label {
@@ -935,10 +977,30 @@
   /* ---------- CONSOLE (main) ---------- */
   .console { grid-area: main; display: flex; flex-direction: column; }
   .readout {
+    position: relative;
     padding: 18px 22px;
     border-bottom: 1px solid var(--border);
     background: var(--bg-panel-raised);
   }
+  .abort-btn {
+    position: absolute;
+    top: 16px;
+    right: 20px;
+    padding: 6px 16px;
+    border-radius: 6px;
+    border: 1px solid #ff5a5a;
+    background: #4a0e0e;
+    color: #fff;
+    font-family: var(--font-hud);
+    font-size: 0.68rem;
+    font-weight: bold;
+    letter-spacing: 0.12em;
+    cursor: pointer;
+    box-shadow: 0 0 10px 2px rgba(255,60,60,0.55), inset 0 0 8px rgba(255,90,90,0.35);
+    display: none;
+  }
+  .abort-btn.visible { display: block; }
+  .abort-btn:hover { background: #641414; box-shadow: 0 0 14px 3px rgba(255,60,60,0.75), inset 0 0 10px rgba(255,90,90,0.5); }
   .readout-label {
     font-size: 0.65rem;
     letter-spacing: 0.16em;
@@ -1274,6 +1336,23 @@
   }
   #stationContent .sector-authority-btn:hover { background: #1f4874; }
   #stationContent .sector-authority-btn.active { background: #1f4874; box-shadow: 0 0 0 1px #4a9eff; }
+
+  .ship-listing {
+    border: 1px solid var(--border-bright);
+    border-radius: 3px;
+    padding: 8px 10px;
+    margin-bottom: 8px;
+  }
+  .ship-listing-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 4px;
+  }
+  .ship-listing-class { font-family: var(--font-hud); font-size: 0.7rem; letter-spacing: 0.04em; }
+  .ship-listing-tier { font-size: 0.62rem; color: var(--text-dim); }
+  .ship-empty-note { font-size: 0.62rem; color: var(--text-dim); font-style: italic; }
+
 
   .auto-accept-row {
     display: flex;
@@ -1776,6 +1855,10 @@
       <span class="ship-name" id="shipName">S.S. WAYWARD</span>
       <span class="ship-class" id="shipClass">HAULER-CLASS · TIER 1</span>
       <div class="ship-bonus-row" id="shipBonusRow"></div>
+      <div class="auto-repair-row" id="autoRepairRow" style="display:none;">
+        <span class="auto-repair-label">AUTO-REPAIR BELOW <span id="autoRepairValue">30</span>%</span>
+        <input type="range" id="autoRepairSlider" min="10" max="90" step="5" value="30">
+      </div>
     </div>
     <div class="stats">
       <div class="stat">
@@ -2068,6 +2151,23 @@
       <div class="trade-invest-desc" id="confirmDesc">—</div>
       <div class="trade-invest-row">
         <button id="confirmOkBtn">CONFIRM</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="map-overlay" id="gameOverOverlay">
+    <div class="map-panel" style="max-width:460px;">
+      <div class="map-header">
+        <span class="map-title">RUN ENDED</span>
+      </div>
+      <div class="trade-invest-desc">
+        The hull gave out, and there was no credit on file to cover the insurance claim. The underwriters have repossessed what's left of the ship.
+      </div>
+      <div class="game-over-score">
+        FINAL SCORE<br><span id="gameOverScoreValue">0.00</span>
+      </div>
+      <div class="trade-invest-row">
+        <button id="gameOverNewRunBtn">START NEW RUN</button>
       </div>
     </div>
   </div>
@@ -2382,6 +2482,7 @@
   <main class="panel console" style="padding:0;">
     <div class="readout">
       <div class="readout-label">CURRENT OPERATION</div>
+      <button class="abort-btn" id="abortBtn">ABORT</button>
       <div class="readout-activity" id="currentActivity">STANDBY</div>
       <div class="progress-track">
         <div class="progress-fill" id="progressFill"></div>
@@ -2420,6 +2521,13 @@
           <button id="buyFuelBtn">BUY FUEL — <span id="fuelPrice">150</span>cr/unit</button>
           <button id="cargoUpgradeBtn">EXPAND CARGO HOLD (+20) — <span id="cargoUpgradeCost">600</span>cr</button>
           <button id="fuelTankUpgradeBtn">EXPAND FUEL TANK (+5) — <span id="fuelUpgradeCost">400</span>cr</button>
+
+          <div class="ore-section-label">SHIP MARKETPLACE</div>
+          <div id="shipMarketplaceContainer"></div>
+
+          <div class="ore-section-label">TIER UP YOUR SHIP</div>
+          <button id="tierUpBtn">TIER UP — <span id="tierUpCost">1,000,000</span>cr</button>
+          <div class="equip-note" id="tierUpNote">Currently Tier 1.</div>
         </div>
 
         <div class="station-tab-content" id="equipmentTab" style="display:none;">
@@ -2633,7 +2741,7 @@
     activity: null,
     tickMs: 1500,
     tickEndAt: null,
-    upgradeLevel: 1,
+    hullUpgradeLevel: 1,
     upgradeCost: 500,
     sector: null,
     sectorGraph: null,
@@ -2667,6 +2775,13 @@
     shipClassName: null,
     shipBonusActivity: null,
     shipBonusAmount: 0,
+    shipTier: 1,
+    autoRepairThreshold: 30,
+    totalCreditsEarned: 0,
+    tradingAutoReinvestAmount: 0,
+    pendingCarefulMinerAutoSell: false,
+    pendingAutoRepair: false,
+    autoRepairResumeActivity: null,
     captain: {
       name: 'Rhea Okonkwo',
       avatarIndex: null,
@@ -2822,6 +2937,31 @@
     { label: 'Flourishing', maxPct: 0.30 }
   ];
 
+  // Ship marketplace pricing (Build 037) — this table is the price at Economy 4
+  // (Flourishing, the max). Accelerating multipliers between tiers (x10, x12, x15, x20)
+  // so the gaps widen the further up the scale you go, per explicit direction. Lower
+  // Economy sectors scale this down via shipEconomyMultiplier() below.
+  const SHIP_TIER_PRICES = { 1: 100000, 2: 1000000, 3: 12000000, 4: 180000000, 5: 3600000000 };
+
+  // Same table doubles as the cost to tier up your *current* ship at the Shipyard —
+  // going from Tier 2 to Tier 3 costs the same as a Tier 3 ship would sell for.
+  function shipEconomyMultiplier(economyIndex) {
+    return 0.5 + (economyIndex / 4) * 0.5; // 0.5x at Economy 0, 1.0x (full table price) at Economy 4
+  }
+  function shipPriceForTier(tier, economyIndex) {
+    return Math.round(SHIP_TIER_PRICES[tier] * shipEconomyMultiplier(economyIndex));
+  }
+
+  // Weighted toward the sector's maximum possible tier, weight increasing with Economy —
+  // "high Economy has a high chance of Tier 5" without making it guaranteed every listing.
+  // At Economy 0 (maxTier 1) there's nothing to weight; every listing is just Tier 1.
+  function rollShipTier(rand, maxTier, economyIndex) {
+    if (maxTier <= 1) return 1;
+    const topTierChance = 0.15 + economyIndex * 0.1; // 0.15 .. 0.55 across Economy 0-4
+    if (rand() < topTierChance) return maxTier;
+    return 1 + Math.floor(rand() * (maxTier - 1));
+  }
+
   function mulberry32(a) {
     return function () {
       a |= 0; a = (a + 0x6D2B79F5) | 0;
@@ -2975,6 +3115,23 @@
       }
     });
 
+    // Ship marketplace (Build 037) — 2-3 ships for sale at every normal station, fixed at
+    // galaxy generation like everything else here, never restocked. Only normal stations
+    // get a Shipyard at all; Pirate Space Stations lock the whole tab regardless of stock.
+    nodes.forEach(n => {
+      if (n.stationType !== 'normal') { n.shipStock = []; return; }
+      const shipCount = 2 + Math.floor(rand() * 2); // 2 or 3
+      const maxTier = n.economy + 1; // Economy 0-4 -> max tier 1-5
+      const classKeys = ['hauler', 'prospector', 'interceptor', 'raider'];
+      n.shipStock = [];
+      for (let i = 0; i < shipCount; i++) {
+        const tier = rollShipTier(rand, maxTier, n.economy);
+        const classKey = classKeys[Math.floor(rand() * classKeys.length)];
+        const price = shipPriceForTier(tier, n.economy);
+        n.shipStock.push({ classKey, tier, price, sold: false });
+      }
+    });
+
     // Each arm is a guaranteed linear chain from the center out to its tip.
     const edges = [];
     for (let arm = 0; arm < PINWHEEL_ARMS; arm++) {
@@ -3025,7 +3182,7 @@
     const map = generateSectorMap(seed);
     SECTORS = {};
     map.nodes.forEach(n => {
-      SECTORS[n.id] = { name: n.name, desc: n.desc, archetype: n.archetype, economy: n.economy, ore: n.ore, threat: n.threat, stationType: n.stationType, stationName: n.stationName, arm: n.arm, depth: n.depth, mapped: false, authorityRep: 0 };
+      SECTORS[n.id] = { name: n.name, desc: n.desc, archetype: n.archetype, economy: n.economy, ore: n.ore, threat: n.threat, stationType: n.stationType, stationName: n.stationName, arm: n.arm, depth: n.depth, mapped: false, authorityRep: 0, shipStock: n.shipStock };
     });
     state.sectorGraph = { edges: map.edges };
     state.mapSeed = seed;
@@ -3126,7 +3283,7 @@
   const TRADE_LEG_MS = 1000;
 
   function tradingBonus() {
-    return state.captain.neg + (state.upgradeLevel - 1) * TRADE_TIER_SLOPE;
+    return state.captain.neg + (state.hullUpgradeLevel - 1) * TRADE_TIER_SLOPE;
   }
 
   const ACTIVITIES = {
@@ -3464,7 +3621,12 @@
     } else {
       perkWrap.innerHTML = state.captain.perks.map(id => {
         const p = PERKS.find(x => x.id === id);
-        return '<span class="perk-name-tag" title="' + p.desc.replace(/"/g, '&quot;') + '">' + p.name + '</span>';
+        const isChargeable = CHARGEABLE_PERKS.indexOf(id) !== -1;
+        const charged = isChargeable && state.captain.perkCharges[id];
+        const dot = isChargeable
+          ? '<span class="perk-charge-dot' + (charged ? ' charged' : '') + '" title="' + (charged ? 'Ready' : 'Recharges on docking') + '"></span>'
+          : '';
+        return '<span class="perk-name-tag" title="' + p.desc.replace(/"/g, '&quot;') + '">' + p.name + dot + '</span>';
       }).join('');
     }
 
@@ -3514,6 +3676,8 @@
     const displayedFuelPrice = Math.round(FUEL_PRICE * priceMult);
 
     el('upgradeCost').textContent = fmt(displayedUpgradeCost);
+
+    renderShipMarketplace();
     el('upgradeBtn').disabled = state.credits < displayedUpgradeCost || !state.docked;
     el('repairBtn').textContent = 'REPAIR — ' + fmt(displayedRepairCost) + 'cr';
     el('repairBtn').disabled = state.credits < displayedRepairCost || state.hull >= state.maxHull || !state.docked;
@@ -3525,10 +3689,42 @@
     };
     const shipTheme = shipActivityTheme[state.shipBonusActivity] || { color: 'var(--text-primary)', icon: '', label: '' };
     const shipClassLabel = (state.shipClassName || 'HAULER').toUpperCase();
-    el('shipClass').innerHTML = '<span style="color:' + shipTheme.color + '">' + shipClassLabel + '-CLASS</span> · TIER ' + state.upgradeLevel;
+
+    // Tier color-coding (independent of the ship class/action-bonus color above) and a
+    // hover tooltip explaining what that tier does for this ship's specific activity.
+    const TIER_COLORS = { 1: '#8a97a6', 2: '#ffffff', 3: 'var(--green)', 4: '#4a9eff', 5: 'var(--purple)' };
+    const AUTOMATION_TEXT = {
+      trading: {
+        locked: 'No automation yet. At Tier 2, this ship will automatically repair itself when hull runs low, and reinvest the same stake into a new run the moment one completes.',
+        unlocked: 'Automated: repairs itself when hull drops below your threshold, and reinvests the same stake into a new run the moment one completes.'
+      },
+      mining: {
+        locked: 'No automation yet. At Tier 2, with Careful Miner equipped, this ship will automatically repair itself when hull runs low, sell its ore, and resume mining once the hold fills.',
+        unlocked: 'Automated: repairs itself when hull drops below your threshold. With Careful Miner equipped, it also sells ore and resumes mining automatically once the hold fills.'
+      },
+      bounty: {
+        locked: 'No automation yet. At Tier 2, this ship will automatically repair itself and resume the hunt whenever hull drops below your threshold.',
+        unlocked: 'Automated: repairs itself and resumes the hunt automatically whenever hull drops below your threshold.'
+      },
+      piracy: {
+        locked: 'No automation yet. At Tier 2, this ship will automatically repair itself and resume the raid whenever hull drops below your threshold.',
+        unlocked: 'Automated: repairs itself and resumes the raid automatically whenever hull drops below your threshold.'
+      }
+    };
+    const tierColor = TIER_COLORS[state.shipTier] || TIER_COLORS[1];
+    const automation = AUTOMATION_TEXT[state.shipBonusActivity];
+    const tierTooltip = automation ? (state.shipTier >= 2 ? automation.unlocked : automation.locked) : '';
+    el('shipClass').innerHTML = '<span style="color:' + shipTheme.color + '">' + shipClassLabel + '-CLASS</span> · '
+      + '<span style="color:' + tierColor + ';cursor:help;" title="' + tierTooltip.replace(/"/g, '&quot;') + '">TIER ' + state.shipTier + '</span>';
     el('shipBonusRow').innerHTML = state.shipBonusAmount
       ? '<span style="color:' + shipTheme.color + '">' + shipTheme.icon + ' +' + state.shipBonusAmount + ' ' + shipTheme.label + '</span>'
       : '';
+
+    el('autoRepairRow').style.display = state.shipTier >= 2 ? 'flex' : 'none';
+    el('autoRepairValue').textContent = state.autoRepairThreshold;
+    if (document.activeElement !== el('autoRepairSlider')) {
+      el('autoRepairSlider').value = state.autoRepairThreshold;
+    }
 
     el('sensorsCost').textContent = fmt(displayedSensorsCost);
     const curSectorMapped = state.sector && SECTORS[state.sector] && SECTORS[state.sector].mapped;
@@ -3674,6 +3870,7 @@
       el('currentActivity').textContent = 'STANDBY';
       el('currentActivity').style.color = 'var(--text-dim)';
     }
+    el('abortBtn').classList.toggle('visible', !!state.tradeRun || !!activeConf);
 
     const noAsteroids = state.sector && SECTORS[state.sector] && SECTORS[state.sector].ore === -1;
     document.querySelectorAll('.activity-btn:not(.dock-btn)').forEach(btn => {
@@ -3857,6 +4054,7 @@
     }
     state.credits -= investAmount;
     state.activity = 'trading';
+    state.tradingAutoReinvestAmount = investAmount;
     const legMs = state.activityUpgrades.trading.speed ? TRADE_LEG_MS / 2 : TRADE_LEG_MS;
     state.tradeRun = {
       totalInvested: investAmount,
@@ -3946,16 +4144,23 @@
         }
 
         if (state.hull <= 0) {
-          // handleQuickRetreat() was built for the shared activity-tick system and doesn't
-          // know about Trading's separate leg timer — even if it saves the ship, it won't
-          // stop tradeRunTimer, which would keep firing legs in an inconsistent state
-          // (state.activity null, but the run still running). So regardless of whether the
-          // perk saves the ship, the run itself ends here; Quick Retreat only changes
-          // whether the ship survives to see the result.
-          const retreated = handleQuickRetreat();
-          if (!retreated) {
-            addLog(resolveLogTemplate('Hull integrity critical — {crew} pulls back from the line before she comes apart. Repair before redeploying.'), 'risk');
-          }
+          // The trade run always ends here regardless of how (or whether) the ship
+          // survives — Trading's separate leg timer means there's no safe way to let it
+          // keep running after an interruption like this, same reasoning as before. Only
+          // permadeath skips settling the run, since the whole save is about to be wiped.
+          const outcome = handleHullZero();
+          if (outcome === 'permadeath') return;
+          run.totalReturned += legReturn;
+          run.legsCompleted += 1;
+          completeTradeRun();
+          return;
+        }
+        // Below the auto-repair threshold but not dead: same timer-safety issue applies,
+        // so the run ends here too rather than trying to pause mid-leg. completeTradeRun()
+        // already checks the threshold itself and triggers the real repair-and-resume
+        // cycle — this just makes sure a low-hull run doesn't keep grinding through its
+        // remaining legs untouched until something worse happens.
+        if (state.shipTier >= 2 && (state.hull / state.maxHull) * 100 < state.autoRepairThreshold) {
           run.totalReturned += legReturn;
           run.legsCompleted += 1;
           completeTradeRun();
@@ -3978,6 +4183,8 @@
     if (tradeRunTimer) { clearInterval(tradeRunTimer); tradeRunTimer = null; }
     const run = state.tradeRun;
     state.credits += run.totalReturned;
+    const netProfit = run.totalReturned - run.totalInvested;
+    if (netProfit > 0) state.totalCreditsEarned += netProfit;
     const net = run.totalReturned - run.totalInvested;
     addLog("Captain's log. Route closed — " + fmt(run.totalReturned) + 'cr back in the hold (' + (net >= 0 ? '+' : '') + fmt(net) + 'cr net).', net >= 0 ? 'trading' : 'risk');
 
@@ -3996,6 +4203,28 @@
     updateBanner(null);
     render();
     animateProgress();
+
+    // Tier 2+ automation: check auto-repair first (hull might be low after a rough run),
+    // then attempt to reinvest the same stake. If auto-repair triggers, its own resume
+    // hook (completeUndocking) calls attemptAutoReinvest() once the ship is back out,
+    // rather than trying to do both at once.
+    if (!triggerAutoRepair('trading-reinvest')) {
+      attemptAutoReinvest();
+    }
+  }
+
+  // Trading's Tier 2+ automation: reinvest the exact same amount as the run that just
+  // completed. If that exact amount isn't available, automation stops here and the ship
+  // simply sits at Rest — no partial reinvestment, per explicit direction.
+  function attemptAutoReinvest() {
+    if (state.shipTier < 2) return;
+    if (state.tradingAutoReinvestAmount < 1) return;
+    if (state.credits < state.tradingAutoReinvestAmount) {
+      addLog('Not enough credit on hand to reinvest the same stake — holding at rest. — Tier 2 Automation', 'system');
+      return;
+    }
+    addLog('Automated systems reinvest the same stake and cast off again. — Tier 2 Automation', 'system');
+    startTradeRun(state.tradingAutoReinvestAmount);
   }
 
   function updateDockButton() {
@@ -4046,6 +4275,12 @@
     el('sectorAuthorityBtn').classList.toggle('active', state.activeStationTab === 'sectorauthority');
     if (!atNormalStation && state.activeStationTab === 'sectorauthority') state.activeStationTab = 'shipyard';
 
+    // All Shipyard features (repair, hull upgrade, sector map, fuel, ship sales, tier-up)
+    // are inaccessible at Pirate Space Stations — not just ship sales. If the player was
+    // on the Shipyard tab when they arrived here, bump them to Black Market instead.
+    el('tabShipyard').disabled = atPirateStation;
+    if (atPirateStation && state.activeStationTab === 'shipyard') state.activeStationTab = 'blackmarket';
+
     document.querySelectorAll('.station-tab').forEach(btn => {
       btn.classList.toggle('active', btn.dataset.tab === state.activeStationTab);
     });
@@ -4072,6 +4307,40 @@
   }
 
   let dockTimer = null;
+
+  // Universal auto-repair hook (Build 037 Phase 4) — unlocked at Ship Tier 2, applies to
+  // all four activities. Deliberately reuses the *real* docking sequence (startDocking(),
+  // same multi-second process a player triggers manually) rather than an instant fix, for
+  // consistency with how Careful Miner's existing auto-dock already behaves — this is
+  // automation doing what the player would do, not a magic shortcut. Resume behavior for
+  // Mining and Trading specifically builds on top of this in a later phase; this function
+  // just handles the repair itself and, for the simple continuous-tick activities
+  // (Piracy/Bounty), resuming the same activity afterward.
+  function triggerAutoRepair(resumeActivityKey) {
+    if (state.shipTier < 2) return false;
+    if (state.hull <= 0) return false; // handled separately by the existing hull-0/Quick Retreat path
+    const pct = (state.hull / state.maxHull) * 100;
+    if (pct >= state.autoRepairThreshold) return false;
+
+    state.activity = null;
+    stopTicking();
+
+    if (!state.sector || !SECTORS[state.sector] || SECTORS[state.sector].stationType === 'none') {
+      addLog('Hull below the auto-repair threshold, but there\'s nowhere to dock out here — holding position. — Tier 2 Automation', 'risk');
+      return true;
+    }
+    const repairCost = Math.round(100 * sectorPriceMultiplier());
+    if (state.credits < repairCost) {
+      addLog('Hull below the auto-repair threshold, but there\'s not enough credit on file to cover it — holding position. — Tier 2 Automation', 'risk');
+      return true;
+    }
+
+    state.pendingAutoRepair = true;
+    state.autoRepairResumeActivity = resumeActivityKey;
+    addLog('Hull below the auto-repair threshold — automated systems are taking her in. — Tier 2 Automation', 'system');
+    startDocking();
+    return true;
+  }
 
   function startDocking() {
     if (state.docked || state.dockProcess || state.transit || state.tradeRun || perkSelectionActive()) return;
@@ -4123,6 +4392,31 @@
     addLog('Captain\'s log, Stardate ' + state.stardate.toFixed(1) + '. Docked at ' + state.dockedStationName
       + '. ' + randomCrewName() + ' has the deck secured and is already filing the manifest.', 'system');
     if (rechargedAny) addLog('A night at dock and the crew\'s nerve is back — perk charges restored.', 'system');
+
+    let autoActionTaken = false;
+    if (state.pendingAutoRepair) {
+      const repairCost = Math.round(100 * sectorPriceMultiplier());
+      state.credits -= repairCost;
+      state.hull = state.maxHull;
+      state.pendingAutoRepair = false;
+      addLog('Automated repair complete — hull reads full strength. (-' + fmt(repairCost) + 'cr) — Tier 2 Automation', 'system');
+      autoActionTaken = true;
+    }
+    if (state.pendingCarefulMinerAutoSell) {
+      state.pendingCarefulMinerAutoSell = false;
+      const sold = sellAllOre();
+      if (sold > 0) addLog('Hold cleared out and the credits are banked — heading back out. — Tier 2 Automation', 'system');
+      state.autoRepairResumeActivity = 'mining';
+      autoActionTaken = true;
+    }
+    if (autoActionTaken) {
+      updateBanner('docked');
+      render();
+      animateProgress();
+      startUndocking();
+      return;
+    }
+
     updateBanner('docked');
     render();
     animateProgress();
@@ -4164,6 +4458,16 @@
     updateBanner(null);
     render();
     animateProgress();
+
+    if (state.autoRepairResumeActivity) {
+      const resumeKey = state.autoRepairResumeActivity;
+      state.autoRepairResumeActivity = null;
+      if (resumeKey === 'trading-reinvest') {
+        attemptAutoReinvest();
+      } else {
+        setActivity(resumeKey);
+      }
+    }
   }
 
   let smeltTimer = null;
@@ -4371,7 +4675,7 @@
     let roll = conf.base;
     roll += state.captain[conf.statKey] * conf.statSlope;
     roll += sector[conf.sectorKey] * conf.sectorSlope;
-    roll += (state.upgradeLevel - 1) * conf.upgradeSlope;
+    roll += (state.hullUpgradeLevel - 1) * conf.upgradeSlope;
 
     if (conf.combat) {
       roll += state.weaponTier * WEAPON_ROLL_BONUS;
@@ -4459,14 +4763,12 @@
       addLog('A support strut gives way mid-extraction — no ore this pass, and the mess draws unwanted attention. (' + dmg + ' hull damage)', 'risk');
 
       if (state.hull <= 0) {
-        if (handleQuickRetreat()) return;
-        state.activity = null;
-        updateBanner(null);
-        addLog(resolveLogTemplate('Hull integrity critical — {crew} pulls back from the line before she comes apart. Repair before redeploying.'), 'risk');
-        render();
-        stopTicking();
+        const outcome = handleHullZero();
+        if (outcome === 'retreated' || outcome === 'permadeath') return;
+        addLog(resolveLogTemplate('Hull integrity critical, but the insurance claim holds — {crew} pulls back to lick her wounds. Repair before redeploying.'), 'risk');
         return;
       }
+      if (triggerAutoRepair('mining')) { render(); return; }
     } else if (tier === 'failure') {
       addLog('Sensor sweep clear, but the seam\'s already tapped out. Nothing this pass.', 'mining');
     } else {
@@ -4488,12 +4790,17 @@
         const line = resolveLogTemplate(pool[Math.floor(Math.random() * pool.length)]);
         addLog(line + '  (+' + units + ' ' + oreTier.label + ')', conf.accent);
 
-        shiftRep({ consortium: tier === 'critSuccess' ? 10 : 5 });
+        shiftRep({ consortium: rollRepGain(tier === 'critSuccess') });
 
         const newCargoUsed = cargoUsed + units;
         if (state.captain.perks.indexOf('careful_miner') !== -1 && newCargoUsed >= state.cargoCapacity) {
           if (SECTORS[state.sector].stationType !== 'none') {
             addLog('Hold\'s full to the seams — calling it and heading in to dock. — Careful Miner', 'system');
+            // Tier 2+ automation extends Careful Miner's existing auto-dock into a full
+            // loop: sell, undock, resume. Below Tier 2, this still just docks and stops
+            // there, same as it always has — the perk itself is unchanged, only what
+            // happens after docking is new, and only for automated ships.
+            if (state.shipTier >= 2) state.pendingCarefulMinerAutoSell = true;
             startDocking();
           } else {
             addLog('Hold\'s full, but there\'s nowhere to dock out here — holding position. — Careful Miner', 'system');
@@ -4646,6 +4953,46 @@
     return true;
   }
 
+  // Hull hitting 0 (Build 037 Phase 5): Quick Retreat still takes priority as a free save
+  // if it's available. Otherwise, an insurance claim — 30% of the ship's current market
+  // value at its Tier — either saves the ship (hull to 1, matching Quick Retreat's own
+  // survival point) or, if it can't be covered, ends the run entirely. Returns a string
+  // so callers know what happened: 'retreated' and 'permadeath' are both fully handled
+  // already (rendered, logged, everything); only 'insured' expects the caller to still
+  // apply whatever activity-specific consequences (e.g. Piracy's plunder loss) belong
+  // to a ship that survived but took real damage.
+  function handleHullZero() {
+    if (handleQuickRetreat()) return 'retreated';
+
+    const economyIdx = state.sector && SECTORS[state.sector] ? SECTORS[state.sector].economy : 2;
+    const shipValue = shipPriceForTier(state.shipTier, economyIdx);
+    const insuranceCost = Math.round(shipValue * 0.3);
+
+    if (state.credits >= insuranceCost) {
+      state.credits -= insuranceCost;
+      state.hull = 1;
+      state.activity = null;
+      updateBanner(null);
+      addLog('Emergency insurance claim processed — the underwriters aren\'t happy, but the ship is intact. (-' + fmt(insuranceCost) + 'cr)', 'risk');
+      render();
+      stopTicking();
+      return 'insured';
+    }
+
+    triggerPermadeath();
+    return 'permadeath';
+  }
+
+  function triggerPermadeath() {
+    stopTicking();
+    if (dockTimer) { clearInterval(dockTimer); dockTimer = null; }
+    if (smeltTimer) { clearInterval(smeltTimer); smeltTimer = null; }
+    if (tradeRunTimer) { clearInterval(tradeRunTimer); tradeRunTimer = null; }
+    const score = (state.totalCreditsEarned / 1000000).toFixed(2);
+    el('gameOverScoreValue').textContent = score;
+    el('gameOverOverlay').classList.add('open');
+  }
+
   // Piracy: 4-tier outcome roll, replacing the old flat-28%-risk-event system entirely.
   // Critical Success and Critical Failure are fixed at 5% each; Failure scales 0-35% with
   // how much plunder is aboard and how bad Sector Authority reputation is (worse of
@@ -4664,8 +5011,16 @@
   // just the current sector, since a raid gone that badly wrong is a bigger, more lasting
   // black mark than routine local friction. Diplomat, if owned, rolls once per event to
   // try to save the whole loss bundle at once — it never blocks the Free Fleets gain.
+  // Shared 1d6+3 reputation gain, doubled on a critical success — used consistently
+  // across Piracy, Bounty, and Mining's success-tier reputation gains (Build 037 follow-up,
+  // converting Piracy/Mining's old flat +5/+10 values to match Bounty's dice-based one).
+  function rollRepGain(isCrit) {
+    const roll = Math.floor(Math.random() * 6) + 1 + 3;
+    return isCrit ? roll * 2 : roll;
+  }
+
   function applyPiracyRepEffects(tier) {
-    const freeFleetsGain = { critSuccess: 10, success: 5, failure: 0, critFailure: 0 }[tier];
+    const freeFleetsGain = (tier === 'success' || tier === 'critSuccess') ? rollRepGain(tier === 'critSuccess') : 0;
     const nonFFLoss = { critSuccess: 2, success: 4, failure: 8, critFailure: 10 }[tier];
 
     if (freeFleetsGain > 0) shiftRep({ freefleets: freeFleetsGain });
@@ -4746,19 +5101,16 @@
       }
 
       if (state.hull <= 0) {
-        if (handleQuickRetreat()) return;
-        state.activity = null;
-        updateBanner(null);
+        const outcome = handleHullZero();
+        if (outcome === 'retreated' || outcome === 'permadeath') return;
         if (state.plunder > 0) {
           const lost = state.plunder;
           state.plunder = 0;
-          addLog(resolveLogTemplate('Caught by the Authorities — ' + fmt(lost) + ' plunder seized before {crew} could break away.'), 'risk');
+          addLog(resolveLogTemplate('Caught by the Authorities — ' + fmt(lost) + ' plunder seized before the insurance claim went through.'), 'risk');
         }
-        addLog(resolveLogTemplate('Hull integrity critical — {crew} pulls back from the line before she comes apart. Repair before redeploying.'), 'risk');
-        render();
-        stopTicking();
         return;
       }
+      if (triggerAutoRepair('piracy')) { applyPiracyRepEffects(tier); render(); return; }
     }
 
     applyPiracyRepEffects(tier);
@@ -4794,6 +5146,9 @@
       if (luckyProc()) { vouchersGained *= 2; bountyLucky = true; }
 
       state.vouchers += vouchersGained;
+      const repGain = rollRepGain(tier === 'critSuccess');
+      shiftRep({ authority: repGain });
+      addLog('Sector Authority standing rises with the capture. (+' + repGain + ' rep)', 'bounty');
       grantSkillXP('sec', vouchersGained);
       if (bountyLucky) addLog('A lucky break doubles the take this round. — Lucky', 'bounty');
 
@@ -4829,14 +5184,12 @@
       }
 
       if (state.hull <= 0) {
-        if (handleQuickRetreat()) return;
-        state.activity = null;
-        updateBanner(null);
-        addLog(resolveLogTemplate('Hull integrity critical — {crew} pulls back from the line before she comes apart. Repair before redeploying.'), 'risk');
-        render();
-        stopTicking();
+        const outcome = handleHullZero();
+        if (outcome === 'retreated' || outcome === 'permadeath') return;
+        addLog(resolveLogTemplate('Hull integrity critical, but the insurance claim holds — {crew} pulls back to lick her wounds. Repair before redeploying.'), 'risk');
         return;
       }
+      if (triggerAutoRepair('bounty')) { render(); return; }
     }
 
     render();
@@ -5074,11 +5427,11 @@
     const cost = Math.round(state.upgradeCost * sectorPriceMultiplier());
     if (state.credits < cost) return;
     state.credits -= cost;
-    state.upgradeLevel += 1;
+    state.hullUpgradeLevel += 1;
     state.upgradeCost = Math.round(state.upgradeCost * 1.7);
     state.maxHull += 5;
     state.hull = Math.min(state.maxHull, state.hull + 4);
-    addLog(resolveLogTemplate('Hull systems upgraded to Tier ' + state.upgradeLevel + ' — {crew} says she\'ll hit harder and take more punishment now. (-' + fmt(cost) + 'cr)'), 'system');
+    addLog(resolveLogTemplate('Hull systems upgraded — output level ' + state.hullUpgradeLevel + ' — {crew} says she\'ll hit harder and take more punishment now. (-' + fmt(cost) + 'cr)'), 'system');
     render();
   });
 
@@ -5197,9 +5550,9 @@
     render();
   });
 
-  el('sellOreBtn').addEventListener('click', () => {
+  function sellAllOre() {
     const oreValue = ORE_TIERS.reduce((sum, tier) => sum + state.ore[tier.key] * tier.sellRate, 0);
-    if (oreValue < 1) return;
+    if (oreValue < 1) return 0;
 
     const parts = ORE_TIERS
       .filter(tier => state.ore[tier.key] > 0)
@@ -5207,8 +5560,13 @@
     addLog(resolveLogTemplate('Sold ' + parts.join(', ') + ' at the station market — {crew} pockets the receipt. (+' + fmt(oreValue) + 'cr)'), 'trading');
 
     state.credits += oreValue;
+    state.totalCreditsEarned += oreValue;
     ORE_TIERS.forEach(tier => { state.ore[tier.key] = 0; });
-    render();
+    return oreValue;
+  }
+
+  el('sellOreBtn').addEventListener('click', () => {
+    if (sellAllOre() > 0) render();
   });
 
   ORE_TIERS.forEach(tier => {
@@ -5245,9 +5603,22 @@
     addLog('Sold ' + parts.join(', ') + ' off the rack — good, clean ingots. (+' + fmt(ingotValue) + 'cr)', 'mining');
 
     state.credits += ingotValue;
+    state.totalCreditsEarned += ingotValue;
     grantSkillXP('prospect', ingotValue);
     ORE_TIERS.forEach(tier => { state.ingots[tier.key] = 0; });
     render();
+  });
+
+  el('shipMarketplaceContainer').addEventListener('click', (event) => {
+    const btn = event.target.closest('.buy-ship-btn');
+    if (!btn || btn.disabled) return;
+    const idx = parseInt(btn.dataset.shipIndex, 10);
+    buyShip(idx);
+  });
+  el('tierUpBtn').addEventListener('click', tierUpShip);
+  el('autoRepairSlider').addEventListener('input', () => {
+    state.autoRepairThreshold = parseInt(el('autoRepairSlider').value, 10);
+    el('autoRepairValue').textContent = state.autoRepairThreshold;
   });
 
   el('fencePlunderBtn').addEventListener('click', () => {
@@ -5260,6 +5631,7 @@
     const payout = state.plunder * rate;
     addLog('Fenced ' + fmt(state.plunder) + ' plunder through the Free Fleets, no questions asked, at ' + rate.toFixed(1) + 'cr/unit. (+' + fmt(payout) + 'cr)', 'piracy');
     state.credits += payout;
+    state.totalCreditsEarned += payout;
     state.plunder = 0;
     render();
   });
@@ -5269,6 +5641,7 @@
     const payout = state.vouchers * VOUCHER_SELL_RATE;
     addLog('Vouchers cashed in at the Sector Authority Office — ' + fmt(state.vouchers) + ' vouchers redeemed. (+' + fmt(payout) + 'cr)', 'bounty');
     state.credits += payout;
+    state.totalCreditsEarned += payout;
     state.vouchers = 0;
     render();
   });
@@ -5501,7 +5874,7 @@
         maxHull: state.maxHull,
         activity: state.activity,
         bountyTargetName: state.bountyTargetName,
-        upgradeLevel: state.upgradeLevel,
+        hullUpgradeLevel: state.hullUpgradeLevel,
         upgradeCost: state.upgradeCost,
         sector: state.sector,
         mapSeed: state.mapSeed,
@@ -5511,6 +5884,14 @@
         mappedSectors: Object.keys(SECTORS).filter(id => SECTORS[id].mapped),
         sectorAuthorityRepMap: Object.keys(SECTORS).reduce((acc, id) => {
           if (SECTORS[id].authorityRep) acc[id] = SECTORS[id].authorityRep;
+          return acc;
+        }, {}),
+        soldShipsMap: Object.keys(SECTORS).reduce((acc, id) => {
+          const stock = SECTORS[id].shipStock;
+          if (stock && stock.length) {
+            const soldIdx = stock.map((s, i) => s.sold ? i : -1).filter(i => i !== -1);
+            if (soldIdx.length) acc[id] = soldIdx;
+          }
           return acc;
         }, {}),
         sensorsCost: state.sensorsCost,
@@ -5527,6 +5908,10 @@
         shipName: state.shipName,
         shipBonusActivity: state.shipBonusActivity,
         shipBonusAmount: state.shipBonusAmount,
+        shipTier: state.shipTier,
+        autoRepairThreshold: state.autoRepairThreshold,
+        totalCreditsEarned: state.totalCreditsEarned,
+        tradingAutoReinvestAmount: state.tradingAutoReinvestAmount,
         captain: state.captain,
         pendingPerkQueue: state.pendingPerkQueue,
         rep: state.rep,
@@ -5693,7 +6078,12 @@
     state.bountyTargetName = (typeof s.bountyTargetName === 'string' && s.bountyTargetName)
       ? vStr(s.bountyTargetName, '', 40)
       : (state.activity === 'bounty' ? BOUNTY_TARGET_NAMES[Math.floor(Math.random() * BOUNTY_TARGET_NAMES.length)] : null);
-    state.upgradeLevel = vInt(s.upgradeLevel, 1, 1, 999);
+    // Migration (Build 037): upgradeLevel was renamed hullUpgradeLevel to stop conflating
+    // "how many hull upgrades bought" with the new, separate Ship Tier concept. Old saves
+    // only have the old field name — without this, loading one would silently reset hull
+    // upgrade progress to 1 rather than actually losing nothing.
+    const legacyUpgradeLevel = s.hullUpgradeLevel !== undefined ? s.hullUpgradeLevel : s.upgradeLevel;
+    state.hullUpgradeLevel = vInt(legacyUpgradeLevel, 1, 1, 999);
     state.upgradeCost = vInt(s.upgradeCost, 500, 0, 1e12);
     state.sensorsCost = vInt(s.sensorsCost, 800, 0, 1e12);
     state.cargoUpgradeCost = vInt(s.cargoUpgradeCost, 600, 0, 1e12);
@@ -5717,7 +6107,11 @@
     state.shipClassName = vStr(s.shipClassName, 'Hauler', 40);
     state.shipName = vStr(s.shipName, 'WAYWARD', 20);
     state.shipBonusActivity = vPick(s.shipBonusActivity, ACTIVITY_KEYS, null);
-    state.shipBonusAmount = vInt(s.shipBonusAmount, 0, 0, 100);
+    state.shipTier = vInt(s.shipTier, 1, 1, 5);
+    state.autoRepairThreshold = vInt(s.autoRepairThreshold, 30, 10, 90);
+    state.totalCreditsEarned = vNum(s.totalCreditsEarned, 0, 0, 1e15);
+    state.tradingAutoReinvestAmount = vNum(s.tradingAutoReinvestAmount, 0, 0, 1e12);
+    state.shipBonusAmount = vInt(s.shipBonusAmount, state.shipTier * 2, 0, 100);
 
     const cap = s.captain || {};
     // Skill key migration (Build 036): old saves used pil/cmb/eng; renamed to sec/skull/prospect
@@ -5781,6 +6175,13 @@
     if (s.sectorAuthorityRepMap && typeof s.sectorAuthorityRepMap === 'object') {
       Object.keys(s.sectorAuthorityRepMap).forEach(id => {
         if (SECTORS[id]) SECTORS[id].authorityRep = vNum(s.sectorAuthorityRepMap[id], 0, REP_MIN, REP_MAX);
+      });
+    }
+    if (s.soldShipsMap && typeof s.soldShipsMap === 'object') {
+      Object.keys(s.soldShipsMap).forEach(id => {
+        const stock = SECTORS[id] && SECTORS[id].shipStock;
+        if (!stock || !Array.isArray(s.soldShipsMap[id])) return;
+        s.soldShipsMap[id].forEach(idx => { if (stock[idx]) stock[idx].sold = true; });
       });
     }
 
@@ -6002,6 +6403,36 @@
   el('saveNowBtn').addEventListener('click', () => saveGame(false));
   el('exportSaveBtn').addEventListener('click', exportSaveFile);
 
+  el('abortBtn').addEventListener('click', () => {
+    if (state.tradeRun) {
+      const run = state.tradeRun;
+      const unresolved = (TRADE_LEG_COUNT - run.legsCompleted) * run.legAmount;
+      state.credits += unresolved;
+      if (tradeRunTimer) { clearInterval(tradeRunTimer); tradeRunTimer = null; }
+      addLog("Captain's log. Run aborted — " + run.legsCompleted + '/' + TRADE_LEG_COUNT
+        + ' legs settled, the remaining stake returned at cost. (+' + fmt(unresolved) + 'cr)', 'system');
+      state.tradeRun = null;
+      state.activity = null;
+      updateBanner(null);
+      render();
+      animateProgress();
+    } else if (state.activity) {
+      addLog("Captain's log. Standing down from " + state.activity + ' operations on your order.', 'system');
+      state.activity = null;
+      updateBanner(null);
+      stopTicking();
+      render();
+      animateProgress();
+    }
+  });
+
+  el('gameOverNewRunBtn').addEventListener('click', () => {
+    saveSuppressed = true;
+    if (autosaveTimer) { clearTimeout(autosaveTimer); autosaveTimer = null; }
+    storage.remove(SAVE_KEY);
+    window.location.reload();
+  });
+
   el('newGameBtn').addEventListener('click', () => {
     askConfirm(
       'ABANDON THIS RUN',
@@ -6062,6 +6493,110 @@
     19: "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBAUEBAYFBQUGBgYHCQ4JCQgICRINDQoOFRIWFhUSFBQXGiEcFxgfGRQUHScdHyIjJSUlFhwpLCgkKyEkJST/2wBDAQYGBgkICREJCREkGBQYJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCT/wAARCAEOAMgDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwDwWKLP+f8AP/16uRW2e3+f8/lS20Ocf5/z/Sta2ts44/z/AJ/76rnbOSUiilnnt+n+f/r1KLH2/wA/579q2orLI6f5/wA9/wCGrQsOOnr2/p/T+Ko5jJzOc+w+36f0/p3o+wn0/X+v9e3SujNgPQfn/X+vbpS/YPb17f0/9l79aXOHtDm/sPt+n9P6fjR9h9v1/r/X8K6T7APQf99f1/8AZu3Sj7B7f+O/0/8AZfxo5g5zm/sPt+n9P6fjR9hPp+v9f69+ldJ9gHoP++v6/wDs34UfYPb9P6f+y9utHOHOc39h9v0/p/TtSfYT6f5/z3710osBxwO3f+v9e/Sk+we36f0/p/D1o5w9oc59h9v0/wA//WpPsPt/n/P510v2Aen6/wCfz/io+we3+c/5/wB2jnDnOb+w+3+f8/lR9h9v0/z/APXrpPsHt/n/AD/31SfYPb9f6/1/ho5w5znPsPt/n6/17UfYfb9P6f079a6Q2Ht69v6f0/i60GwHoPz/AK/17dKOcOc5v7D7fr/X+vbpR9h9v/Hf6f0/Guk+we3r/D/T/wBl79aPsA9B/wB9f1/9m/CjmD2hzf2H2/X+v9fwpPsPt+n9P6fjXS/YPb/x3+n/ALL+NIbAY6en8X9f/Zu/SjnDnOXezx2/X+v9e/Sq0ltjt+n9P6dq6iWyx2/T+n9O3Ws64tcdv1/r/XvVKRSmc5JFj/P+f/r0VduIcH/P+fw7UVomaJlmzTOPw/z/AJ61v2cIIH+f8/8AstY9iBx/n/P9K6OxUYH+P5f/AFv71ZSZjNly3t/b/P8Ant/FV1bUbe3fv/X+v8PSnWyjHboe/vz/APXP8PatBUGMc9fxz249fQfxdTWLZzuRnm19v0/p6/7P8XWg2ox2xg/xH+fp/tdulaJRcHpjB/i4x359PVv4elBQZ75z6c5x6ev+z3HNK5PMZ32Xnpzn+7znHp6/7PfrR9lGO2Mf3jjH+96f7X4Vo7Vx2xj++cY+vp/tdQeKXYM9859Oc49PX/Z6Y5ouHMZv2Xnpzn+7znHp6/7P40C1GO2MD+I/z9P9rv0rR2r7Y4/jOMfX0/2upPFGwZ75+nOfp6+q9hzRcOYzha89Oc+n9P8A2X+HrSC1GB06Dv8A1/kf4ulaQReOmOP4uMdufT0b+LpQEHvn/OePX1H8PUUXDmM77KPT/Pfj+Y/ho+yj09P58f8A1v71aOwe3b+L8uf5H+LvRsGPz7+/P/1/7vai4cxnfZR7d+/5/wD1/wC7R9lHp+n9P5D+KtHYP8n8v/rf3u9BVcHp0P8AFx78+nqf4e1Fw5jONqPbHPc/z/r/AA9KPsvPTnPpzn6ev+z361olBnvnP457cevoP4upoKrjtjB/j4x359PVu3Si4cxnG1GD0xg/xHGPr6f7XbpR9l56c5/u85x6ev8As/jWjsGe+cntznHp6/7PQjmjYuO2P984x9fT/a654ouHMZ32UY7Yx/eOMfX0/wBr8KRrX25z/d56enr/ALPbrWlsGe+c+nOcenr/ALPTHNIUXb2xx/GcY+vp/tdT0ouHMYM9sMdug/i/r/7N36VkXkGM8fp/T+naumuUHvn6c5+nr6r261iXyjB6dv4vy59PQ96uLNYs5a8jxn8O/wDn8+9FT3w5P+f8/TtRWyOlbCWPUfh/9b/63rXR2HQfj3/P/wCv6dq52x6j/H8//r+nauksO3Xt3/L/AOt696iZlM27bp+X/wBb/wCsP4u9X1xtPIxhv4uMd+fT1PbtVC26dex78defw9fTtWiucdWzn2znt+PoO/esWc0gOcnk5z+Oe3Hr6DoRyaQ4weVxg/xcY78+nqeoPFOOMHkYwf4uMd+fT1PUHpSnO7q27Ptuzjjj+9joOmKRI3nPfOfTnOPT1x/D0xzScY6rtx/e4x9f7uf4uueOlO4x1Xbj+98uPr12579c8dKXnd1fdu9t27Hp03Y7dMc9aAG87up3Z9BnOPTpn/Z6Ac0gxjquMD+LjHbn09D1J4od444y7uixgAklsKF+v93PfrnjpUlnZarqqh7K2MMZ5FzefIv1C4yx/IelADBnI65z+Oe/Hr6joByKhe8tosB7mBeBwZR0/wAPQ9+9dBaeDbfO69ubi+fAXYD5cQA/2Qee/wB4mtaDSLWBFWKyt41XgBY1GP0ouBwv9q2H/P7B6/6wd/8APPp2qSO7tpeI7iFzwMLID0PH/wBb+93rvvsYK7SqbfTaKguNHs7hSs9pbSA9Q0QOf0ouBxx/Dv39+f8A6/8Ad7Ud+vPH1z249fQfxd61r3wYkYd9NvLizbrsY+bFkdPlPI/A1jXEWoae229td0eCPPtyXQeu4Y3KD3POOxoAccYPK4w38XGO/Pp6nt0FLznvnPpznHHHr6DoRyaEkWVQ8b7wTwykHJ7e2fQdD3pTjB5GMH+LjHfn0z1PUHpQA04x1XGD/Fxj6+n+11B4ped3fOfQZzj06bsfw9Mc07nd1bOfbOcccdN2Og6Y560nGOq7cf3vlx9eu3PfrnjpQA3jHVcY/vcY+vXbn+LrnjpQ2fU5z6c5x6evt0A5p/O7q+7Ptuzj06bsdumOetNONvUbcD+LjH1/u56HqT7UAZ1zjb1XGB/Fxjtz6eh6k8Vi32eeuf1z349fUdu1btzn1bOfbOe/4+o6AdKwr7GOoxgd+Mdvw9PXvVxNYHN33Xt27/l/9b1opb7qev8Anr+Pr6UVujqWw2w7fh/9b/63610th0H4/wD1/wD6/wClc5YdR/n6/wD166Sw6D8P/rf/AFv1qJGczbtgffPHpnPb8fT9a0F+6emMN34x3/D17+lUbYce2D9OvP4ev6VoqDj+LOfbOe34+n61izmkJg5/izn2znt+OOnbHWkOMH7u3B7/AC47++3PXvn2pxAwemMN9Md/w9e+elKQcn72c+2c44/4Fjp2xSJEw27+Ldu9t27H5bsfhj3pYIXup47aFVeSQfKoPG3ufXZ79c0yV0iieRyqxohZifuhR1/4D+ufatrw9ZyWVp9smRjfXxVghOGCn7ie3Yn3z6UAXrXRbSyIkk23Ew+YySYIB9QOg6dauQTPekpZwy3Zz9+NflH/AAI8frVm4tLLSbZbnVQ107ttjgQZ3tjOFU9fqx4A7VAniy7v5hYWtmNP2KJHfzVkYKW2KoABAZmIx14BpAX49F1Jk3M8MLH+EnfXP6vqGo6Vdm0MdvdTYz5dvI7yAe6hDj15Naep22qafEIrvWbxvtM5RZY5wGWMAux2iMAEIp5z1rx+HU9Tv/FmowaLq8+jWMSSSSSo7Hy4ox8zHHzMSRnryTQB358S6l0Gh6pjPXyWz/6DVvS73UdXvBaqsFrMFz5Vw7rIR7KUGfwNedST+Nz4hXRrXxXfTtLALqGY3LorxlNwJzypx2NQDVdb0zxfZ2Pii+uL4JsEiyTElA65GG6hlJByOhFAHt39g6gkHLQyt/dB2/zz/Sse8mayJS7ikt2BxulX5T9GHH61d0601XUI/LtdZu0NtOI5JXnDM6YDKdpjIJKMvfrVa78WXFlIbO5szfMyeYsgkVGZNxUqwIwWVlIPTtQBnPodpebpIcQTMOw+V89iPy561iXEMltcPBKGEqnpxknHBHqfTtjrzXUWQtL6N7jS91vhiJLdxgK3oV/hPTkcc96zPEcL31i19bxn7VZ7t8ZHMiA/PGcfTI9x70AY2Bt/h24Pf5cfz25/HPtTsNu/i3bvbdux+W7H4Y96SORZkWWNmZXwysMZORwf97HTtilwMfw4x/wHH89ufxz7UwGjGP4duPX5dv8APbn8c+1BB/2t2fbdnHPtux17Y96kwd38W7d7bs4/Ldj8Me9MYDZ/DjA+mO3/AAHPTvn2oAzrnG3+HGB34x2/D07561iX2eeuefTOe/4+v6VvXIOf4s59s5xz+Pr2x0rCvh8vbGB9Mdvw9P1q4msDmb7v07f/AFv/AK360U6/6nr/AJ6//XordHVHYbYdvw/+t/8AWrpbAcD8f/r/AP1/0rnLAdK6WwHA/D/63/1vSomZzNu1HA/D0/D/AOt+taKgbegxg9uMd/w9f0qhbDj8+35//X9e1aKg475/XPb8fT071izmkBByeuc+2c9vx9O2OtIQMHhcYPbjHf8AD175pxXg8DGD24x3/D1HelKnPfOfbOcevr79KRJAbX+09TstMYErNL5s2cf6tACc+5+UfQ13mip9u1VmIykK7umME8D9A1cn4Yh83VtSuuvkRR20fHALfM2P/Ha7jwbETZT3Z/5bzttP+ynyD9VJ/GkBh/FN7UQ6ZC0qxzB3IUzCMeXgZzkHqQvb1rE8EsJLi7n2qUhuYM4fO4IjEAHA/ifPQdK7S78HC+1S7vJtRmVLkg7Y0AdcAALuOflHJxjvWdqXhO60XT3/ALCnuJjNKpuRJGkshXBBZeByOOKAKfirWjqknl2gjkZLO6QKjZId1VR+OC1eQaF4d8YLfyaloNpcNPE7KzRMhIz1DKT0PoRXpiR6kl/ZzTC+hIdYPMvoBBF8zLkdAOQG9ycd8Vb8V6UdCuTq1nM8E1x+6dQSpfALFvThVOTjtQB5pceD/iLdahPqE2lai11OjRyS/KCykYK9eBjjArO1Hwx4phv4LrV7WZJpJERXmkXc2MAcZycACvXxY62thlvE2pNME3AYjxnHTG3p+NZ/h+xbWr0ancSNPNDmJRyxXODu59Qw7d6ANXw7rn9iytHd+WJJbS1yjSBTvVCp/RR+VYHjmVDPaSiIhJp7kgl9uA6KxXOD/EpPTvSLa6vNdXbwrfy7i0DS2sHnREhm4zgjhSBx0575rfsPBGqa1YxtrV3LC0bt5ARVjdVxgM2AeSM8UAQ/CqS0nttQgV/Ml3glTIHwmOMYA75H5Vs6nGtnqRCqQs0fmY9SCAf/AGX9al0rwMukanbXsOoyusG7KugLuCCCpYY+XocY7CpPGEfkw293ziGddx/2X+Q/hkqfwoA85S3FhfX2m5BS3cvECOBC/wAyj/dByPXirGDu/izn2znH/oWPwxU/iCLyNZsLhQf9IikgPrlfmXB7HBaodox0GMenGPp6e3XNMBuBjouMenGP/ic/jmhgf9rOfbOcfzx+GKfg575z7Zzj19ffpimsvy9BjA7cY+np7dc0AZtyBt6DGB24x2/D075rEvweeufwznv+Pr+lb10D75/XP+Pqawr8cH0wO3bt+Hp6VcTWBzF8OvTHH/1v/rUUt+OTRW6OqOwlgOR/h/n/AOtXTaeOB/h/n8fWuasOorptPHA/z/n+lRMzmbtqPb/Pb/63pWio+XoOh7fn/wDX9aoWo4HH6f5/+vWio4/z/n8e1Ys5pARz75/H/wDX79qTHHQY5/h4x9PT2704j29e3+fy70uPr/n3/rSJLejzDT9C1G8BJk8+aQ57lQFUfoK9D0Oy/s3SbSzPWGFEPuQOT+dedaJAbvSrayxxc6mVbHHy+cSePopr1MDGT3pALRRTJJVjyCyBvRmAoAJoYrmJ4Zo0licYZHGQw9CKwtS8FaffQ7I5bm3cbtrea0qgEEEbHJXGD2xVq61e+gP7nShdDt5d3GCfwOKzNQ1W7u0VJ9E8R2hB62c0X9H/AKUAWhoGrBdo1q2znO7+zkz/AOhY/SjTvBWm2MOyR7mdzjc3mtErAKFA2oQuMAdRWPE9u/UeOCf7rmQfqvH61fTXL60U29j4c1iZs48y8mCqT2yzsTj6CgDpYYY7eJIoY0jjQbVRBgKPQCn1ytx4g1jS2Q6o/hy33jd5Ml+0bgexK4P1wK19L12DVVzAI5PVreeOZR+KnP6UAadYniOA3+lXtsMhpYmRD6Njg/nW07bFLdcDNZF2cbTj14oA4HV5EvtI068OATNG68ZA3KQQfXrVbBz3zn8c49fX3p+pRm30YW3zZttSCDnHy+bx+jLTcew/Lj8vT2poBuB6DGP7vGPp6e1DA475/XOPX196fjnv/n3/AK01h8vT9P6f0oAzbocdBjA7cfl6e3asK/HB/wA/5/rW/dD/AD/n+fesK/HB/wAP8/8A1quJrA5e/wCp/wAKKW/HJordbHVHYTT+1dNp44H+f8/1rmtP7V0+n9BUSM5m7ajgf5/z/StFR8v/ANb/AD/9es+1HA/z/n+taSjj/P8An/CsWczDH+f8/wA+1GO39P8AP5UksiQxtJIwVFGST/n9O9OmhvLSGO5vNOu7S3lbYks6hQWPQEZyuexIHpSJNHwAI5bq0Vxlo7u7Zee43f8AxRr0l22IzBWYgZ2r1PsK8y+HZLajbMo+U3N61emsMqQSQPUHFIDkdS1XXJdUFjDaxvK0Xm/ZRPsjgQnAaaQAsWPOETjjqayH0e90mPE0nhGyWXgrJau5f6s75NalxqNvp+sT6Jo1ki3cxiPmtlg0j7iWcnk7VQtyfQVpQ3egWYeyubmG5l3iCeaaMsGkP8LvjaD0+XPHpQBzkGjuqK8nhzw7q8DEhn08eRKnuu44J/4EDWxYarLpWmyvDZ6vMd4ihsbmVJJA57bwxIX3Y8AVh+JTD8O9VS50y3SDTdQjZ54FHyJKhUllH8OULcDg7RUmoQvc6/pU1s4hS88yC4kiYq0ikDZ07g9D70AdFd6xrg0feukXEV/gHgI0Wc5xnfnaemfx9qxD4jGoSl5INfvJnyv2K0j8lIHHBQyfKCRg5O41qz+B9IgtwUjvHm37vNN7Nuz653VzUUsXh68127kRpUsAqWwdyz/Mu5hk93Zsk98+1AF61+3WTtPJZ6Jo0JPzG6c3M0gz0ZyQB+ZpLiwm1NlvYdL0O77pc6fM9rOPdXGQfxOKx9MmtdVtrbX/ABIftkCO1vZWioFWaUAmSVs8bVwQM8ALnqa6DTH8PaxtvPDaW9tdMWWPySFhnZRkowHGcc8jPfkUAbWi65b6lYm2Wab7Zbny54bkr56kd2C8HtyODTrvAYcc7fWuc02Sw8aiWW4tXtb+wcws8b7JoW7EMOcdeDkZBFXZ9P1UXcbS60zW6AfIluis+P7zc/jgCgDmPFhWOedEx819bFhj1C/4Co8f5/8Ar/1pPFvF9OxHyi7tG4OONtOhiu7uCS6s9Ou7u2icxvNCgYBh1wM5bHfANMBMfT8v6f0pGHH+f8/jRFIk0ayRsGRhkEHrSsOP8/5/CgDNuhx/9b/P5VhX44Nb90OKwb8cGriawOXv+popb/qaK3Wx1R2E08ciun08cCuZ08ciuo04cCokZzN21BwK0UHFUbUcCtFBxWLOaRNo9ml9rsJudos9Pja/nL/dyvCA+2ct/wAArpofFNj4gX+z9S06WLT9QBihmn4WfPQEdUJ/hzjPHfFYOivbNa+Jbe6UFRaRXGP76rv49xuAyPepLW7F7qNzp+EdIw3mhhnGAgX9SxH0qSRnhyxTw54hsrCCaWSBb+5t90uM5MbMB/46DXT+Lb/+yJtKvhK/zXH2Z4B/y2RxknHTK7Q2T2B9a5HSb9p7xby4IZxf2lxuHQ71WMt+J3H8a9GvNMtL9g1zbxyuqsiswztBxkD64FAHNZtLbxRaaoFt9jxOZZvMC+WCAAxz1HBH0JqtGbu70m401LK+lu7y2+ylPL/0KM5bM4k+6Qd27gknA4rVuRDokVx5UNmkjMkNuGGFjUR8k4HAUZP6Vz8FqzKWtfFdnBGcbktpIkjJ78HJH50AM+KX2W5sdOsmnaR7VmeYjkmPyyrE+/8AX61o2WnNptl4WkuFAaO4jjlJGNpaFlGf+B7R+VTaH4dXUJxfahqCaisbZjWIfugQeOf4sdfrz1wan8ePfHT4bW1AEc0iqSoBkLbhtVSflU5wdxzjjANAF3XvFGk6Qfs9zeR/aevkpl3H/ARk1xmqzw62L6Uq0NvcJFHG8sLKfMG4dCOx2kE10el+DC2nBNQnmgmf5tlnIVKZ/vORl2Pcn8qpQeErY67Ppc2palc2kdtHM6yyqRvLsACQuRwM8EUAVPDNla3vh6xtFtI7m/0NJoLnTSVXzhICCctxhuGB+oqLwpoH9lTvLLYXumWiXg1Ca4vnjjVGVWURqATldrYz0wOpq/rXg97a+h1LT98MkSlVmR2ygx0J64+uaxLiwtNauBeazrenyLFjAmvFZFIHUIWwDx6d6ANXQJIJdZ13XLOJhbXcmY8/KJQqj5uemW3cn1pfD90L2C4uXlWS6mlZ51GR5TdBHg84CgD35PetbRfsl9avHYxme0VdrT7CI5SeoUn7wx3HHPWlfTobWcvFEqfuxHuH90dAfpz+dAHJ6tYQ+ItSks55ZIYzfRQhosBjtjBI5+p/KtceKjpFz5Om2hbQrALDK8K5EOM7io6vjjcRnHPfNc6968cpuoWG5Li8uMkcDG6MH8CwP4VsxXCWuq2ulIERJAogA7rtcN+RUH8aAKWr2kdlr1yLYg2V8i39uR0w/wB8D23c/wDAqrsDitLX5LUL4et7NNqfYpJwOpRGKYX6Zzge1UGHymmBl3Q4NYOoDg10N2ODWBqA4NXE1gctqA5NFLqHU0VutjqjsJp45FdTpw4H+f8AP9K5jThyP8K6nTl+7+Hb8v8A63rUSM5m9aLwOP0/z/8AXrSRflHA/wA/5/Cs+0Xgcfp+f/1/StONeBweo/h59vx9PWsWc0iuzx2V5Hd3Cs1nJG9peqOD5EnVvqpAb6ZrprKKB9TlhNsfP3gyXVsqhZdq4Hmc5BIOQOh4INYW0EcgYx6cY7/h6morOK5hkJhneCbTVWeKUEAy2gYeZbyZ4IXOVJ6A9qRJJeWTaXakKUdIjHaJKrff8qQNGWHbklT7geteoJIsqLIpyrjcD7GvMmkXWtLhsI5lF1b6kYpdvzDBMjBvdWXHPua6aHxKdEvja6qgjsJX/wBHvFHyRE/8s5P7vPRuh6cHqgLsMF7N4slmmidba2iYQuRhW3rH0Pcgq4Ppx61pSaVp00nmyWFo8mc72hUn88VZBDAEEEHkEVV1bUF0vTp7xkMhjX5UHV2Jwo/EkCgDJ8VeLYfDcdva21ub7VLthHaWURwXPqf7qj1pYdO1zVJLO41e5tLVIZln+xWyF/mXoDITk8nsAP51y6WV5pfiPTtdubW61Z/35u5raLe6uVAQInUIBuA9Mknk1c1Pxw2k6zaanfaZq9npjxNbzNcWxVYiSGWTgn0IPfmgDt7q2jvIHglBKOMHBwR7g9jWQPCdq1p9nuLq7mcuXaYylZHPAGSOuAAAeoFXrHWbPUbZbq0njngbpJE25fzrj/Eet+KNYvrUeEtOAitXdjd3Z2RysVK4VerKMk5xgke1AGtbXtz4b1u20m6m8/T7xWFnK5+eN1GTEx/i45U9eCDnrW+bCwnkFwbO1kkP/LQxKW/PGa4XWdK8R6tpNlJq/wBlj1CwWeXdAeJZgMRMB2GOT9a63w9qaapp9teR/cuYVlHtkdP6fhQBrdPwrL1KMRqcYwecYrUrm/GGrraRRWcO2W8n4iiB5Pqx9FHUn8O9AHD6ZpxvLKVDsVJQ9i8pcfLvcs7Ae5VVHrz+PTlkj1CKF7VI5wNkd3Oq4jDL8xj5yTtznoB1J7HlrBodF8NJpxnRrqbUDGm44GElG5vQBQp9unrVi7hmkMfnzNcXF/H9puJ2bPl2pY+VboRjCnGWI64xzmgCNJUvruW9iRktBGltZq/UW8fCk/7xy34ipXXg8Hv2/wA8+1S7DnGDnPTbzn6evt6U11G09MY98Yz/AC96YGXdjg8D/P8AnrWBqA4PHr2rorxevBzz25z/AI+o7Vz+orwfp/n8PSriawOU1EcminaiOW/HtRW62OqOwmnDkf5+n/1q6vTl4H4//X/+v6dq5bThyPx/+v8A/X/Sur01fu8en/1v/rfrUSM5m/Zr09cjt+X4+nr3rSjUbRwMY98Y7/h6+naqFmvA6Y59cY7/AIf3v0rUjU8cHOV7c5xx+Pp+tYs5pDAnIGDnI7c57fj6diOtM+1NpcsOoxxtJ9nIZ0jyd8JOJBjuMdj3AqcKNo+7jHvjHf8A4Dnr3z0pQpyOG3ZHb5t3b23Y6dsdeaRJreJdb0KGDSrq1vbNpJLq3MSw7SzxlwCeOQoDN1459a1NU0+OWOWOSNJYXBV0Zcqw7givPdY0q3j0a9NnbwwSeV5oeKPGdrbv++cj659q9OilF7bRyrkrNGsg+hAP9aQGd4QupTp1xpy4Z9OnNupdiSYyAyZPfCsB/wABqTxE/wBqv9O0/bmMObqX0wnCA/8AAmB/4DUug2Udnc6rciTcbi4XcP7pWNR/WrEluHv2m6sVVenYdv1oAs2UXlxgAAAelTyRpMjRyIrowwysMgj0IpA8aI3zoFj++cj5e/PpWEPGdleXCW2jwTapLJv2NFhITtxu/eNgHGR93PWgCq8Xh65mNjHYoiadKYUAyqKwAYgAHGBnH4Vs2F3bTvJDAwLRhSSOhBzgg9xwR+FcbcaJEfFVjY6hYaZDLqYuLnC77hkZcMT85C8knovarcGn6vo2uy2elDQ552txcyb7VrcspbaAShIzwedvagDq7yISxHJwRznFc54Lil01LnTpP9Xb3EhhOOsbHcMfTcR+FOt/GUu6aPU9EvbcwSNC8tt/pMQYYyMqNw691qfStSsNSMs2m3kM5VWyqnDIf9pTyPxoA1rGzmj1G5vJbrfDKPkixjZwuf1H6muO0iMXlzPqkqlr28kdnc8lUDkIgz0UKBx610OkavLL4Sj1OZszGx89uOC2zNZPh8G4kjb+/t59M8mgDN8M6naLpV20s9lbS295cieWdkLJAZGYuFPJBOAByCaiFxLqM0l9LE8bzuSkZB3RoCdi4PRgvbpye9Z+kWVte6fBLNbQyuZHdSYwzBjIxGM/xenbHvWptG3Py7dvvt25/Pbn8c+1MBm0Y/hxj324z/6Dnv1zSOp54Ocntzn/ABx1HTFTbTu6Nuz6fNu/lux+GPemOo2H7u3b77duePfbnp3z7UAZV4o2npjHvjGePw9D1z1rn9SX73XOT25z3/H1rpLxTluGzlu3Oe//AALHXtjpXO6ko2npjHvjHb8PTv61cTWByeojk9P89P8A61FO1Ict16n657/j6/pRW62OqOwaaOR+H/1v/rfrXWaaOB07+v4//ZfpXK6aOR+Pf25/+v69q67TBwvP93v+X/2Pp3qJGczfs1+71zlfrnHy/j/d/WtONRtH3cYPrjH8X4f3u+elULJRgcjHPc4x/F+H9717VqxqcDk5yn8XOcfL+P8AdPQDrWLOaRGFOR97dlf97d29t2OnbHXmkCrt/g27ffbtzz77c9e+enFTBRt6rtwfXbtzzx125+8OpPTilCncOW3bl/i+bd256bsdD0A4PNIkgeHzVaNt2W+Uj+LP8t2Pwx71v+DLhpvCuku2Q4t1hbPcoSh/9BrFCrt6pt2++3bn067c9R1zz0qTSNWXSYDpN8TBEJma2unYbcsxby3PRWyTg9CCOc8UAbGgXqRWWrXdw22P+0Lh8t2RMAn/AMdNVtU8QzaH4Pt9WktpLrUJ4lMVsiktJIVLAYHOABk+wNP0+aG/sP7LuA0crRMZ48Y4lZ+f51PpF7NZXNjpWuW3+mIrR2d8uGjuQF5weqOVHIPXBwTSA8duPH+mpbwLOt3qwuIHlu4pW2It0x646H05zgBcVRf4t+JpZbE232SFrJSsQjtwxOV2kn6+gwK9m8S+BI76yv8A+xJItPurxT5qFA0E5/2lx8rH+8uD9azdHfSNItF0+Oxj029g2pJZ+V+83HjcvUupP8QJ9zQB5FP8Q/FkevWutX0xa8tUdIRPbhUVXHOFwOtOPxV8V/2vNrMd3FHPNCts+2AeXtUkjg55BJ/OvSr/AE6wvHln1Owu5YIGKb5wzxlwu8qFycnAPal8+CCyhgl0qSxt54vMVJoAE2HHpkfxDOfWgDzuH4p6jF4el0x4FlnuLpp7m6L7WlVmDMuB0J5GR2rtPDL32tzQ+KtS0tEQ3KSwyRygOIFymwLgFh8xY+vXsKzoPDegSa2+oS6aJLS2YLBDZ7Sb2Y8BQpJ3DOei4wMk4rorvSptHOn3OqXWb+TesVtAAsVpEyFCoCgZJLoC2OTjHFAG14cjD+Ep7MkssMVxbZ9Qrso/QU3weu61jlmbaEgDSN2XC8nP51Pf3j2GhTtAoDSPHGDjhQ0iqT/49WZeXUeqQvYWTLFoysQzc7r3BwzMR0iyMYHLfSgDN0CMJodkD08hT8+fuk9T/s5698+1aG07v4t27/gW7+W7H4Y96lVCCANwYMuAG+bd256bsdD0A4PNJtXZ1Tbt99u3d6ddme3XPPSmBEVXb/Bt2++3bn89ufxz7UOp5+9u3H/e3d/bdjr2x05qfa27q+7d/e+bd9em/HfpjjrTHVfLPKbdvvt254467c9B1zyeKAMe8Vdp+5jHvjGePfbnp3z14rntTX73XOW+ue/4+vb0rqL1TluW3bm/i+bd356bsdT0I6c1zWpAbW5XGPfGO34eg6g9auJrA5DUgMnpj8enb8PT9aKfqY+Zuucnvznv+Pr69qK3R1LYNMHK/h/9b/63p3rrtMHC8+vf8/8A6/8Ae7VymmDkfj3/AD/+v/e7V2Gljp17d/y/+t/d71EjOZ0FkvTk5yvfnOPl/H+6f4e9akajaORjHvjH8XHp/eHVjyKoWQ+UcjHP0x349PUfx9q1o1OBy2cr/FznHHPr6N0QcGsWc0iMKcjlt2V/i+bPbnpux0PRRweaQKu0crtx6Hbtzzx1256r1J5HFTBRjHy4x6HGM8/L12+q9WPIpwB3dW3bh/GN2e3zdN2Oj9AODzSJKs0gt43lkZwE+ZjuywI9+m7HRugHHWsnWLi7fT5njs7mG0SEySStAdsiYyqJnjDMR16YJ9K2LyIPZTLuVR5ZIODtABz93rtz1TqTz0ql4f1xdR0uVWh+06Up8mXP37InrG4P3o+flYc4xkUAWNKEVt4hsZUuA+l6haGOylYnKMSrpET/AN9hfbjtXYXllb6nbraXaMNjrIpUkMjqchlPYivPIJLDTWbQrh1u9FZiqGVWVrUlsgF8YIyeDkMPetyDV7nRxItzdS6npsD+W87Lm4tfd8f6xOnONwBzzSA7V13DGSPpXJeIL+zjkaDX9GE9ghzHd7PMWP64+ZD7jj3FdDa3ySRRvvWSKQBo5UIZXB6EEdanmtLe5QpNCkiN1VhkH8KAOOkh8FXlsqre20aNzmHUGTdkYycPycetVrzRPCyr9un164b+FJJLmOfHsoZW/IVral8OdL1G688XF3bLkHyYfLEf5bf61pWvg/QLKZJ7fSrWOVDuWQJ8wP160AcvbTwXBjtBOsj211ayW109ssEyo2crtAXqFI6chskYFXPFFnHe65YRXDF412yLEvLF13kA+2Sp/Cma3cpaeIftFtGJbuOcoilSd7fZjtXPuWNZCXk9/cyWsEk6XMZKXt+SAUJwXSIjo54BP8AXHWgC3rt1Z3KDQZJlEssiNeyB8C0jQ79uc43tt6dQMmqmksbbTTc21he/2e7SXMDwxkrHCGO07ugbHIPQA4qtaadp+q3ZtFm+yaSBsKQq7G755AbG0A9yCWbpxWp4n8RxWOnxW0UX2fTZGWGL+9eEdI0UfciH8THkgYA70ATxlJIldSpjZAQcHaVJ9Ou3PVepPPSn7Tnq+7P98bt316bsfxdMcdadbIUgiGTuAX7rgHdjsemcdG6AfL1p+0bf4du3+6du3P8Ad67c/wAHXPPSmBDtXb1Tbt9Dt259Ou3P8PXPPSkkB55fdk/x/Nu789N2OrdCOBzVjad3V927/noN27/e6bsfx9MfL1pjqNn8O3b/AHTtxnj5eu3PROoPPSgDGvVG1uV249Djbnjjrtz0XqDyeK5zUwfm5bOW/i5z359fU9D2rqr0HJ5bOW/j5z356Z9W6MOBXM6mPlbpjHpxjtx6eg6r1NXE1gcZqY5PTH6Y7fh6Dt3oqTVB8zcnqe/5/j6n+LtRW62OpbBpY5X8P/rf/W/u12OlrwP8/X/64/jrkdLHK/5/z/7NXZaUvA/z/n6/wVEjOodHZKcDr27/AJc/yP8AB3rVjX5e2Mf3eMd+PT1X+PqKz7JeO35f0/p/H1rWjX5f/sv6/wDs38HSsWc0hm0575yP4+c9vm9fR/4elJs46DGP7nGP930/2OrH5qm2fT/vj/2X0/2P4+tG36/998/99ev+3/D92kSZHiSZrTQNRuAWDJA5zncQceo6n/b9Plrj/hz4m1K/l1y1mlgmgTRlZVVMDMahV+pAYg+4Fdv4h09tS0S9s0LBpYio2AqfXGOwOPud/vV5r4WvXvbK40ae0S2k06x8lpQPmmDXcbYPb2HrmkB3N7eXBtrvSrPT4pYRbeUZWnxucp0xg9Mjqaht9d02O7t7oyy6TdrGkN1DeIUjuVUYBD/d3DHBzyOK5HRdbk00wQGURiYyP/pIZYzyTgMOVPsQcZrprPW7fULVZpbSdIpOjlDJGwz6ge3cCgDWupT4YRL/AEz99YXLB305fmEpPO+3x0buV+6faun0jVre8tUu7afzIHJxuBDKe6sDyrDuDXN+EYdMvIJrn5JLlpZEVRMYjbWyNtLLgjAJGSR1yPSuf8X+LPCOgedeaDq11Pq7sof7PO0ySAf89N+5GAH4+9AHqy38BHLhT6E1Vm1PzpBBa/vJCeQnavLJfEPjo6SuqHwhZm2WPzjOSRlMZ3bRJ0xR4e8bab4ot44tW1+LRiSVktLeP7OJR6GbJJB9AVoA39S1AT6tfWWkXoTcqJqN+rcQFd2Y4z03kEAt2A9awzrOmxTPYaWktzDbwNDBFaruV5GXl2fpgZxyc5LGrni3RtHsbC1itIorKSKRIvJjk3+bAzYDnnkZOR+PrWWJ7fRrIz/Zp5UQYZ9hRFGeMlv6ZoA6jSdXne2j0S8sYoYfsZRZUnOdyp0xgc8cEHtXGfEbxFf2WoaVbQyxQwPpIYhl6Fx82PQ/IAPrVfVdeOotLaKRKsTxNm2UtGPmBwWPLH2GM1T8XXpsIE0iK1W5a8s1jExHzRBLmRsADI9jj0oA9M0CX7VodhMcHfboT8uRjHPy9xn+DqT81aG05/izn+/zn/e9f+mnTHy1T8N2clloGn28q7ZI4VDLuwVOOm71H9/t92tHYPbH/XP/ANk9P+mf/AqYEOwYxgYx/c4x/u+n+x1B+akdTgn5s5P8fOf9719X6MPlqfb/AJ38/wDfXr/007/dprp8vb/vj/2X/wBk/h+9QBjXqcHpjH93jHb5fT0T+HrXM6op+brnn+Lv359fVv4uldXerwf/AIr/ANm/9n/i6VzGqLweP/Hf6f8Asv8AD1q4msDitUHJ/wAPy4/kP4aKfqg5P+P9f6/xUVujqWwmlDlf8/5/9lrs9KXgf5/z9P4647Suq/h3/wA//ZV2mlDgfj3/AM/j/cqJGczprJeP/r/1/r/BWuifL0/8d/p/7L/H1rnG17TNLQtdXaIFxu2guUGcZYAHA+vD966W3eOaBZYnR43UsrrJlWX1Den+1/B0rFnNICvX8f4z/wChf+z/AMHSgp7f+Of+y/8Asn8X3qlI5Prn059vl9fRf4utIQMHkYwf+Whxj/e9P9v+H7tSSU9RuDY2F1drGZDBE8oQOfm2rn73/s/b7tYd+0ej+H7oXktrMtzCslteJFtX5mV2h9sdV9QPUVe8RXNvd+RoaXMZub+5jgeJX2uIicuSo5UbQw29Oc1D4VvYrF5vDt1tb7Md1tvGRJAW+UY7lfun8D3oA5S/l0pNWuFhEcYLslvOoDROrAZUfwk+o61Wh0u6s418p52cZ3SWsuwyf70Z4z06GvWJ9FttRtJIJbeCaJz80DqCtc63gX7DKW069ubUDkQTfvoh9M/MB9DQBW8PzzxeDfEO/LCK1kcl0w6StGxdM9wPlP8AwKvn2KJ5WWOJGdiOFUZJ/AV9GeGpZJ9H1fw5dqxuGe8V5ghEahjgHJ9dwwM15r4J1yT4Z3V1B4i0S5jW6wEm8sbgV6gE9VOR0NAFZ/EXiNvhmtsdT03+y9/2P7MD/pW3Ofy/pXDTRvEWjkRkcDlWGCPwq6uo2q64NQOnwG3Fx5v2PJ2bc52ZznFdr421mb4oX1rF4d0S5kS1yrz+UNxLYwGI6AYPU+tAHYeKtQuV8O+H1gTJmt1c7F+ZnEYKrk8DqT9QK5ltKvdV5d7jdjIkuJd5T/dQcfmfeuy8TiH7Dpnh+H5byGS1VHZSyFAPmOR/u9KYfDdrIwXUL6WVCufs1v8AuYz65x8xH1agDAsF0u31e2abyZdrf6RI+BGu0fdJ6Z6cDmta51i1udH0i1sYYGvZ1jikuCAoZg24QmTjAGSzHPoOSalvfEFhZJFpWkWsMz58tIoEJijPfO37zd9o57nHWnWctrNaRx6qq3FzD87W11OkVvDz8r7F4fnp97BH0oA60oTnj/xw/wDoP/snf71IV/x++fT+/wD+1P8AgNc9d+G1vynkPqUlwyCcGG5a3AxgEjc3C88cZwPSnm7XwzaD7Q+oRKn3hesJYwf+ugLYHsx259KAN7Z2x7Y2e393/wBp9vvU11+XP4/fP/oX/s/8X3alQq8auuNrKGH7w4xj+96f7f8AwGmXMkdvC800ixxpyzuMBeOSR0H+52+9TAyL1OCMen8H/sv/ALJ/D1rl9UHB/wDiv6/+zfxdK3V1zTdSRTbXcbb+EDMylsehYAkf7Q+90rG1Udf8P6ev+z/D1q4msDiNVHJ/w/p/T+GinaqOT+Hf+v8AX+Kit0dS2Kdjf+TGJVtp5Ix1IGDj1Cnk/h07Vt3XjXR7GwkjW78yeWMqixgkqSMAse2PzPeq2iwQ5WQ/NnkE1xfi+y+xeJbxQMJKwlX6MM/zzUSM6h9EWWgQ3fh5rG2ljEUtuBEYlCqW25V+OvODWDcXCW1rZPp81zp6XkLXGyGUhI51I3gIQRjOcr0ODxUfwc8RNqPhhbOR8zae/ldedh5T+o/Cp/E9qtrHKU2jyLtZ0UnpHMCjY/4Gc/jWLOaRq6Ve32u6Nb6hDqfk3rJtEHlZgY5w4f8AiyWB5BBXtT4rjW7u/v4f7RsrO5s/Lb7M1v5sUgZThwwIIBII2n0yQetZvw8V2W+sMhTb3AkUE8hZAG/nurfuLZ7HxRcwdRqNslwvoXjOxv8Ax1kNSSZWh20FgPDwkhtzdDUJo7q4ROZJiJlyWPJ5x19an8U+HLi8MV7p58q7t38yKXGQrdwf9kjr+dVtd064gur+wX5ZZdmp2LZ481doZf8AvpVP/A67jRtSttX06C/tj8lynmFT1U9Cp9wQQfpQBzmg+JF1SFo5V+zX0J8u4t2OGjb09wexHWtA+JH0qUpqkTm0J+S9jXcEHpKo5H+8OPXFVfEvgwX8y6hpkptNQjGEkAyCOu1h/Evt27VV0vUbv7Qthqtt9huxwpyWhmP+w/8A7K2D9aAJvEGl22vqbnTbxlS4CiZrdleOfacqWByCRjr17dKoeI9F1PU9CuIbuaPUHQGSKNbWNWLAcAHHGfbBrUl8LQRTtPbxTWU7HmW0cx7j7gfK34g0k8evQgfZry0uecbbqEqT/wACQgfpQB5XHY3cheUaTP5KSeUQYFAD7tu3PTrx9TXYaTHe6FoEUNrNDYuSzyg28ch57ZxzjgZOax7m61GO61PSZIUF2s5vEiiJKswcS4XOCc7sfWug0df7XhinM63KSjerKm1Qp9smgDEijg0poZZruR2AKQArlueSI0UdTnr198VHvuvEHmRbHttOVwkm0gy3D5/1QI4yTgELwOcntW/qGhWsPm3DyxWdmF/0ibd+9nHdS5PyJ/sr1qEanaRwGeSJbW3jTEMQTaYYSD8+3s7jIReoXcxoAz0k/sqfb5Ebzuu0JCvyBeyKB/Bxwo+/jcx24rXj0nVdQlh1GW6traVEKJmIStEDjnPTfgHAACj3xzFYpFGjanqAS13LkK3/ACyU4wv+8cDP0A6AUXPiqK3dIVRndx+6gT77+/oB7mgDpIltLS1aE+ZMzD53kcl5Pckf/qqpLBYNDPFBpmmlypwJIgQT7nGcVlpeNYRC4v5VlubhvlgiOcf7Kj0HOWOPXjpWjpYJDyTBSxO4hT8o9vf696AM24sr3wvpU+oDUDJesu1bfBNtGWIVFjTPGCe+c89OKppEklpqDXlzd6iLGON1SeYsslwxITK9OuOOnIq54uuWuLjTrMsD5s5ncdtkSlv/AEIrUXhGEai5kdw0Yu5L2QDusQ2Rg/8AAhn/AIDQBc1TQIYdEe0mnTyoLXYxlAKhgnL+3OTnrXn9p410fULGKNr3bcJGodZQVLEDnHr7dz0Nbnxf8Rmz8O/YY22z377Dj/nmOWP48D8a8m8GWRvfE1pxlYN07e20cfritImsDo9RvHdPNktLmGNujMuTj1Kjlc+h6UVo6u4O93xxk0VutjqWxQ0e6UrhDlVII/3W5H9R+FUvHVhJePY3dvG00hBhZUGT6jgfjWVomqeXPGBlRJlMHqD6fgwH/fRq5a+J7m41WKxtyscbjLy/eYDGe/GfzqZImaOm+G+l6n4ennvLxore3niCtGz/ADZByCew710ur65Y69aXMVjdxXEsMTRyBDkDI3Lz/voPzryew124uNZllmuJZ1RJvJSQ7udpC4HTOcdq6fwNpb6OWutXMdlHMpB86UBnHBUBeudwzWTRzuJ2Pg/VVh8TIQSI72zxg8fMhDD9GP5V2niy6Kf2ZqsX/LpcKXx/zyf5H/8AQgf+A15WJRpV/pcqMpWKZVDgdVbKfyIr0KbVYJ9MMc7KVb92cn14pWJ5TotZSK9tEkZVLRg4buM8ED61yPhvXH8P6nLb3D4tJ59kpPAhmb7r+yyDr6OD61sQakJbXZu/h25/CuX16AiU3IiWcNH5VxAD/roj1H1HUe/1osHKegtrjJMSx/dr97joPWryX0cyBlZWVhkHqCK8s8N6y+J4Y7o3P2RkAkOdzIem4dQwwQfpnvVi58RzaZKZbcPGpYl08svA34L8yH3Ax7Giwcp6cbwKMkgAVA2oq5GCD9a88j+JNhcJsmXyWz94OHT8xyP+BAVfs/ElveANDNFIP9hw1Fg5R/i3Rp31W28Q6fF9omgBW4t14aVOcEepGSMdweDkCuTtNYsrO8nWy1S/0uSWTc9pcJ8oJ68lWOfcqvvmu1OqBQTurm9cv5dQABt7S5T+7OOn6GiwcpJealp0Xl3FzdG6uFPyeZNvVCe671VA3uEcjsKba20mqNHLNb+TaxuZUV92Z5Cfvtu+Yjpy3JxnAAArn4JZbGXzLXSbCGUjG6M4OPwWrH9p65ONpFpF/vOz/pgUcocpd1PT9TkvXkmvoUgDFohGu5kH48BvfB9qqQ3FvpUzW2nR/atQkALFmJI9DIx7d8fkKjXTdQvWJvNVcIRkrBGI/wAM8n8qtRXGnaCy2mnRI1zJ8zHqVHdmJ/rzRYOU1dL09o5GuruZri6lA3yNwSP7oH8K+1XdH1W6nLSNEzRTykRqCo8hACBkdecZ7/eFZ8N4Qd7NzgVUgsbSC/N6sk7Sb2kVWf5VZupwOpxxznijlDlH+KNVA1e9liYH7DZLEpPQvIdzfoq1a0C5Gi+E1WR9lzdhBz1WNOpP1ctXHXmow3ZvDJIoW5vH3nuEBCD9FNL4pvtW1JpBoU8EtjIiRM8DBpY0XORjqASzE45o5Q5St4/0zU9fuory1aO5hij2Kiv83JySOx7d6z/Ats2mQ6hfTxlJmK26I4wQOrHH5Vn6jqNtpRg0vw/9qe6BHmXDFl8xj2CH+oqe/wDEc+kyw2l66Xt0wHmrCuDET0GehP5VcUaxiaGu6igiUFwM5c/7o5P64FFcpr+om4upEXkKwQDuSO35k/kKK2R0JFWdSG3I2PNIIOcbZB0P49KuQpZR3DXkf2lriXLMinYqE9Rn/Cs5Jd6FJBuVhgiotYa4is7d/N+VyVOOCeO9NockbNvrVvaR4EyWinIMdqnzn6sef5VCPFYs7lp7CBg7Lt33Dbz9fr+NcoHNO8w1DiQ4HZ6R4iuNY1BLfUrtwjnK7FUYYYIHT1Fehrqq3EE9rIx2Sr26ivDIZ3jlRlJDAgg+hrvrTVpJIop+QWUMRS5Rch22h+JpG32d06/aIgMnp5g7OPr+hrVfVlkXa2CK82vZGaVZI2aKVPmjkXqvt7j2qzp/iCW6aWGVNs0JAcqflPuKfKHId7DqSQZ2HGetObVUY5IXPXNcZ/aL+9H9ov70coch0t5faOf+PxLLP/Tbbn9axZtW8J2chkgSw3nrs5NZt3debGdyKT6kA1mFSuWG1R6AUcoch0jeOEICWkM8i44CRkD82qv/AGvql6eSlsh997f4D9axUnCYJBY56mpUvXbjmlyhyHRW0/lYLSs7Y6sck1Z/tdI8ZYZri77xAbFhEiMznoT0qvDJeXzZmn8tCPux9T/wL/CjlDkOku/FszWiSxzW9uJCVXzM5znFZL3/ANohdPt9gg3YdmZizMQQCT3Pf8KwGsWv7a0xJtCLyDzwfT3qxcwzTK4Eyrvk3NlNxKjhRRyhyHTNeajJKtvJrFuXXDmMryQOeehqxZ6ldW1jG41a3Nui8OYP4fqWrimtZPOlma5Jd8sGCYIJGD39CakcCPTWjjkk/c/OgY5XAbIBGaOUOQdrGsyWV4bezunkSM5LMo5Y8moYvEgkuRPdxvuAxuhbac+v+TXPSzvJIzMcsTkn1pnmGjlDkO3k8SxXCqxnS82kbUukxKv0cc/zqvKNPglkvBBcRzj5wsjeYGbrw3ucda44ua09Oa4uLeQGdtqsAM8447VSiUolqyTMnmuc7M4P95z1P9KKQyBVEaDai8AUVdjSx//Z",
     20: "data:image/jpeg;base64,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",
   };
+
+  // Ship Tier (Build 037) now directly drives the ship's own activity bonus — +2 per
+  // Tier, so a Tier 1 ship gives the same +2 every ship has always given, scaling up to
+  // +10 at Tier 5. Called at ship selection and will be called again whenever Tier changes
+  // via purchase or tier-up (Phase 3). SHIP_CLASSES.bonusAmount is no longer read for this
+  // — it's superseded by Tier, kept in the data only as an unused historical value.
+  function recalcShipBonus() {
+    state.shipBonusAmount = state.shipTier * 2;
+  }
+
+  const SHIP_CLASS_LABELS = { hauler: 'Hauler', prospector: 'Prospector', interceptor: 'Interceptor', raider: 'Raider' };
+
+  // Ship marketplace display (Build 037 Phase 2) — shows each station's fixed stock.
+  // Buy buttons render here but aren't wired to a purchase action yet; that's Phase 3.
+  function renderShipMarketplace() {
+    const container = el('shipMarketplaceContainer');
+    if (!state.sector || !SECTORS[state.sector] || !SECTORS[state.sector].shipStock || !SECTORS[state.sector].shipStock.length) {
+      container.innerHTML = '<span class="ship-empty-note">No ships for sale at this station.</span>';
+    } else {
+      const stock = SECTORS[state.sector].shipStock;
+      let html = '';
+      stock.forEach((listing, idx) => {
+        const label = SHIP_CLASS_LABELS[listing.classKey] || listing.classKey;
+        html += '<div class="ship-listing">'
+          + '<div class="ship-listing-head">'
+          + '<span class="ship-listing-class">' + label.toUpperCase() + '-CLASS</span>'
+          + '<span class="ship-listing-tier">TIER ' + listing.tier + '</span>'
+          + '</div>'
+          + '<button class="buy-ship-btn' + (listing.sold ? ' sold-out' : '') + '" data-ship-index="' + idx + '"'
+          + (listing.sold || !state.docked ? ' disabled' : '') + '>BUY — ' + fmt(listing.price) + 'cr</button>'
+          + '</div>';
+      });
+      container.innerHTML = html;
+    }
+
+    if (state.shipTier >= 5) {
+      el('tierUpBtn').disabled = true;
+      el('tierUpBtn').textContent = 'TIER UP — MAX TIER REACHED';
+      el('tierUpNote').textContent = 'Your ship is already at Tier 5, the maximum.';
+    } else {
+      const economyIdx = state.sector && SECTORS[state.sector] ? SECTORS[state.sector].economy : 2;
+      const nextTierCost = shipPriceForTier(state.shipTier + 1, economyIdx);
+      el('tierUpCost').textContent = fmt(nextTierCost);
+      el('tierUpBtn').disabled = !state.docked || state.credits < nextTierCost;
+      el('tierUpBtn').textContent = 'TIER UP — ' + fmt(nextTierCost) + 'cr';
+      el('tierUpNote').textContent = 'Currently Tier ' + state.shipTier + '. Cost scales with this sector\'s Economy.';
+    }
+  }
+
+  // Ship purchase (swap) — the new ship fully replaces the current one: class stats, Tier,
+  // and bonus activity all change to match the new ship. Credits, cargo, captain, and
+  // reputation are unaffected (they belong to the captain, not the ship). If the new
+  // ship's cargo capacity is smaller than what's currently held, the excess isn't
+  // forcibly discarded — it just means no more can be gained until sold below the new
+  // capacity, same as any other over-capacity state the game already allows.
+  function buyShip(idx) {
+    const sector = SECTORS[state.sector];
+    if (!sector || !sector.shipStock || !sector.shipStock[idx]) return;
+    const listing = sector.shipStock[idx];
+    if (listing.sold || !state.docked || state.credits < listing.price) return;
+
+    const newShip = SHIP_CLASSES[listing.classKey];
+    const label = SHIP_CLASS_LABELS[listing.classKey];
+    askConfirm(
+      'BUY ' + label.toUpperCase() + '-CLASS, TIER ' + listing.tier,
+      'This replaces your current ship entirely — the old one and any further hull/tier investment in it are gone. Your credits, cargo, captain, and reputation all carry over. (-' + fmt(listing.price) + 'cr)',
+      'BUY SHIP',
+      () => {
+        state.credits -= listing.price;
+        listing.sold = true;
+        state.shipClassName = newShip.name;
+        state.cargoCapacity = newShip.cargoCapacity;
+        state.fuel = newShip.fuel;
+        state.fuelCapacity = newShip.fuelCapacity;
+        state.hull = newShip.hull;
+        state.maxHull = newShip.maxHull;
+        state.shipBonusActivity = newShip.bonusActivity;
+        state.shipTier = listing.tier;
+        state.hullUpgradeLevel = 1;
+        recalcShipBonus();
+        addLog(resolveLogTemplate("Captain's log. The old ship is decommissioned — {crew} and the rest of the crew transfer aboard the new " + label + '-class, Tier ' + listing.tier + '.'), 'system');
+        render();
+      }
+    );
+  }
+
+  function tierUpShip() {
+    if (state.shipTier >= 5 || !state.docked) return;
+    const economyIdx = state.sector && SECTORS[state.sector] ? SECTORS[state.sector].economy : 2;
+    const cost = shipPriceForTier(state.shipTier + 1, economyIdx);
+    if (state.credits < cost) return;
+    askConfirm(
+      'TIER UP TO TIER ' + (state.shipTier + 1),
+      'Permanently upgrade your current ship to Tier ' + (state.shipTier + 1) + '. (-' + fmt(cost) + 'cr)',
+      'TIER UP',
+      () => {
+        state.credits -= cost;
+        state.shipTier += 1;
+        recalcShipBonus();
+        addLog(resolveLogTemplate("Captain's log. The refit is complete — she's Tier " + state.shipTier + ' now.'), 'system');
+        render();
+      }
+    );
+  }
 
   const SHIP_CLASSES = {
     hauler: { name: 'Hauler', credits: 250, cargoCapacity: 20, fuel: 10, fuelCapacity: 10, hull: 25, maxHull: 25, bonusActivity: 'trading', bonusAmount: 2 },
@@ -6180,7 +6715,8 @@
     state.hull = ship.hull;
     state.maxHull = ship.maxHull;
     state.shipBonusActivity = ship.bonusActivity;
-    state.shipBonusAmount = ship.bonusAmount;
+    state.shipTier = 1;
+    recalcShipBonus();
 
     state.captain.name = captainName;
     // d20 safety net: covers any path that could reach here without a confirmed pick.
