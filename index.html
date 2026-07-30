@@ -375,10 +375,17 @@
     width: 8px;
     height: 16px;
     border-radius: 4px;
-    border: 1px solid var(--purple);
+    border: 2.5px solid #606467;
     background: transparent;
   }
-  .warp-pip.filled { background: var(--purple); }
+  .warp-pip.filled { background: #E977F5; }
+  .warp-cell-popup-pip {
+    width: 18px;
+    height: 36px;
+    flex-shrink: 0;
+    border: none;
+    border-radius: 999px;
+  }
   .fuel-rects {
     display: inline-flex;
     align-items: flex-end;
@@ -2432,6 +2439,24 @@
     </div>
   </div>
 
+  <div class="map-overlay" id="warpCellFoundOverlay">
+    <div class="map-panel" style="max-width:460px;">
+      <div class="map-header">
+        <span class="map-title">YOU FOUND A WARP CELL!</span>
+        <span class="warp-pip filled warp-cell-popup-pip" id="warpCellPopupPip"></span>
+      </div>
+      <div class="trade-invest-desc">
+        A warp cell lets you burn it to reshuffle into a brand new galaxy — new sectors, new stations, everything regenerated from scratch. It's also the only way to push Galaxy Depth further: every warp permanently makes the new galaxy more dangerous and more rewarding than the one you left, and that effect stacks with every warp cell you spend afterward. It never wears off, and it never reverses.
+      </div>
+      <div class="trade-invest-desc">
+        Warping also resets all four factions' reputation back to neutral, so it's not a decision to make lightly. Check the Compendium's Sector Traits and Reputation &amp; Factions sections if you want the full breakdown before you use one.
+      </div>
+      <div class="trade-invest-row">
+        <button id="warpCellFoundOkBtn">OK</button>
+      </div>
+    </div>
+  </div>
+
   <div class="map-overlay" id="perkSelectOverlay">
     <div class="map-panel">
       <div class="map-header">
@@ -3082,7 +3107,8 @@
     weaponCost: 700,
     dockingComputerOwned: false,
     jumpDriveOwned: false,
-    warpCells: 1,
+    warpCells: 0,
+    foundFirstWarpCell: false,
     warpCellCapacity: 1,
     activityUpgrades: {
       trading: { speed: false, yield: false },
@@ -5406,6 +5432,10 @@
       state.captain.overallXP += 1;
       leveled = true;
       addLog('Captain\'s log. ' + state.captain.name.split(' ')[0] + '\'s ' + SKILL_LABELS[skillKey] + ' has come a long way — level ' + state.captain[skillKey] + ' now.', 'system');
+      if (!state.foundFirstWarpCell && state.captain[skillKey] === 1) {
+        state.foundFirstWarpCell = true;
+        el('warpCellFoundOverlay').classList.add('open');
+      }
     }
     if (state.captain[skillKey] >= 10) state.captain.skillXP[skillKey] = 0;
     if (leveled) checkOverallLevelUp();
@@ -6549,6 +6579,7 @@
         dockingComputerOwned: state.dockingComputerOwned,
         jumpDriveOwned: state.jumpDriveOwned,
         warpCells: state.warpCells,
+        foundFirstWarpCell: state.foundFirstWarpCell,
         warpCellCapacity: state.warpCellCapacity,
         activityUpgrades: state.activityUpgrades,
         shipClassName: state.shipClassName,
@@ -6743,6 +6774,12 @@
     state.jumpDriveOwned = vBool(s.jumpDriveOwned);
     state.warpCellCapacity = vInt(s.warpCellCapacity, 1, 1, 999);
     state.warpCells = vInt(s.warpCells, 0, 0, state.warpCellCapacity);
+    // Migration (Build 038): an old save with any skill already above 0 has clearly
+    // already passed this milestone in spirit, even though the flag never existed to
+    // record it — showing the popup to a player mid-playthrough would be confusing,
+    // not informative.
+    const alreadyPastMilestone = [state.captain.sec, state.captain.skull, state.captain.neg, state.captain.prospect].some(v => v > 0);
+    state.foundFirstWarpCell = s.foundFirstWarpCell !== undefined ? !!s.foundFirstWarpCell : alreadyPastMilestone;
     state.activeStationTab = vPick(s.activeStationTab, ['shipyard', 'depot', 'equipment'], 'shipyard');
     state.docked = vBool(s.docked);
     state.dockedStationName = state.docked ? vStr(s.dockedStationName, 'Station', 60) : null;
@@ -7170,6 +7207,61 @@
   });
   el('leaderboardCloseBtn').addEventListener('click', () => {
     el('leaderboardOverlay').classList.remove('open');
+  });
+
+  el('warpCellFoundOkBtn').addEventListener('click', () => {
+    const source = el('warpCellPopupPip');
+    const target = el('warpPipsTopbar');
+
+    // Flies a cloned pip from the popup to the topbar over 3s before actually granting
+    // the warp cell. Real layout (getBoundingClientRect, requestAnimationFrame) is only
+    // meaningfully available in an actual browser — this environment can't verify the
+    // animation looks right, only that the underlying state change still happens
+    // correctly regardless of whether the flourish itself renders.
+    if (source && target && typeof source.getBoundingClientRect === 'function'
+        && typeof document.body !== 'undefined' && document.body && typeof document.body.appendChild === 'function') {
+      // Read both positions BEFORE closing the popup — closing it first collapses the
+      // source pip's rect to zero, which was making the flyer appear to start from the
+      // top-left corner of the screen instead of its actual spot in the dialog.
+      const sourceRect = source.getBoundingClientRect();
+      const targetRect = target.getBoundingClientRect();
+
+      const flyer = document.createElement('div');
+      flyer.className = 'warp-cell-flyer';
+      flyer.style.position = 'fixed';
+      flyer.style.left = sourceRect.left + 'px';
+      flyer.style.top = sourceRect.top + 'px';
+      flyer.style.width = sourceRect.width + 'px';
+      flyer.style.height = sourceRect.height + 'px';
+      flyer.style.margin = '0';
+      flyer.style.zIndex = '999';
+      flyer.style.borderRadius = '999px';
+      flyer.style.background = '#E977F5';
+      flyer.style.transition = 'left 3s ease-in-out, top 3s ease-in-out, width 3s ease-in-out, height 3s ease-in-out, border-radius 3s ease-in-out';
+      document.body.appendChild(flyer);
+      flyer.getBoundingClientRect(); // force reflow so the transition starts from the popup's position, not the target's
+
+      el('warpCellFoundOverlay').classList.remove('open');
+
+      const startFlight = () => {
+        flyer.style.left = (targetRect.left + 2) + 'px';
+        flyer.style.top = targetRect.top + 'px';
+        flyer.style.width = '8px';
+        flyer.style.height = '16px';
+        flyer.style.borderRadius = '4px';
+      };
+      if (typeof requestAnimationFrame === 'function') requestAnimationFrame(startFlight);
+      else startFlight();
+      setTimeout(() => {
+        flyer.remove();
+        state.warpCells += 1;
+        render();
+      }, 3000);
+    } else {
+      el('warpCellFoundOverlay').classList.remove('open');
+      state.warpCells += 1;
+      render();
+    }
   });
 
   el('bugReportBtn').addEventListener('click', () => {
