@@ -131,22 +131,19 @@
     letter-spacing: 0.04em;
     margin-top: 2px;
   }
-  .auto-repair-row {
-    display: flex;
-    align-items: center;
-    gap: 6px;
+  .insurance-claim-row {
     margin-top: 4px;
-  }
-  .auto-repair-label {
-    font-size: 0.58rem;
-    letter-spacing: 0.03em;
+    font-family: var(--font-hud);
+    font-size: 0.62rem;
+    letter-spacing: 0.04em;
     color: var(--text-dim);
-    white-space: nowrap;
   }
-  .auto-repair-row input[type="range"] {
-    width: 70px;
-    accent-color: var(--cyan);
+  .insurance-claim-row span {
+    font-weight: bold;
+    text-shadow: -1.5px -1.5px 0 #000, 1.5px -1.5px 0 #000, -1.5px 1.5px 0 #000, 1.5px 1.5px 0 #000, 0 0 3px #000;
   }
+  .insurance-claim-row span.affordable { color: var(--green); }
+  .insurance-claim-row span.unaffordable { color: var(--crimson); }
   .compendium-btn {
     position: absolute;
     left: 22px;
@@ -165,6 +162,23 @@
     box-shadow: 0 0 8px 1px rgba(232,163,61,0.5);
   }
   .compendium-btn:hover { background: #ffc866; box-shadow: 0 0 12px 2px rgba(232,163,61,0.7); }
+  .leaderboard-btn {
+    position: absolute;
+    left: 168px;
+    top: 50%;
+    transform: translateY(-50%);
+    padding: 8px 18px;
+    background: var(--bg-panel-raised);
+    border: 1px solid var(--border-bright);
+    border-radius: 4px;
+    color: var(--text-dim);
+    font-family: var(--font-hud);
+    font-size: 0.72rem;
+    font-weight: bold;
+    letter-spacing: 0.14em;
+    cursor: pointer;
+  }
+  .leaderboard-btn:hover { color: var(--cyan); border-color: var(--cyan); }
   .stats { display: flex; align-items: center; gap: 26px; flex-wrap: wrap; }
   .stat { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
   .stat-label {
@@ -734,6 +748,34 @@
     color: var(--amber);
     font-weight: bold;
   }
+  .leaderboard-list { display: flex; flex-direction: column; gap: 6px; }
+  .leaderboard-status {
+    text-align: center;
+    color: var(--text-dim);
+    font-size: 0.78rem;
+    padding: 20px 0;
+  }
+  .leaderboard-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 12px;
+    border: 1px solid var(--border-bright);
+    border-radius: 4px;
+    font-family: var(--font-hud);
+  }
+  .leaderboard-rank {
+    font-size: 1rem;
+    color: var(--amber);
+    min-width: 22px;
+  }
+  .leaderboard-initials {
+    flex: 1;
+    font-size: 0.85rem;
+    letter-spacing: 0.1em;
+    color: var(--text-primary);
+  }
+  .leaderboard-score { font-size: 0.85rem; color: var(--cyan); }
   .map-panel {
     background: var(--bg-panel-raised);
     border: 1px solid var(--border-bright);
@@ -2011,6 +2053,13 @@
     font-weight: bold;
   }
   .savebar button.bug-report:hover:not(:disabled) { background: #ffc866; border-color: #ffc866; color: #000; }
+  .savebar button#endRunBtn {
+    background: var(--crimson);
+    border-color: var(--crimson);
+    color: #fff;
+    font-weight: bold;
+  }
+  .savebar button#endRunBtn:hover:not(:disabled) { background: #ff7a7a; border-color: #ff7a7a; color: #fff; }
 
   .footnote {
     font-size: 0.62rem;
@@ -2031,9 +2080,8 @@
       <span class="ship-name" id="shipName">S.S. WAYWARD</span>
       <span class="ship-class" id="shipClass">HAULER-CLASS · TIER 1</span>
       <div class="ship-bonus-row" id="shipBonusRow"></div>
-      <div class="auto-repair-row" id="autoRepairRow" style="display:none;">
-        <span class="auto-repair-label">AUTO-REPAIR BELOW <span id="autoRepairValue">30</span>%</span>
-        <input type="range" id="autoRepairSlider" min="10" max="90" step="5" value="30">
+      <div class="insurance-claim-row" id="insuranceClaimRow" style="display:none;">
+        INSURANCE CLAIM: <span id="insuranceClaimValue">0</span>
       </div>
     </div>
     <div class="stats">
@@ -2119,6 +2167,7 @@
 
   <div class="sector-bar" id="sectorBar">
     <button class="compendium-btn" id="compendiumBtn">COMPENDIUM</button>
+    <button class="leaderboard-btn" id="leaderboardBtn">LEADERBOARD</button>
     <div class="sector-current">
       <span class="sector-label">CURRENT SECTOR</span>
       <span class="sector-name" id="sectorName">Kaldur Reach</span>
@@ -2335,13 +2384,21 @@
   <div class="map-overlay" id="gameOverOverlay">
     <div class="map-panel" style="max-width:460px;">
       <div class="map-header">
-        <span class="map-title">RUN ENDED</span>
+        <span class="map-title" id="gameOverTitle">RUN ENDED</span>
       </div>
-      <div class="trade-invest-desc">
+      <div class="trade-invest-desc" id="gameOverDesc">
         The hull gave out, and there was no credit on file to cover the insurance claim. The underwriters have repossessed what's left of the ship.
       </div>
       <div class="game-over-score">
         FINAL SCORE<br><span id="gameOverScoreValue">0.00</span>
+      </div>
+      <div id="gameOverLeaderboardPrompt" style="display:none;">
+        <div class="trade-invest-desc">Top 5 score! Enter your initials:</div>
+        <div class="trade-invest-row" id="gameOverSubmitRow">
+          <input type="text" id="gameOverInitialsInput" maxlength="3" placeholder="AAA" style="text-transform:uppercase; width:80px; text-align:center; letter-spacing:0.2em;">
+          <button id="gameOverSubmitScoreBtn">SUBMIT</button>
+        </div>
+        <div class="leaderboard-status" id="gameOverSubmitStatus" style="display:none;"></div>
       </div>
       <div class="trade-invest-row">
         <button id="gameOverNewRunBtn">START NEW RUN</button>
@@ -2359,6 +2416,18 @@
       <div class="compendium-body">
         <nav class="compendium-nav" id="compendiumNav"></nav>
         <div class="compendium-content" id="compendiumContent"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="map-overlay" id="leaderboardOverlay">
+    <div class="map-panel" style="max-width:420px;">
+      <div class="map-header">
+        <span class="map-title">TOP CAPTAINS</span>
+        <button class="map-close-btn" id="leaderboardCloseBtn">CLOSE ✕</button>
+      </div>
+      <div id="leaderboardList" class="leaderboard-list">
+        <div class="leaderboard-status">Loading…</div>
       </div>
     </div>
   </div>
@@ -2900,12 +2969,62 @@
       <button id="exportSaveBtn">EXPORT FILE</button>
       <button id="importSaveBtn">IMPORT FILE</button>
       <button id="newGameBtn" class="danger">NEW GAME</button>
+      <button id="endRunBtn" class="danger">END RUN</button>
       <button id="bugReportBtn" class="bug-report">REPORT A BUG</button>
       <input type="file" id="importFileInput" accept=".json,application/json" style="display:none;">
     </div>
     <span class="footnote-version">STARFARER V36.3 — design mockup · not a full game, illustrates the core allocation loop</span>
   </div>
 </div>
+
+<script type="module">
+  // Leaderboard backend (Firebase Firestore). This is a module script, which browsers
+  // load and execute independently of the classic <script> below — it is NOT guaranteed
+  // to finish before the main game script starts running. Everything that touches
+  // Firebase is written to tolerate window.__starfarerDb not existing yet (or never
+  // existing, e.g. if the CDN is blocked or offline) rather than assume it's ready.
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+  import {
+    getFirestore, collection, addDoc, query, orderBy, limit, getDocs, serverTimestamp
+  } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyAgT6oCdW5l-7sJIf9EBGfJbBIAneEO6eg",
+    authDomain: "starfarer-leaderboard.firebaseapp.com",
+    projectId: "starfarer-leaderboard",
+    storageBucket: "starfarer-leaderboard.firebasestorage.app",
+    messagingSenderId: "216659605130",
+    appId: "1:216659605130:web:65a2184436e563df1e1f73"
+  };
+
+  try {
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    window.__starfarerDb = {
+      async fetchTopScores(count) {
+        const q = query(collection(db, 'scores'), orderBy('score', 'desc'), limit(count || 5));
+        const snap = await getDocs(q);
+        const rows = [];
+        snap.forEach(doc => rows.push(doc.data()));
+        return rows;
+      },
+      async submitScore(initials, score) {
+        await addDoc(collection(db, 'scores'), {
+          initials: String(initials).toUpperCase().slice(0, 3),
+          score: Math.max(0, Math.floor(score)),
+          submittedAt: serverTimestamp()
+        });
+      }
+    };
+  } catch (e) {
+    // Leaderboard is a non-essential feature — if Firebase fails to initialize for any
+    // reason (CDN blocked, offline, config issue), the rest of the game must keep
+    // working. window.__starfarerDb simply stays undefined, and every caller checks
+    // for that before using it.
+    console.error('Leaderboard backend failed to initialize:', e);
+  }
+</script>
 
 <script>
   // Surfaces any uncaught error directly in the on-page log terminal, so issues
@@ -2975,11 +3094,11 @@
     shipBonusActivity: null,
     shipBonusAmount: 0,
     shipTier: 1,
-    autoRepairThreshold: 30,
     totalCreditsEarned: 0,
     sectorAuthorityMaxCount: 0,
     sectorAuthorityMaxFlags: {},
     otherFactionMaxedBonusEarned: false,
+    pendingLeaderboardScore: null,
     tradingAutoReinvestAmount: 0,
     pendingCarefulMinerAutoSell: false,
     pendingAutoRepair: false,
@@ -3198,11 +3317,33 @@
         <p>If Quick Retreat isn't available and hull hits 0, an insurance claim is automatically filed: 30% of your ship's current market value (based on its Tier) in available credits.</p>
         <ul>
           <li><strong>If you can afford it:</strong> the ship survives at 1 hull, insurance paid</li>
-          <li><strong>If you can't:</strong> the run ends entirely. Your score is Total Credits Earned divided by 1,000,000, and the save resets completely — fresh captain, fresh ship, back to ship selection.</li>
+          <li><strong>If you can't:</strong> the run ends entirely. Your score is calculated from several things, not just credits — see the Scoring section of this Compendium for the exact breakdown — and the save resets completely: fresh captain, fresh ship, back to ship selection.</li>
         </ul>
         <p>There's no confirmation dialog for this — the moment you can't cover the claim <em>is</em> the event. Worth knowing your ship's insurance cost before pushing a run to the edge.</p>
         <h3>ABORT</h3>
         <p>The red ABORT button (top-right of Current Operation) stops whatever's running immediately. For an in-progress Trade run specifically, it refunds whatever legs hadn't resolved yet, at cost.</p>
+        <h3>END RUN</h3>
+        <p>The red END RUN button (bottom save bar) voluntarily triggers the same scoring and save-reset flow as running out of hull — useful if you'd rather bank a score on your own terms than risk losing everything to a bad roll. Same as permadeath, there's no way back once confirmed.</p>
+      `
+    },
+    {
+      id: 'scoring',
+      title: 'Scoring',
+      html: `
+        <h3>HOW YOUR SCORE IS CALCULATED</h3>
+        <p>Shown whenever a run ends, whether by hull hitting 0 with no insurance available or by voluntarily hitting END RUN. Four components, all whole numbers, added together:</p>
+        <h4>1. CREDITS</h4>
+        <p><span class="comp-tag">floor(Total Credits Earned &divide; 10,000)</span></p>
+        <p>Total Credits Earned is a running lifetime total, separate from your spendable credit balance — it only ever goes up, tracking every sale (ore, ingots, Plunder, Vouchers) and net Trading profit across the whole run. Spending doesn't reduce it, and it's not the same number as what you see in the topbar. Rounds down, so anything under 10,000 lifetime earned contributes 0 here.</p>
+        <h4>2. CAPTAIN SKILLS</h4>
+        <p><span class="comp-tag">Security + Skullduggery + Negotiation + Prospecting</span></p>
+        <p>A simple sum of all four skill levels at the moment the run ends. Maximum possible: 40 (every skill at 10).</p>
+        <h4>3. SECTOR AUTHORITY MILESTONES</h4>
+        <p><span class="comp-tag">2 points every time any sector's Sector Authority standing reaches 600</span></p>
+        <p>Tracked invisibly in the background for the whole run, not just checked at the end. Every individual sector that hits maximum Sector Authority standing counts separately, and dropping below 600 then climbing back up to it again later counts as a second occurrence. There's no upper limit on how many times this can trigger over a long run.</p>
+        <h4>4. OTHER FACTIONS MAXED</h4>
+        <p><span class="comp-tag">+10, once ever, if any of the other three factions (Mercantile Guild, Deep-Space Consortium, or Free Fleets) ever reaches 600</span></p>
+        <p>This is a one-time bonus for the whole run, not per faction — the first of the three to hit maximum standing grants it, and reaching it again (with the same or a different faction) doesn't grant it a second time. Also tracked live, so it still counts even if that faction's standing drops back down before the run ends.</p>
       `
     },
     {
@@ -4153,10 +4294,15 @@
       ? '<span style="color:' + shipTheme.color + '">' + shipTheme.icon + ' +' + state.shipBonusAmount + ' ' + shipTheme.label + '</span>'
       : '';
 
-    el('autoRepairRow').style.display = state.shipTier >= 2 ? 'flex' : 'none';
-    el('autoRepairValue').textContent = state.autoRepairThreshold;
-    if (document.activeElement !== el('autoRepairSlider')) {
-      el('autoRepairSlider').value = state.autoRepairThreshold;
+    if (state.sector && SECTORS[state.sector]) {
+      const economyIdx = SECTORS[state.sector].economy;
+      const shipValue = shipPriceForTier(state.shipTier, economyIdx);
+      const claimCost = Math.round(shipValue * 0.3);
+      el('insuranceClaimRow').style.display = 'block';
+      el('insuranceClaimValue').textContent = fmt(claimCost) + 'cr';
+      el('insuranceClaimValue').className = state.credits < claimCost ? 'unaffordable' : 'affordable';
+    } else {
+      el('insuranceClaimRow').style.display = 'none';
     }
 
     el('sensorsCost').textContent = fmt(displayedSensorsCost);
@@ -4593,7 +4739,7 @@
         // already checks the threshold itself and triggers the real repair-and-resume
         // cycle — this just makes sure a low-hull run doesn't keep grinding through its
         // remaining legs untouched until something worse happens.
-        if (state.shipTier >= 2 && (state.hull / state.maxHull) * 100 < state.autoRepairThreshold) {
+        if (state.shipTier >= 2 && (state.hull / state.maxHull) * 100 < AUTO_REPAIR_THRESHOLD) {
           run.totalReturned += legReturn;
           run.legsCompleted += 1;
           completeTradeRun();
@@ -4753,7 +4899,7 @@
     if (state.shipTier < 2) return false;
     if (state.hull <= 0) return false; // handled separately by the existing hull-0/Quick Retreat path
     const pct = (state.hull / state.maxHull) * 100;
-    if (pct >= state.autoRepairThreshold) return false;
+    if (pct >= AUTO_REPAIR_THRESHOLD) return false;
 
     state.activity = null;
     stopTicking();
@@ -5347,6 +5493,12 @@
 
   const REP_MIN = -600, REP_MAX = 600;
 
+  // Fixed at 30% now that the player-adjustable slider has been removed (its UI and state
+  // were pulled entirely — see auto_repair_slider_removed_code.txt for the removed code
+  // if this ever needs to become adjustable again). The auto-repair mechanism itself is
+  // unchanged, just no longer configurable.
+  const AUTO_REPAIR_THRESHOLD = 30;
+
   // Sector Authority is the one faction tracked per-sector rather than galaxy-wide: a
   // galaxy-wide baseline (raised only by Envoy's Office purchases) plus each sector's own
   // earned component (moved by actions taken there). Effective rep at any sector is the
@@ -5443,7 +5595,7 @@
     return 'permadeath';
   }
 
-  function triggerPermadeath() {
+  function triggerPermadeath(voluntary) {
     stopTicking();
     if (dockTimer) { clearInterval(dockTimer); dockTimer = null; }
     if (smeltTimer) { clearInterval(smeltTimer); smeltTimer = null; }
@@ -5460,8 +5612,36 @@
     const otherFactionScore = state.otherFactionMaxedBonusEarned ? 10 : 0;
     const score = creditsScore + skillScore + authorityScore + otherFactionScore;
 
+    el('gameOverTitle').textContent = 'RUN ENDED';
+    el('gameOverDesc').textContent = voluntary
+      ? "Run ended on your order. The ship and everything aboard it are logged and decommissioned."
+      : "The hull gave out, and there was no credit on file to cover the insurance claim. The underwriters have repossessed what's left of the ship.";
     el('gameOverScoreValue').textContent = fmt(score);
+    el('gameOverLeaderboardPrompt').style.display = 'none';
+    el('gameOverSubmitStatus').style.display = 'none';
+    el('gameOverInitialsInput').value = '';
     el('gameOverOverlay').classList.add('open');
+
+    checkLeaderboardQualification(score);
+  }
+
+  // Checked asynchronously, separate from showing the game-over overlay itself — the
+  // score and the option to start a new run must appear immediately, not wait on a
+  // network round-trip. The initials prompt just appears a moment later if it qualifies.
+  async function checkLeaderboardQualification(score) {
+    if (!window.__starfarerDb || score <= 0) return;
+    try {
+      const top = await window.__starfarerDb.fetchTopScores(5);
+      const qualifies = top.length < 5 || score > Math.min(...top.map(r => r.score || 0));
+      if (qualifies && el('gameOverOverlay').classList.contains('open')) {
+        el('gameOverLeaderboardPrompt').style.display = 'block';
+        state.pendingLeaderboardScore = score;
+      }
+    } catch (e) {
+      // Leaderboard being unreachable shouldn't block or alarm anyone at the exact
+      // moment their run just ended — fail silently, same as renderLeaderboard()
+      // surfaces the problem visibly when someone actually opens that overlay instead.
+    }
   }
 
   // Piracy: 4-tier outcome roll, replacing the old flat-28%-risk-event system entirely.
@@ -6087,10 +6267,6 @@
     buyShip(idx);
   });
   el('tierUpBtn').addEventListener('click', tierUpShip);
-  el('autoRepairSlider').addEventListener('input', () => {
-    state.autoRepairThreshold = parseInt(el('autoRepairSlider').value, 10);
-    el('autoRepairValue').textContent = state.autoRepairThreshold;
-  });
 
   el('fencePlunderBtn').addEventListener('click', () => {
     if (state.plunder < 1 || !state.docked) return;
@@ -6380,7 +6556,6 @@
         shipBonusActivity: state.shipBonusActivity,
         shipBonusAmount: state.shipBonusAmount,
         shipTier: state.shipTier,
-        autoRepairThreshold: state.autoRepairThreshold,
         totalCreditsEarned: state.totalCreditsEarned,
         sectorAuthorityMaxCount: state.sectorAuthorityMaxCount,
         sectorAuthorityMaxFlags: state.sectorAuthorityMaxFlags,
@@ -6582,7 +6757,6 @@
     state.shipName = vStr(s.shipName, 'WAYWARD', 20);
     state.shipBonusActivity = vPick(s.shipBonusActivity, ACTIVITY_KEYS, null);
     state.shipTier = vInt(s.shipTier, 1, 1, 5);
-    state.autoRepairThreshold = vInt(s.autoRepairThreshold, 30, 10, 90);
     state.totalCreditsEarned = vNum(s.totalCreditsEarned, 0, 0, 1e15);
     state.sectorAuthorityMaxCount = vInt(s.sectorAuthorityMaxCount, 0, 0, 1e6);
     state.sectorAuthorityMaxFlags = (s.sectorAuthorityMaxFlags && typeof s.sectorAuthorityMaxFlags === 'object') ? s.sectorAuthorityMaxFlags : {};
@@ -6730,6 +6904,7 @@
     el('saveNowBtn').disabled = !running;
     el('exportSaveBtn').disabled = !running;
     el('newGameBtn').disabled = !running;
+    el('endRunBtn').disabled = !running;
   }
   setInterval(updateSaveStatus, 1000);
 
@@ -6903,6 +7078,30 @@
     }
   });
 
+  el('gameOverSubmitScoreBtn').addEventListener('click', async () => {
+    const initials = el('gameOverInitialsInput').value.trim().toUpperCase();
+    const statusEl = el('gameOverSubmitStatus');
+    statusEl.style.display = 'block';
+    if (initials.length !== 3 || !/^[A-Z]{3}$/.test(initials)) {
+      statusEl.textContent = 'Enter exactly 3 letters.';
+      return;
+    }
+    if (!window.__starfarerDb || state.pendingLeaderboardScore == null) {
+      statusEl.textContent = 'Leaderboard unavailable right now.';
+      return;
+    }
+    el('gameOverSubmitScoreBtn').disabled = true;
+    statusEl.textContent = 'Submitting…';
+    try {
+      await window.__starfarerDb.submitScore(initials, state.pendingLeaderboardScore);
+      statusEl.textContent = 'Submitted!';
+      el('gameOverSubmitRow').style.display = 'none';
+    } catch (e) {
+      statusEl.textContent = "Couldn't submit — check your connection and try again.";
+      el('gameOverSubmitScoreBtn').disabled = false;
+    }
+  });
+
   el('gameOverNewRunBtn').addEventListener('click', () => {
     saveSuppressed = true;
     if (autosaveTimer) { clearTimeout(autosaveTimer); autosaveTimer = null; }
@@ -6940,6 +7139,39 @@
     el('compendiumOverlay').classList.remove('open');
   });
 
+  async function renderLeaderboard() {
+    const listEl = el('leaderboardList');
+    listEl.innerHTML = '<div class="leaderboard-status">Loading…</div>';
+    if (!window.__starfarerDb) {
+      listEl.innerHTML = '<div class="leaderboard-status">Leaderboard unavailable right now — check your connection and try again.</div>';
+      return;
+    }
+    try {
+      const rows = await window.__starfarerDb.fetchTopScores(5);
+      if (!rows.length) {
+        listEl.innerHTML = '<div class="leaderboard-status">No scores yet — be the first.</div>';
+        return;
+      }
+      listEl.innerHTML = rows.map((r, i) =>
+        '<div class="leaderboard-row">'
+        + '<span class="leaderboard-rank">#' + (i + 1) + '</span>'
+        + '<span class="leaderboard-initials">' + String(r.initials || '???').toUpperCase().slice(0, 3) + '</span>'
+        + '<span class="leaderboard-score">' + fmt(r.score || 0) + '</span>'
+        + '</div>'
+      ).join('');
+    } catch (e) {
+      listEl.innerHTML = '<div class="leaderboard-status">Couldn\'t reach the leaderboard — check your connection and try again.</div>';
+    }
+  }
+
+  el('leaderboardBtn').addEventListener('click', () => {
+    el('leaderboardOverlay').classList.add('open');
+    renderLeaderboard();
+  });
+  el('leaderboardCloseBtn').addEventListener('click', () => {
+    el('leaderboardOverlay').classList.remove('open');
+  });
+
   el('bugReportBtn').addEventListener('click', () => {
     window.open('https://docs.google.com/forms/d/e/1FAIpQLSc_tyj2ftEDFmQ5DH8AIpxcshksEodpiYOI3IkUZVDOwBC-0g/viewform?usp=publish-editor', '_blank');
   });
@@ -6954,6 +7186,19 @@
         if (autosaveTimer) { clearTimeout(autosaveTimer); autosaveTimer = null; }
         storage.remove(SAVE_KEY);
         window.location.reload();
+      }
+    );
+  });
+
+  el('endRunBtn').addEventListener('click', () => {
+    askConfirm(
+      'END THIS RUN',
+      'This ends your run voluntarily and banks your score, same as the ship going down — the save resets and you return to ship selection. There is no way back.',
+      'END RUN',
+      () => {
+        state.activity = null;
+        updateBanner(null);
+        triggerPermadeath(true);
       }
     );
   });
