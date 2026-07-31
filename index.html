@@ -3293,7 +3293,7 @@
       <button id="bugReportBtn" class="bug-report">REPORT A BUG</button>
       <input type="file" id="importFileInput" accept=".json,application/json" style="display:none;">
     </div>
-    <span class="footnote-version">STARFARER V36.3 — design mockup · not a full game, illustrates the core allocation loop</span>
+    <span class="footnote-version">STARFARER V41.4 — design mockup · not a full game, illustrates the core allocation loop</span>
   </div>
 </div>
 
@@ -6137,24 +6137,29 @@
 
   // Checked asynchronously, separate from showing the game-over overlay itself — the
   // score and the option to start a new run must appear immediately, not wait on a
-  // network round-trip. If the score qualifies, it's submitted automatically using the
-  // captain's own name (no initials prompt anymore) — this only shows a brief status
-  // line, there's nothing for the player to do.
+  // network round-trip. Submission itself must NOT depend on the game-over overlay still
+  // being open: DECANT NEW CLONE closes it immediately to show the constellation screen,
+  // and a player can easily click through before this async check resolves. Only the
+  // cosmetic status text is conditional on the overlay still being visible — the actual
+  // submitScore() call always fires if the score qualifies, whether or not anyone's still
+  // looking at that screen.
   async function checkLeaderboardQualification(score) {
     if (!window.__starfarerDb || score <= 0) return;
     try {
       const top = await window.__starfarerDb.fetchTopScores(5);
       const qualifies = top.length < 5 || score > Math.min(...top.map(r => r.score || 0));
-      if (qualifies && el('gameOverOverlay').classList.contains('open')) {
+      if (!qualifies) return;
+
+      const overlayStillOpen = el('gameOverOverlay').classList.contains('open');
+      if (overlayStillOpen) {
         el('gameOverLeaderboardPrompt').style.display = 'block';
-        const statusEl = el('gameOverSubmitStatus');
-        statusEl.textContent = 'Submitting to the leaderboard…';
-        try {
-          await window.__starfarerDb.submitScore(state.captain.name, score);
-          statusEl.textContent = 'Top 5 score! Submitted as ' + state.captain.name + '.';
-        } catch (e) {
-          statusEl.textContent = "Top 5 score, but couldn't submit — check your connection.";
-        }
+        el('gameOverSubmitStatus').textContent = 'Submitting to the leaderboard…';
+      }
+      try {
+        await window.__starfarerDb.submitScore(state.captain.name, score);
+        if (overlayStillOpen) el('gameOverSubmitStatus').textContent = 'Top 5 score! Submitted as ' + state.captain.name + '.';
+      } catch (e) {
+        if (overlayStillOpen) el('gameOverSubmitStatus').textContent = "Top 5 score, but couldn't submit — check your connection.";
       }
     } catch (e) {
       // Leaderboard being unreachable shouldn't block or alarm anyone at the exact
