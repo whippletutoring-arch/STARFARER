@@ -180,6 +180,7 @@
   }
   .leaderboard-btn:hover { color: var(--cyan); border-color: var(--cyan); }
   .stats { display: flex; align-items: center; gap: 26px; flex-wrap: wrap; }
+  .stat-column { display: flex; flex-direction: column; gap: 8px; align-items: flex-end; }
   .stat { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
   .stat-label {
     font-size: 0.62rem;
@@ -2332,82 +2333,88 @@
       </div>
     </div>
     <div class="stats">
-      <div class="stat">
-        <span class="stat-label">CREDITS</span>
-        <span class="stat-value" id="credits">250</span>
+      <div class="stat-column">
+        <div class="stat">
+          <span class="stat-label">CREDITS</span>
+          <span class="stat-value" id="credits">250</span>
+        </div>
+        <div class="stat">
+          <span class="stat-label">VOUCHERS</span>
+          <span class="stat-value" id="vouchers" style="color: var(--cyan);">0</span>
+        </div>
       </div>
-      <div class="stat">
-        <span class="stat-label">VOUCHERS</span>
-        <span class="stat-value" id="vouchers" style="color: var(--cyan);">0</span>
+      <div class="stat-column">
+        <div class="stat">
+          <span class="stat-label">WARP CELLS</span>
+          <span class="warp-pip-row" id="warpPipsTopbar"></span>
+        </div>
+        <div class="stat">
+          <span class="stat-label">FUEL</span>
+          <span class="fuel-rects" id="fuelRects"></span>
+          <span class="fuel-bar-wrap" id="fuelBarWrap" style="display:none;">
+            <span class="fuel-bar-fill" id="fuelBarFill"></span>
+            <span class="fuel-bar-text" id="fuelBarText">10/10</span>
+          </span>
+        </div>
       </div>
-      <div class="stat ore-stat" id="oreStatWrap" tabindex="0">
-        <span class="stat-label">CARGO</span>
-        <span class="stat-value" id="ore">0/50</span>
-        <div class="ore-dropdown" id="oreDropdown">
-          <div class="ore-dropdown-title">CARGO HOLD — <span id="oreDropdownCargo">0/50</span></div>
-          <div class="ore-dropdown-columns">
-            <div class="ore-dropdown-col">
-              <div class="ore-dropdown-row">
-                <span class="ore-dot-label"><span class="ore-dot copper"></span>Copper</span>
-                <span id="oreDropCopper">0</span>
+      <div class="stat-column">
+        <div class="stat hull">
+          <span class="stat-label">HULL POINTS: <span id="hullReadout">25/25</span></span>
+          <div class="hull-bar"><div class="hull-fill" id="hullFill"></div></div>
+        </div>
+        <div class="stat ore-stat" id="oreStatWrap" tabindex="0">
+          <span class="stat-label">CARGO</span>
+          <span class="stat-value" id="ore">0/50</span>
+          <div class="ore-dropdown" id="oreDropdown">
+            <div class="ore-dropdown-title">CARGO HOLD — <span id="oreDropdownCargo">0/50</span></div>
+            <div class="ore-dropdown-columns">
+              <div class="ore-dropdown-col">
+                <div class="ore-dropdown-row">
+                  <span class="ore-dot-label"><span class="ore-dot copper"></span>Copper</span>
+                  <span id="oreDropCopper">0</span>
+                </div>
+                <div class="ore-dropdown-row">
+                  <span class="ore-dot-label"><span class="ore-dot iron"></span>Iron</span>
+                  <span id="oreDropIron">0</span>
+                </div>
+                <div class="ore-dropdown-row">
+                  <span class="ore-dot-label"><span class="ore-dot silver"></span>Silver</span>
+                  <span id="oreDropSilver">0</span>
+                </div>
+                <div class="ore-dropdown-row">
+                  <span class="ore-dot-label"><span class="ore-dot gold"></span>Gold</span>
+                  <span id="oreDropGold">0</span>
+                </div>
+                <div class="ore-dropdown-row cargo-row-red">
+                  <span class="ore-dot-label"><span class="ore-dot plunder"></span>Plunder</span>
+                  <span id="oreDropPlunder">0</span>
+                </div>
               </div>
-              <div class="ore-dropdown-row">
-                <span class="ore-dot-label"><span class="ore-dot iron"></span>Iron</span>
-                <span id="oreDropIron">0</span>
-              </div>
-              <div class="ore-dropdown-row">
-                <span class="ore-dot-label"><span class="ore-dot silver"></span>Silver</span>
-                <span id="oreDropSilver">0</span>
-              </div>
-              <div class="ore-dropdown-row">
-                <span class="ore-dot-label"><span class="ore-dot gold"></span>Gold</span>
-                <span id="oreDropGold">0</span>
-              </div>
-              <div class="ore-dropdown-row cargo-row-red">
-                <span class="ore-dot-label"><span class="ore-dot plunder"></span>Plunder</span>
-                <span id="oreDropPlunder">0</span>
-              </div>
-            </div>
-            <div class="ore-dropdown-col">
-              <div class="ore-dropdown-row">
-                <span class="ore-dot-label"><span class="ore-dot industrial"></span>Tech Scrap</span>
-                <span id="oreDropIndustrial">0</span>
-              </div>
-              <div class="ore-dropdown-row">
-                <span class="ore-dot-label"><span class="ore-dot weapons"></span>Weapons</span>
-                <span id="oreDropWeapons">0</span>
-              </div>
-              <div class="ore-dropdown-row">
-                <span class="ore-dot-label"><span class="ore-dot medical"></span>Medical Supplies</span>
-                <span id="oreDropMedical">0</span>
-              </div>
-              <div class="ore-dropdown-row">
-                <span class="ore-dot-label"><span class="ore-dot luxury"></span>Luxury Goods</span>
-                <span id="oreDropLuxury">0</span>
-              </div>
-              <div class="ore-dropdown-row cargo-row-red">
-                <span class="ore-dot-label"><span class="ore-dot illicit"></span>Illicit Goods</span>
-                <span id="oreDropIllicit">0</span>
+              <div class="ore-dropdown-col">
+                <div class="ore-dropdown-row">
+                  <span class="ore-dot-label"><span class="ore-dot industrial"></span>Tech Scrap</span>
+                  <span id="oreDropIndustrial">0</span>
+                </div>
+                <div class="ore-dropdown-row">
+                  <span class="ore-dot-label"><span class="ore-dot weapons"></span>Weapons</span>
+                  <span id="oreDropWeapons">0</span>
+                </div>
+                <div class="ore-dropdown-row">
+                  <span class="ore-dot-label"><span class="ore-dot medical"></span>Medical Supplies</span>
+                  <span id="oreDropMedical">0</span>
+                </div>
+                <div class="ore-dropdown-row">
+                  <span class="ore-dot-label"><span class="ore-dot luxury"></span>Luxury Goods</span>
+                  <span id="oreDropLuxury">0</span>
+                </div>
+                <div class="ore-dropdown-row cargo-row-red">
+                  <span class="ore-dot-label"><span class="ore-dot illicit"></span>Illicit Goods</span>
+                  <span id="oreDropIllicit">0</span>
+                </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
-      <div class="stat">
-        <span class="stat-label">FUEL</span>
-        <span class="fuel-rects" id="fuelRects"></span>
-        <span class="fuel-bar-wrap" id="fuelBarWrap" style="display:none;">
-          <span class="fuel-bar-fill" id="fuelBarFill"></span>
-          <span class="fuel-bar-text" id="fuelBarText">10/10</span>
-        </span>
-      </div>
-      <div class="stat">
-        <span class="stat-label">WARP CELLS</span>
-        <span class="warp-pip-row" id="warpPipsTopbar"></span>
-      </div>
-      <div class="stat hull">
-        <span class="stat-label">HULL POINTS: <span id="hullReadout">25/25</span></span>
-        <div class="hull-bar"><div class="hull-fill" id="hullFill"></div></div>
       </div>
     </div>
   </header>
