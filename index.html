@@ -3098,7 +3098,7 @@
             <button id="repairBtn">REPAIR — 100cr</button>
             <button id="sensorsBtn">BUY SECTOR MAP — <span id="sensorsCost">800</span>cr</button>
             <button id="buyFuelBtn">BUY FUEL — <span id="fuelPrice">150</span>cr/unit</button>
-            <button id="cargoUpgradeBtn">EXPAND CARGO HOLD (+20) — <span id="cargoUpgradeCost">600</span>cr</button>
+            <button id="cargoUpgradeBtn">EXPAND CARGO HOLD (+200) — <span id="cargoUpgradeCost">600</span>cr</button>
             <button id="fuelTankUpgradeBtn">EXPAND FUEL TANK (+5) — <span id="fuelUpgradeCost">400</span>cr</button>
           </div>
 
@@ -3293,7 +3293,7 @@
       <button id="bugReportBtn" class="bug-report">REPORT A BUG</button>
       <input type="file" id="importFileInput" accept=".json,application/json" style="display:none;">
     </div>
-    <span class="footnote-version">STARFARER V41.4 — design mockup · not a full game, illustrates the core allocation loop</span>
+    <span class="footnote-version">STARFARER V42.2 — design mockup · not a full game, illustrates the core allocation loop</span>
   </div>
 </div>
 
@@ -3379,7 +3379,7 @@
     credits: 250,
     ore: { copper: 0, iron: 0, silver: 0, gold: 0 },
     ingots: { copper: 0, iron: 0, silver: 0, gold: 0 },
-    cargoCapacity: 50,
+    cargoCapacity: 500,
     plunder: 0,
     vouchers: 0,
     fuel: 10,
@@ -3456,15 +3456,18 @@
   // flat per-tick reward. Raw ore sales grant credits only, never XP — Engineering only
   // grows when ingots are sold, so there's no run-ending financial trap: dumping raw ore
   // for cash never trades off against captain progression.
-  const XP_PER_CREDIT = 0.2; // 1 skill XP per 5cr of profit
+  const XP_PER_CREDIT = 0.001; // 1 skill XP per 1,000cr earned via that skill's money trigger
   const SKILL_LABELS = { sec: 'Security', skull: 'Skullduggery', neg: 'Negotiation', prospect: 'Prospecting' };
-  function skillXPNeeded(level) { return Math.round(20 * Math.pow(1.4, level)); }
+  function skillXPNeeded(level) { return 10 * (level + 1); }
 
   // Overall Captain Level is derived from total skill level-ups across all 4 skills (each
-  // skill level-up adds 1 to the overall XP pool). Maxing every skill (4×10=40) guarantees
+  // skill level-up adds 1 to the overall XP pool). Maxing every skill (4×100=400) guarantees
   // Overall Level 5. Levels 1-2 come quickly (front-loaded); 3-5 each take roughly double
   // the skill-levels of 1-2.
-  const OVERALL_LEVEL_THRESHOLDS = [3, 8, 18, 28, 40];
+  // Scaled 10x alongside the skill cap (10→100) so perk selections still land at roughly
+  // the same relative progression points as before, rather than all five firing almost
+  // immediately once a single skill starts leveling under the new, much larger range.
+  const OVERALL_LEVEL_THRESHOLDS = [30, 80, 180, 280, 400];
   const RANK_NAMES = ['Unranked', 'Petty Officer 3rd Class', 'Petty Officer 2nd Class', 'Petty Officer 1st Class', 'Chief Petty Officer', 'Master Chief Petty Officer'];
 
   // In-game reference compendium (accessible via the COMPENDIUM button in the topbar).
@@ -3492,7 +3495,7 @@
       title: 'Captain Skills',
       html: `
         <h3>CAPTAIN SKILLS</h3>
-        <p>Every captain has four skills, each governing exactly one action. Skills level organically as you earn from their linked action — there's no separate "training" system. Each skill ranges 0-10.</p>
+        <p>Every captain has four skills, each governing exactly one action. Skills level organically as you earn from their linked action — there's no separate "training" system. Each skill ranges 0-100, with Silver reached at 50 and Gold at 100.</p>
         <h4><span class="comp-tag">NEGOTIATION</span> — Trading</h4>
         <p>Adds directly to your bonus on each leg's success roll. Also feeds Trading's payout percentage alongside Merchant Guild reputation.</p>
         <h4><span class="comp-tag">PROSPECTING</span> — Mining</h4>
@@ -3599,7 +3602,7 @@
           <li><strong>Critical Success</strong> (fixed 5%): double Plunder, bigger Free Fleets gain</li>
         </ul>
         <h4>PLUNDER &amp; YIELD</h4>
-        <p>Shares cargo space with ore (100 Plunder = 1 cargo slot). Only fenceable at a Pirate Space Station's Black Market — the rate scales with your Free Fleets standing. The Efficiency Module and Piracy Knowledge (Log Fragments) both multiply how much Plunder a successful tick actually pays out — high multipliers can genuinely exceed what a small hold can carry in one hit, so cargo space becomes the real ceiling before the math does.</p>
+        <p>Shares cargo space with ore (10 Plunder = 1 cargo slot). Only fenceable at a Pirate Space Station's Black Market — the rate scales with your Free Fleets standing. The Efficiency Module and Piracy Knowledge (Log Fragments) both multiply how much Plunder a successful tick actually pays out — high multipliers can genuinely exceed what a small hold can carry in one hit, so cargo space becomes the real ceiling before the math does.</p>
         <h4>TIER 2+ AUTOMATION</h4>
         <p>Automatically repairs and resumes the raid whenever hull drops below 30% (a fixed threshold, not currently adjustable).</p>
       `
@@ -3675,7 +3678,7 @@
         <p>Total Credits Earned is a running lifetime total, separate from your spendable credit balance — it only ever goes up, tracking every sale (ore, ingots, Plunder, Vouchers) and net Trading profit across the whole run. Spending doesn't reduce it, and it's not the same number as what you see in the topbar. Rounds down, so anything under 10,000 lifetime earned contributes 0 here.</p>
         <h4>2. CAPTAIN SKILLS</h4>
         <p><span class="comp-tag">Security + Skullduggery + Negotiation + Prospecting</span></p>
-        <p>A simple sum of all four skill levels at the moment the run ends. Maximum possible: 40 (every skill at 10).</p>
+        <p>A simple sum of all four skill levels at the moment the run ends. Maximum possible: 400 (every skill at 100).</p>
         <h4>3. SECTOR AUTHORITY MILESTONES</h4>
         <p><span class="comp-tag">2 points every time any sector's Sector Authority standing reaches 600</span></p>
         <p>Tracked invisibly in the background for the whole run, not just checked at the end. Every individual sector that hits maximum Sector Authority standing counts separately, and dropping below 600 then climbing back up to it again later counts as a second occurrence. There's no upper limit on how many times this can trigger over a long run.</p>
@@ -3738,7 +3741,7 @@
           <li><strong>Vouchers</strong> — from Bounty Hunting, redeemed at any normal station's Sector Authority Office</li>
         </ul>
         <h3>CARGO</h3>
-        <p>Ore and Plunder share one cargo pool (100 Plunder counts as 1 slot). Vouchers don't take cargo space at all. Cargo capacity comes from your ship's class and any upgrades bought.</p>
+        <p>Ore and Plunder share one cargo pool (10 Plunder counts as 1 slot). Vouchers don't take cargo space at all. Cargo capacity comes from your ship's class and any upgrades bought.</p>
         <h3>SMELTING</h3>
         <p>Converts raw ore into ingots at a better sell rate. Smelting speed scales with Prospecting skill for everyone, and continues running even if you undock or warp mid-cycle.</p>
         <h3>DOCKING</h3>
@@ -3806,7 +3809,7 @@
   const FUEL_PRICE = 150;
   const DOCK_DURATION_MS = 3000;
   const TRANSIT_DURATION_MS = 6000;
-  const CARGO_UPGRADE_AMOUNT = 20;
+  const CARGO_UPGRADE_AMOUNT = 200;
   const FUEL_TANK_UPGRADE_AMOUNT = 5;
   const WEAPON_ROLL_BONUS = 5;
 
@@ -4296,7 +4299,9 @@
   const TRADE_LEG_MS = 1000;
 
   function tradingBonus() {
-    return state.captain.neg + (state.hullUpgradeLevel - 1) * TRADE_TIER_SLOPE;
+    // Balance pass: was raw skill added directly (max +10 at old cap); divided by 10 to
+    // preserve that same maximum bonus now that skill caps at 100 instead of 10.
+    return state.captain.neg / 10 + (state.hullUpgradeLevel - 1) * TRADE_TIER_SLOPE;
   }
 
   const ACTIVITIES = {
@@ -4412,7 +4417,9 @@
     // then referenced a variable name left over from the pre-rename skill keys, which would
     // have thrown an error the moment anyone actually tried to use it.
     const prospect = state.captain.prospect;
-    let duration = Math.round(SMELT_DURATION_MS - (prospect / 10) * (SMELT_DURATION_MS - 400));
+    // Balance pass: divisor scaled 10->100 alongside the skill cap increase, preserving
+    // the same maximum speed-up (down to 400ms) at max Prospecting.
+    let duration = Math.round(SMELT_DURATION_MS - (prospect / 100) * (SMELT_DURATION_MS - 400));
     // Speed Smelting was originally a further multiplier on the *same* Prospecting value
     // driving the line above — meaning at 0 Prospecting it provided literally zero benefit
     // (verified: 1000ms either way), gating the perk's value behind already having the
@@ -4515,12 +4522,14 @@
     }[c]));
   }
 
-  // Total cargo slots used: raw ore is 1 slot/unit, Plunder is 1 slot per 100 (rounded
+  // Total cargo slots used: raw ore is 1 slot/unit, Plunder is 1 slot per 10 (rounded
   // up), sharing the same pool. Used everywhere cargo capacity is checked so ore and
   // Plunder correctly compete for the same hold instead of each having its own limit.
+  // Ratio changed from 100:1 to 10:1 alongside the 10x cargo capacity increase, to keep
+  // the same relative amount of hold space Plunder takes up.
   function totalCargoUsed() {
     const oreTotal = state.ore.copper + state.ore.iron + state.ore.silver + state.ore.gold;
-    return oreTotal + Math.ceil(state.plunder / 100);
+    return oreTotal + Math.ceil(state.plunder / 10);
   }
 
   function addLog(text, cls) {
@@ -4641,14 +4650,14 @@
     [['Sec', 'sec'], ['Skull', 'skull'], ['Neg', 'neg'], ['Prospect', 'prospect']].forEach(([tag, key]) => {
       const level = state.captain[key];
       const fillEl = el('skillXpFill' + tag);
-      if (level >= 10) {
+      if (level >= 100) {
         fillEl.style.width = '100%';
       } else {
         const needed = skillXPNeeded(level);
         fillEl.style.width = Math.min(100, (state.captain.skillXP[key] / needed) * 100) + '%';
       }
       const starEl = el('star' + tag);
-      const starTier = level >= 10 ? 'gold' : (level >= 5 ? 'silver' : 'bronze');
+      const starTier = level >= 100 ? 'gold' : (level >= 50 ? 'silver' : 'bronze');
       starEl.classList.remove('bronze', 'silver', 'gold');
       starEl.classList.add(starTier);
     });
@@ -5543,22 +5552,41 @@
   function startSmelt(tierKey) {
     if (state.smelting) return;
     const tier = ORE_TIERS.find(t => t.key === tierKey);
-    if (state.ore[tierKey] < 1) {
+    const quantity = state.ore[tierKey];
+    if (quantity < 1) {
       if (state.smeltAllQueue) { state.smeltAllQueue = null; render(); }
       return;
     }
 
-    const rate = Math.round(tier.refineCost * sectorPriceMultiplier());
-    if (state.credits < rate) {
-      addLog('The foundry crew won\'t start without payment up front — need ' + fmt(rate) + 'cr to smelt that ' + tier.label.toLowerCase() + ' ore.', 'risk');
-      if (state.smeltAllQueue) { state.smeltAllQueue = null; render(); }
-      return;
+    // Balance pass: smelts the entire held stack of this ore tier in one operation,
+    // at the same duration as smelting a single unit used to take — not scaled by
+    // quantity. Ore yield went up 100x in this same pass, and one-unit-at-a-time
+    // smelting would have meant well over a hundred separate operations to process a
+    // single good mining tick, which stopped being a reasonable UX at that scale.
+    const perUnitRate = tier.refineCost * sectorPriceMultiplier();
+    const fullRate = Math.round(perUnitRate * quantity);
+    let smeltQuantity = quantity;
+    let rate = fullRate;
+    if (state.credits < fullRate) {
+      // Can't afford the whole stack — smelt as much as affordable instead of blocking
+      // entirely, spending everything available, then stop (the next tier in a Smelt All
+      // queue would have no funds left either).
+      const affordable = Math.floor(state.credits / perUnitRate);
+      if (affordable < 1) {
+        addLog('The foundry crew won\'t start without payment up front — can\'t afford even one unit of that ' + tier.label.toLowerCase() + ' ore.', 'risk');
+        if (state.smeltAllQueue) { state.smeltAllQueue = null; render(); }
+        return;
+      }
+      smeltQuantity = affordable;
+      rate = Math.round(perUnitRate * affordable);
+      addLog('Only enough credit on hand for ' + fmt(affordable) + ' of ' + fmt(quantity) + ' ' + tier.label.toLowerCase() + ' ore — smelting what the budget allows.', 'risk');
+      state.smeltAllQueue = null; // stop after this partial batch, no funds left for more
     }
 
     state.credits -= rate;
-    state.ore[tierKey] -= 1;
+    state.ore[tierKey] -= smeltQuantity;
     const durationMs = currentSmeltDurationMs();
-    state.smelting = { tierKey: tierKey, cost: rate, startAt: Date.now(), arrivalAt: Date.now() + durationMs, durationMs: durationMs };
+    state.smelting = { tierKey: tierKey, quantity: smeltQuantity, cost: rate, startAt: Date.now(), arrivalAt: Date.now() + durationMs, durationMs: durationMs };
     render();
 
     smeltTimer = setInterval(() => {
@@ -5572,10 +5600,11 @@
   function completeSmelt() {
     if (smeltTimer) { clearInterval(smeltTimer); smeltTimer = null; }
     const tierKey = state.smelting.tierKey;
+    const quantity = state.smelting.quantity;
     const cost = state.smelting.cost;
     const tier = ORE_TIERS.find(t => t.key === tierKey);
-    state.ingots[tierKey] += 1;
-    addLog('One ' + tier.label.toLowerCase() + ' ingot out of the forge, still warm. (-' + fmt(cost) + 'cr)', 'mining');
+    state.ingots[tierKey] += quantity;
+    addLog(fmt(quantity) + ' ' + tier.label.toLowerCase() + ' ingot' + (quantity === 1 ? '' : 's') + ' out of the forge, still warm. (-' + fmt(cost) + 'cr)', 'mining');
     state.smelting = null;
 
     if (state.smeltAllQueue) {
@@ -5586,7 +5615,7 @@
         startSmelt(nextTier);
         return;
       }
-      addLog(resolveLogTemplate('Forge cools down — ' + state.smeltAllQueue.total + ' units through the line, {crew} wiping the soot off.'), 'mining');
+      addLog(resolveLogTemplate('Forge cools down — ' + state.smeltAllQueue.total + ' batch' + (state.smeltAllQueue.total === 1 ? '' : 'es') + ' through the line, {crew} wiping the soot off.'), 'mining');
       state.smeltAllQueue = null;
     }
     render();
@@ -5600,10 +5629,11 @@
     if (smeltTimer) { clearInterval(smeltTimer); smeltTimer = null; }
     if (state.smelting) {
       const tier = ORE_TIERS.find(t => t.key === state.smelting.tierKey);
-      state.ore[state.smelting.tierKey] += 1;
+      const quantity = state.smelting.quantity || 1;
+      state.ore[state.smelting.tierKey] += quantity;
       state.credits += state.smelting.cost;
       addLog(resolveLogTemplate((reason || 'Smelting interrupted') + ' — {crew} yanks the ' + tier.label.toLowerCase()
-        + ' unit back out of the forge before it fully cooks. (+' + fmt(state.smelting.cost) + 'cr refunded)'), 'system');
+        + ' batch back out of the forge before it fully cooks. (+' + fmt(state.smelting.cost) + 'cr refunded)'), 'system');
     } else {
       addLog((reason || 'Smelting interrupted') + ' — the rest of the queue goes cold, unfinished.', 'system');
     }
@@ -5687,12 +5717,17 @@
 
     let tierKeys = [];
     if (pendingSmeltAllTarget === 'all') {
+      // Fixed for the batch-per-tier rework: one queue entry per TIER, not per unit of
+      // ore. Pushing a tier key once per unit was leftover from when startSmelt()
+      // consumed exactly 1 unit per call — now it consumes the entire stack in one call,
+      // so pushing the same key multiple times meant the second entry always found an
+      // already-empty stack, hit the empty-stack early return, and silently cleared the
+      // whole queue before it ever reached the next tier.
       ORE_TIERS.forEach(tier => {
-        for (let i = 0; i < state.ore[tier.key]; i++) tierKeys.push(tier.key);
+        if (state.ore[tier.key] > 0) tierKeys.push(tier.key);
       });
     } else {
-      const count = state.ore[pendingSmeltAllTarget];
-      for (let i = 0; i < count; i++) tierKeys.push(pendingSmeltAllTarget);
+      if (state.ore[pendingSmeltAllTarget] > 0) tierKeys.push(pendingSmeltAllTarget);
     }
     pendingSmeltAllTarget = null;
     if (tierKeys.length < 1 || state.smelting || state.smeltAllQueue) return;
@@ -5726,8 +5761,10 @@
     if (!state.sector || !SECTORS[state.sector]) return 1;
     const sector = SECTORS[state.sector];
     const raw = 1 + (sector.economy - 2) * ECON_PRICE_SLOPE + sector.threat * THREAT_PRICE_SLOPE;
+    // Balance pass: divisor scaled 10->100 alongside the skill cap increase, preserving
+    // the same max discount (1.3 cap) at max Negotiation.
     const cap = state.captain.perks.indexOf('master_haggler') !== -1
-      ? 2 - (state.captain.neg / 10) * 0.7
+      ? 2 - (state.captain.neg / 100) * 0.7
       : 2;
     return Math.max(0.5, Math.min(cap, raw));
   }
@@ -5803,7 +5840,10 @@
     const conf = ACTIVITIES.mining;
     const shipBonus = state.shipBonusActivity === 'mining' ? state.shipBonusAmount : 0;
     const skillAndShip = state.captain.prospect + shipBonus;
-    const failFactor = Math.max(0, 1 - skillAndShip / 20);
+    // Balance pass: divisor scaled 20->200 alongside the skill cap increase (10->100),
+    // preserving the same maximum effect - failFactor still hits exactly 0 at max
+    // skill+ship combined, same as before.
+    const failFactor = Math.max(0, 1 - skillAndShip / 200);
     const failChance = Math.min(90, (45 * failFactor) + depthFailPenalty(state.sector));
 
     const r = Math.random() * 100;
@@ -5837,7 +5877,17 @@
       addLog('Sensor sweep clear, but the seam\'s already tapped out. Nothing this pass.', 'mining');
     } else {
       const oreTier = rollOreTierByRichness(sector.ore);
-      let units = tier === 'critSuccess' ? 2 : 1;
+      // Balance pass: base yield raised 100x (was 1/2) as the primary lever bringing
+      // Mining's time-to-Tier-2 in line with Trading/Bounty/Piracy, confirmed via
+      // simulation rather than guessed — see the balance sim results for the reasoning.
+      // Balance pass: base yield is now randomized rather than flat, averaging 100 but
+      // fluctuating ±30. 12d6+58 gives an exact min of 70, max of 130, and average of
+      // exactly 100 — and because it's a sum of many dice rather than one flat roll or a
+      // uniform random pick, the result is genuinely bell-shaped: values cluster tightly
+      // around 100, and the extremes near 70 or 130 are rare rather than equally likely.
+      let units = 58;
+      for (let i = 0; i < 12; i++) units += Math.floor(Math.random() * 6) + 1;
+      if (tier === 'critSuccess') units *= 2;
       units += miningBonusUnits(skillAndShip);
       if (state.activityUpgrades.mining.yield) units *= efficiencyMultiplier(state.activityUpgrades.mining.yield);
       if (hasTripleYieldPerk('mining')) units *= 3;
@@ -5846,14 +5896,21 @@
       units = Math.max(1, Math.round(units * distanceEarningsMultiplier(state.sector)));
 
       const cargoUsed = totalCargoUsed();
-      if (cargoUsed + units > state.cargoCapacity) {
+      const roomLeft = Math.max(0, state.cargoCapacity - cargoUsed);
+      if (roomLeft <= 0) {
         addLog('No room left in the hold (' + fmt(cargoUsed) + '/' + fmt(state.cargoCapacity) + ') — that ' + oreTier.label.toLowerCase() + ' ore spills back into the belt.', 'risk');
       } else {
+        // Balance pass: a roll that would overflow the hold now fills whatever space is
+        // left and discards the rest, rather than discarding the entire roll outright —
+        // the all-or-nothing behavior was a leftover from when yield was always exactly
+        // 1 unit and overflow essentially never happened mid-roll.
+        const overflowed = units > roomLeft;
+        units = Math.min(units, roomLeft);
         state.ore[oreTier.key] += units;
         if (miningLucky) addLog('A rich seam turns up right where you were about to give up. — Lucky', 'mining');
         const pool = MINING_FLAVOR[oreTier.key];
         const line = resolveLogTemplate(pool[Math.floor(Math.random() * pool.length)]);
-        addLog(line + '  (+' + units + ' ' + oreTier.label + ')', conf.accent);
+        addLog(line + '  (+' + units + ' ' + oreTier.label + (overflowed ? ', hold filled — the rest spills back into the belt' : '') + ')', conf.accent);
 
         shiftRep({ consortium: rollRepGain(tier === 'critSuccess') });
 
@@ -5882,11 +5939,11 @@
 
   function grantSkillXP(skillKey, profitCredits) {
     if (profitCredits <= 0) return;
-    if (state.captain[skillKey] >= 10) return; // already maxed
+    if (state.captain[skillKey] >= 100) return; // already maxed
 
     state.captain.skillXP[skillKey] += profitCredits * XP_PER_CREDIT;
     let leveled = false;
-    while (state.captain[skillKey] < 10 && state.captain.skillXP[skillKey] >= skillXPNeeded(state.captain[skillKey])) {
+    while (state.captain[skillKey] < 100 && state.captain.skillXP[skillKey] >= skillXPNeeded(state.captain[skillKey])) {
       state.captain.skillXP[skillKey] -= skillXPNeeded(state.captain[skillKey]);
       state.captain[skillKey] += 1;
       state.captain.overallXP += 1;
@@ -5897,7 +5954,7 @@
         el('warpCellFoundOverlay').classList.add('open');
       }
     }
-    if (state.captain[skillKey] >= 10) state.captain.skillXP[skillKey] = 0;
+    if (state.captain[skillKey] >= 100) state.captain.skillXP[skillKey] = 0;
     if (leveled) checkOverallLevelUp();
   }
 
@@ -6176,7 +6233,10 @@
   // a fully-trusted captain is untouchable, by design.
   function diplomatSaves() {
     if (state.captain.perks.indexOf('diplomat') === -1) return false;
-    const chance = Math.min(100, state.captain.neg * 10);
+    // Balance pass: multiplier scaled 10->1 alongside the skill cap increase, still
+    // hitting exactly 100% chance at max Negotiation (100 * 1 = 100), same as before
+    // (10 * 10 = 100).
+    const chance = Math.min(100, state.captain.neg * 1);
     return Math.random() * 100 < chance;
   }
 
@@ -6242,7 +6302,9 @@
       state.plunder = Math.min(state.plunder + amount, maxPlunder);
       const actuallyGained = state.plunder - before;
 
-      grantSkillXP('skull', actuallyGained);
+      // XP no longer granted here on gaining Plunder — moved to fencePlunderBtn's
+      // handler, since Skullduggery XP is now tied to actually selling Plunder at the
+      // Black Market, not simply collecting it.
       if (piracyLucky) addLog('A lucky break doubles the take this round. — Lucky', 'piracy');
 
       if (actuallyGained < amount - 0.5) {
@@ -6256,7 +6318,9 @@
       addLog(line + '  (+' + fmt(actuallyGained) + ' plunder)', 'piracy');
     } else {
       let dmg = rollDistanceDamage(state.sector);
-      dmg = Math.max(1, dmg - state.captain.skull);
+      // Balance pass: was raw skill subtracted directly (max -10 at old cap); divided by
+      // 10 to preserve that same maximum reduction now that skill caps at 100 instead.
+      dmg = Math.max(1, dmg - state.captain.skull / 10);
       if (tier === 'critFailure') dmg *= 2;
 
       if (dmg > 0 && state.captain.perks.indexOf('prototype_stealth') !== -1) {
@@ -6307,7 +6371,8 @@
     state.bountyTargetName = BOUNTY_TARGET_NAMES[Math.floor(Math.random() * BOUNTY_TARGET_NAMES.length)];
 
     const conf = ACTIVITIES.bounty;
-    const skillFactor = 1 - state.captain.sec / 20;
+    // Balance pass: divisor scaled 20->200 alongside the skill cap increase (10->100).
+    const skillFactor = 1 - state.captain.sec / 200;
     const repFactor = (REP_MAX - effectiveAuthorityRep(state.sector)) / (REP_MAX - REP_MIN);
     const failPct = Math.min(90, (35 * skillFactor * repFactor) + depthFailPenalty(state.sector));
 
@@ -6333,7 +6398,9 @@
       const repGain = rollRepGain(tier === 'critSuccess');
       shiftRep({ authority: repGain });
       addLog('Sector Authority standing rises with the capture. (+' + repGain + ' rep)', 'bounty');
-      grantSkillXP('sec', vouchersGained);
+      // XP no longer granted here on gaining Vouchers — moved to sellVouchersBtn and
+      // convertVouchersBtn's handlers, since Security XP is now tied to actually
+      // redeeming Vouchers, not simply collecting them.
       if (bountyLucky) addLog('A lucky break doubles the take this round. — Lucky', 'bounty');
 
       const linePool = tier === 'critSuccess'
@@ -6343,7 +6410,9 @@
       addLog(line + '  (+' + fmt(vouchersGained) + ' vouchers)', 'bounty');
     } else {
       let dmg = rollDistanceDamage(state.sector);
-      dmg = Math.max(1, dmg - state.captain.sec);
+      // Balance pass: was raw skill subtracted directly (max -10 at old cap); divided by
+      // 10 to preserve that same maximum reduction now that skill caps at 100 instead.
+      dmg = Math.max(1, dmg - state.captain.sec / 10);
       if (tier === 'critFailure') dmg *= 3;
 
       if (dmg > 0 && state.captain.perks.indexOf('prototype_stealth') !== -1) {
@@ -6825,6 +6894,7 @@
     state.credits += payout;
     state.totalCreditsEarned += payout;
     state.plunder = 0;
+    grantSkillXP('skull', payout);
     render();
   });
 
@@ -6835,6 +6905,7 @@
     state.credits += payout;
     state.totalCreditsEarned += payout;
     state.vouchers = 0;
+    grantSkillXP('sec', payout);
     render();
   });
 
@@ -6843,6 +6914,10 @@
     state.vouchers -= VOUCHER_TO_REP_COST;
     shiftRep({ authority: VOUCHER_TO_REP_GAIN });
     addLog('Vouchers converted directly to standing with this sector\'s Authority office. (-' + VOUCHER_TO_REP_COST + ' vouchers, +' + VOUCHER_TO_REP_GAIN + ' rep)', 'bounty');
+    // Converting for rep doesn't earn credits directly, but it's still "selling"
+    // Vouchers per the design intent — XP is based on what those vouchers would have
+    // been worth sold outright, so both redemption paths grant Security XP consistently.
+    grantSkillXP('sec', VOUCHER_TO_REP_COST * VOUCHER_SELL_RATE);
     render();
   });
 
@@ -8151,10 +8226,10 @@
   }
 
   const SHIP_CLASSES = {
-    hauler: { name: 'Hauler', credits: 250, cargoCapacity: 20, fuel: 10, fuelCapacity: 10, hull: 25, maxHull: 25, bonusActivity: 'trading', bonusAmount: 2 },
-    prospector: { name: 'Prospector', credits: 300, cargoCapacity: 40, fuel: 5, fuelCapacity: 5, hull: 15, maxHull: 15, bonusActivity: 'mining', bonusAmount: 2 },
-    interceptor: { name: 'Interceptor', credits: 100, cargoCapacity: 5, fuel: 10, fuelCapacity: 10, hull: 30, maxHull: 30, bonusActivity: 'bounty', bonusAmount: 2 },
-    raider: { name: 'Raider', credits: 0, cargoCapacity: 5, fuel: 10, fuelCapacity: 10, hull: 30, maxHull: 30, bonusActivity: 'piracy', bonusAmount: 2 }
+    hauler: { name: 'Hauler', credits: 250, cargoCapacity: 200, fuel: 10, fuelCapacity: 10, hull: 25, maxHull: 25, bonusActivity: 'trading', bonusAmount: 2 },
+    prospector: { name: 'Prospector', credits: 300, cargoCapacity: 400, fuel: 5, fuelCapacity: 5, hull: 15, maxHull: 15, bonusActivity: 'mining', bonusAmount: 2 },
+    interceptor: { name: 'Interceptor', credits: 100, cargoCapacity: 50, fuel: 10, fuelCapacity: 10, hull: 30, maxHull: 30, bonusActivity: 'bounty', bonusAmount: 2 },
+    raider: { name: 'Raider', credits: 0, cargoCapacity: 50, fuel: 10, fuelCapacity: 10, hull: 30, maxHull: 30, bonusActivity: 'piracy', bonusAmount: 2 }
   };
 
   let pendingShipKey = null;
