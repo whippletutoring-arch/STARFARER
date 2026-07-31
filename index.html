@@ -3140,7 +3140,7 @@
       },
       async submitScore(initials, score) {
         await addDoc(collection(db, 'scores'), {
-          initials: String(initials).toUpperCase().slice(0, 3),
+          initials: String(initials).trim().slice(0, 28),
           score: Math.max(0, Math.floor(score)),
           submittedAt: serverTimestamp()
         });
