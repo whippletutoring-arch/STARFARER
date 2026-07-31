@@ -179,6 +179,38 @@
     cursor: pointer;
   }
   .leaderboard-btn:hover { color: var(--cyan); border-color: var(--cyan); }
+  .depth-indicator {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: help;
+  }
+  .depth-galaxy-icon {
+    display: inline-block;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    background:
+      radial-gradient(circle at center, #f0e0ff 0%, rgba(240,224,255,0.4) 12%, transparent 30%),
+      conic-gradient(from 0deg,
+        #050208 0deg, #4a1a7a 45deg, #0d0515 90deg,
+        #9d4edd 135deg, #1a0a2e 180deg, #6b2fa8 225deg,
+        #050208 270deg, #7b2cbf 315deg, #050208 360deg);
+    box-shadow: 0 0 8px 1px rgba(157,78,221,0.55);
+    animation: depth-galaxy-spin 9s linear infinite;
+  }
+  @keyframes depth-galaxy-spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+  .depth-value {
+    font-family: var(--font-hud);
+    font-size: 0.95rem;
+    font-weight: bold;
+    color: #c896f0;
+    text-shadow: 0 0 6px rgba(157,78,221,0.6);
+  }
   .stats { display: flex; align-items: center; gap: 26px; flex-wrap: wrap; }
   .stat-column { display: flex; flex-direction: column; gap: 8px; align-items: flex-end; }
   .stat { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
@@ -1933,7 +1965,7 @@
     font-size: 0.6rem;
     font-weight: bold;
     letter-spacing: 0.1em;
-    transform: rotate(-5deg);
+    transform: scale(0.7);
     border-radius: 2px;
   }
 
@@ -2422,6 +2454,10 @@
   <div class="sector-bar" id="sectorBar">
     <button class="compendium-btn" id="compendiumBtn">COMPENDIUM</button>
     <button class="leaderboard-btn" id="leaderboardBtn">LEADERBOARD</button>
+    <div class="depth-indicator" id="depthIndicator" title="Galactic Depth">
+      <span class="depth-galaxy-icon"></span>
+      <span class="depth-value" id="depthValue">0</span>
+    </div>
     <div class="sector-current">
       <span class="sector-label">CURRENT SECTOR</span>
       <span class="sector-name" id="sectorName">Kaldur Reach</span>
@@ -3644,6 +3680,27 @@
       `
     },
     {
+      id: 'logfragments',
+      title: 'Log Fragments',
+      html: `
+        <h3>WHAT THEY ARE</h3>
+        <p>A permanent currency that survives death — separate from credits, separate from your save file, separate from everything else that resets when a run ends. Log Fragments carry across every run you ever play, spent on permanent unlocks in the Captain's Log Archive (the constellation screen).</p>
+        <h3>HOW YOU EARN THEM</h3>
+        <p>Every 100 score, lifetime-cumulative — not per run. If an earlier run already banked the milestone at 100 score, a later run that reaches 236 only banks the newly-crossed 200 milestone (1 more fragment), not both. The exact same milestone math the Scoring section describes, just converted into a currency that outlives the run.</p>
+        <p>Fragments are only banked when a run actually ends — dying, or hitting END RUN voluntarily. Both route through the same reincarnation flow and both bank fragments identically; the only difference is whether it was forced or your own call.</p>
+        <h3>WHAT WIPES THEM — AND WHAT DOESN'T</h3>
+        <ul>
+          <li><strong>Death or END RUN</strong> — banks any newly-earned fragments first, then resets the save. Fragments and everything unlocked in the constellation are untouched.</li>
+          <li><strong>RESET SAVE</strong> — wipes everything, including the fragment bank and every star you've ever unlocked. This is the one action that actually destroys meta-progression; the button warns you before you can confirm it.</li>
+        </ul>
+        <h3>THE CONSTELLATION</h3>
+        <p>Four lanes, left to right in the same order as everything else in this game — Trading, Mining, Bounty Hunting, Piracy — each running top to bottom through a chain of stars, plus connector stars linking adjacent lanes partway down. Those connectors are genuinely functional: unlocking one opens a path into the neighboring lane without needing that lane's own root star first, not just a visual link.</p>
+        <p>Hover any star to see what it costs and what it does. Most of the graph is still uncharted — new stars are added as they're designed.</p>
+        <h4>CURRENTLY AVAILABLE: THE FOUR KNOWLEDGE PERKS</h4>
+        <p>Each lane's root star — Trading Knowledge, Mining Knowledge, Bounty Knowledge, Piracy Knowledge — triples that action's primary reward (Credits, Ore, Vouchers, or Plunder respectively) once unlocked. Trading Knowledge specifically isn't limited by Trading's normal payout ceiling, so it keeps delivering its full effect even stacked with a maxed Efficiency Module.</p>
+      `
+    },
+    {
       id: 'economy',
       title: 'Cargo, Economy, & Docking',
       html: `
@@ -4503,6 +4560,7 @@
   function render() {
     if (!state.sector) return; // game hasn't started yet — still on the ship-select screen
     checkRepMilestones();
+    el('depthValue').textContent = effectiveDepth(state.sector);
     el('shipName').textContent = 'S.S. ' + (state.shipName || 'WAYWARD').toUpperCase();
     el('credits').textContent = fmt(state.credits);
     el('vouchers').textContent = fmt(state.vouchers);
@@ -4734,7 +4792,8 @@
     const displayedJumpDriveCost = Math.round(JUMP_DRIVE_COST * priceMult);
     el('jumpDriveCost').textContent = fmt(displayedJumpDriveCost);
     el('jumpDriveBtn').disabled = state.jumpDriveOwned || state.credits < displayedJumpDriveCost || !state.docked;
-    el('jumpDriveBtn').textContent = state.jumpDriveOwned ? 'IMPROVED JUMP DRIVE — INSTALLED' : 'IMPROVED JUMP DRIVE — ' + fmt(displayedJumpDriveCost) + 'cr';
+    el('jumpDriveBtn').classList.toggle('sold-out', state.jumpDriveOwned);
+    el('jumpDriveBtn').textContent = state.jumpDriveOwned ? '' : 'IMPROVED JUMP DRIVE — ' + fmt(displayedJumpDriveCost) + 'cr';
 
     const displayedWarpCellCost = Math.round(WARP_CELL_COST * priceMult);
     el('warpCellCost').textContent = fmt(displayedWarpCellCost);
@@ -6969,6 +7028,16 @@
   const CONSTELLATION_STAR_MAP = {};
   CONSTELLATION_STARS.forEach(s => { CONSTELLATION_STAR_MAP[s.id] = s; });
 
+  // Named content for stars that actually do something — everything else in the graph
+  // stays an unnamed WIP star until it's given real content. Keyed by star id so the
+  // tooltip renderer can fall back cleanly for anything not listed here.
+  const CONSTELLATION_STAR_INFO = {
+    trading0: { name: 'Trading Knowledge', desc: 'Triples Credits earned from every successful Trading leg.' },
+    mining0: { name: 'Mining Knowledge', desc: 'Triples Ore yield from every successful Mining tick.' },
+    bounty0: { name: 'Bounty Knowledge', desc: 'Triples Vouchers earned from every successful Bounty Hunting tick.' },
+    piracy0: { name: 'Piracy Knowledge', desc: 'Triples Plunder earned from every successful Piracy tick.' }
+  };
+
   // A star is reachable once unlocked, or if it's a lane root (row 0), or if it shares an
   // edge with an already-unlocked star — undirected, since cross-lane connectors run
   // laterally between lanes rather than strictly top-down.
@@ -7018,9 +7087,12 @@
       const fill = owned ? color : 'rgba(8,8,12,0.9)';
       const stroke = owned || reachable ? color : 'var(--text-faint)';
       const opacity = owned || reachable ? 1 : 0.35;
+      const info = CONSTELLATION_STAR_INFO[star.id];
+      const statusText = owned ? 'Owned' : reachable ? CONSTELLATION_STAR_COST + ' fragment' + (CONSTELLATION_STAR_COST === 1 ? '' : 's') + ' to unlock' : 'Locked';
+      const tooltipText = info ? (info.name + ' — ' + info.desc + ' (' + statusText + ')') : ('Uncharted — ' + statusText + ', no effect yet');
       return '<g class="' + cls + '" data-star="' + star.id + '" transform="translate(' + star.x + ',' + star.y + ') scale(1.4)">'
         + '<path d="' + STAR_PATH + '" fill="' + fill + '" stroke="' + stroke + '" stroke-width="1.6" stroke-linejoin="round" opacity="' + opacity + '">'
-        + '<title>' + star.id + (owned ? ' (owned)' : reachable ? ' (' + CONSTELLATION_STAR_COST + ' fragment' + (CONSTELLATION_STAR_COST === 1 ? '' : 's') + ')' : ' (locked)') + '</title>'
+        + '<title>' + escapeHtml(tooltipText) + '</title>'
         + '</path></g>';
     }).join('');
 
