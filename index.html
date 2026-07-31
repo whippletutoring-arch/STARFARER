@@ -3514,13 +3514,16 @@
         <h3>SHIP TIER (1-5)</h3>
         <p>Tier is tracked separately from Hull upgrades — buying more Hull no longer raises Tier. Tier only changes two ways:</p>
         <ul>
-          <li><strong>Buy a new ship</strong> at a station's Shipyard — this replaces your current ship entirely, adopting the new one's Tier. Credits, cargo, captain, and reputation all carry over; the old ship and any Hull investment in it are gone.</li>
-          <li><strong>Pay to tier up</strong> your current ship at the Shipyard — same price as buying an equivalent-Tier ship outright, scaled by the station's Economy.</li>
+          <li><strong>Buy a new ship</strong> at a station's Shipyard — this replaces your current ship entirely, adopting the new one's Tier. Credits, cargo, captain, and reputation all carry over.</li>
+          <li><strong>Pay to tier up</strong> your current ship at the Shipyard — same price as buying an equivalent-Tier ship outright, scaled by the station's Economy. Tiering up only raises what you're allowed to own (see Hull &amp; Weapon Upgrade Limits below) — it never changes what you already have.</li>
         </ul>
+        <h4>HULL &amp; WEAPON UPGRADE LIMITS</h4>
+        <p>Both are capped at <span class="comp-tag">Tier &times; 5</span>, independently — a Tier 1 ship can own up to 5 Hull upgrades and 5 Weapon upgrades; Tier 2 raises that to 10 of each; Tier 3 to 15, and so on. Trying to buy past the cap for your current Tier just gets you a warning instead of a purchase — tier up to raise the ceiling.</p>
+        <p>Buying a new ship doesn't reset this to zero the way it used to: it starts pre-loaded with whatever the <em>previous</em> Tier's max was. A new Tier 2 ship arrives with 5 Hull and 5 Weapon upgrades already installed (matching Tier 1's ceiling), a Tier 3 ship with 10 of each, and so on — a Tier 1 ship still starts at 0, since there's no Tier below it to inherit from.</p>
         <h4>THE MARKETPLACE</h4>
         <p>Every non-pirate station offers 2-3 ships for sale, fixed for that galaxy — stock never refreshes. Higher-Economy stations have a better chance of stocking high-Tier ships, but everything there costs more too, even lower-Tier listings. Tier 5 ships only ever appear at the highest Economy level.</p>
         <h4>TIER 2+ AUTOMATION</h4>
-        <p>At Tier 2 and above, your ship gains a full automation loop for its own action — see each action's section for exactly what that means for it. All four actions also gain a universal auto-repair: if hull drops below a threshold you control (the slider under your ship's bonus line), the ship docks, repairs, undocks, and resumes on its own.</p>
+        <p>At Tier 2 and above, your ship gains a full automation loop for its own action — see each action's section for exactly what that means for it. All four actions also gain a universal auto-repair: if hull drops below 30% (a fixed threshold, not currently adjustable), the ship docks, repairs, undocks, and resumes on its own.</p>
       `
     },
     {
@@ -3528,16 +3531,18 @@
       title: 'Action: Trading',
       html: `
         <h3>TRADING</h3>
-        <p>Invest a lump sum, and the run resolves in 6 legs. Each leg rolls a d20 plus your bonus against a fixed DC of 14.</p>
+        <p>Invest a lump sum, and the run resolves in 6 legs. Each leg rolls a d20 plus your bonus against a DC that starts at 14 and climbs with Effective Depth — see the Galaxy Depth section for exactly how much.</p>
         <p><strong>Bonus</strong> = Negotiation + (Hull Upgrade tiers bought &minus; 1) &times; 2 + your ship's own bonus, if Trading is its linked action.</p>
         <h4>OUTCOMES</h4>
         <ul>
-          <li><strong>Success</strong> (roll meets or beats DC): that leg returns its stake plus a profit percentage, scaled by the sector's Economy and your Merchant Guild standing</li>
-          <li><strong>Failure</strong> (roll misses DC): that leg loses a small percentage of its stake</li>
+          <li><strong>Success</strong> (roll meets or beats the DC): that leg returns its stake plus a profit percentage, scaled by the sector's Economy and your Merchant Guild standing</li>
+          <li><strong>Failure</strong> (roll misses the DC): that leg loses a small percentage of its stake</li>
           <li><strong>Critical Failure</strong> (a natural roll of 1): triggers an ambush at double distance-based hull damage, guaranteed. A regular Failure only has a chance of an ambush, scaled by the sector's Threat.</li>
         </ul>
         <h4>REPUTATION</h4>
         <p>Merchant Guild standing changes at the end of the run based on the balance of good vs. bad legs — more successes than failures raises it, more failures than successes lowers it, rolled in dice rather than a flat amount.</p>
+        <h4>YIELD — EFFICIENCY MODULE &amp; TRADING KNOWLEDGE</h4>
+        <p>Trading's payout percentage is capped at 90% per leg — the Equipment tab's Efficiency Module respects that cap, but the Log Fragments constellation's Trading Knowledge perk deliberately doesn't, so it keeps delivering its full effect even stacked with a maxed Efficiency Module. See Equipment & Ship Upgrades and Log Fragments for the specifics.</p>
         <h4>TIER 2+ AUTOMATION</h4>
         <p>Automatically reinvests the exact same stake into a new run the moment one completes. If that exact amount isn't available, automation stops and the ship sits at rest rather than investing whatever's left.</p>
       `
@@ -3547,16 +3552,16 @@
       title: 'Action: Mining',
       html: `
         <h3>MINING</h3>
-        <p>Every tick resolves into one of four outcomes. The chance of Failure scales down as Prospecting skill (plus your ship's own bonus, if Mining is its linked action) increases — at a combined value of 20, Failure becomes impossible.</p>
+        <p>Every tick resolves into one of four outcomes. The chance of Failure scales down as Prospecting skill (plus your ship's own bonus, if Mining is its linked action) increases, reaching zero at a combined value of 20 — but Galaxy Depth adds its own penalty on top once you've warped, so Failure isn't actually impossible at any Effective Depth beyond the first galaxy. See Galaxy Depth for the exact numbers.</p>
         <h4>OUTCOMES</h4>
         <ul>
           <li><strong>Critical Failure</strong> (fixed 5%): hull damage, no ore, and a reputation loss with both Sector Authority (this sector only) and the Deep-Space Consortium</li>
-          <li><strong>Failure</strong> (scales with skill): nothing gained, no damage</li>
+          <li><strong>Failure</strong> (scales with skill and Effective Depth): nothing gained, no damage</li>
           <li><strong>Success</strong>: one unit of ore, tier decided by the sector's Ore Richness (see Sector Traits), plus Consortium reputation</li>
           <li><strong>Critical Success</strong> (fixed 5%): same as Success but double yield and double the reputation gain</li>
         </ul>
         <h4>ORE RICHNESS AND YIELD</h4>
-        <p>Richer sectors skew the ore-tier roll toward Silver and Gold instead of Copper. Separately, Prospecting skill and your ship's bonus give a chance at bonus units on top of whatever tier you rolled. A sector with an Ore Richness of exactly &minus;1 has no minable ore at all — Mining disables itself there and shows "NO ASTEROIDS."</p>
+        <p>Richer sectors skew the ore-tier roll toward Silver and Gold instead of Copper. Separately, Prospecting skill and your ship's bonus give a chance at bonus units on top of whatever tier you rolled, and the Efficiency Module and Mining Knowledge (Log Fragments) both multiply the final unit count further. A sector with an Ore Richness of exactly &minus;1 has no minable ore at all — Mining disables itself there and shows "NO ASTEROIDS."</p>
         <h4>TIER 2+ AUTOMATION</h4>
         <p>Requires the <strong>Careful Miner</strong> perk. When cargo fills, instead of just docking and stopping, a Tier 2+ ship automatically sells its ore, undocks, and resumes mining on its own.</p>
       `
@@ -3566,18 +3571,18 @@
       title: 'Action: Bounty Hunting',
       html: `
         <h3>BOUNTY HUNTING</h3>
-        <p>Every tick resolves into one of four outcomes. Failure chance scales down as Security skill and Sector Authority reputation both rise — only maxed reputation makes you fully untouchable; skill alone reduces but never eliminates the risk.</p>
+        <p>Every tick resolves into one of four outcomes. Failure chance scales down as Security skill and Sector Authority reputation both rise, and maxing both together makes you untouchable at Galaxy Depth 0 — but Effective Depth adds its own penalty once you've warped, so no combination of skill and reputation stays untouchable forever. See Galaxy Depth for the exact numbers.</p>
         <h4>OUTCOMES</h4>
         <ul>
           <li><strong>Critical Failure</strong> (fixed 5%): triple distance-based hull damage (reduced by Security), no Vouchers, and a 1d6+3 loss to this sector's Sector Authority standing</li>
           <li><strong>Failure</strong> (scales): distance-based hull damage, reduced by Security skill</li>
-          <li><strong>Success</strong>: Vouchers equal to (sector depth + 1) six-sided dice, plus 1d6+3 Sector Authority reputation</li>
+          <li><strong>Success</strong>: Vouchers equal to (Effective Depth + 1) six-sided dice, plus 1d6+3 Sector Authority reputation</li>
           <li><strong>Critical Success</strong> (fixed 5%): double Vouchers and double the reputation gain</li>
         </ul>
-        <h4>VOUCHERS</h4>
-        <p>Bounty Hunting's reward currency — not credits directly. Redeem them at any non-pirate station's Sector Authority Office: sell outright for credits, or convert at a better rate directly into Sector Authority standing.</p>
+        <h4>VOUCHERS &amp; YIELD</h4>
+        <p>Bounty Hunting's reward currency — not credits directly. Redeem them at any non-pirate station's Sector Authority Office: sell outright for credits, or convert at a better rate directly into Sector Authority standing. The Efficiency Module and Bounty Knowledge (Log Fragments) both multiply how many Vouchers a successful tick actually pays out.</p>
         <h4>TIER 2+ AUTOMATION</h4>
-        <p>Automatically repairs and resumes the hunt whenever hull drops below your auto-repair threshold.</p>
+        <p>Automatically repairs and resumes the hunt whenever hull drops below 30% (a fixed threshold, not currently adjustable).</p>
       `
     },
     {
@@ -3585,18 +3590,18 @@
       title: 'Action: Piracy',
       html: `
         <h3>PIRACY</h3>
-        <p>Every tick resolves into one of four outcomes. Unlike the other combat-adjacent actions, Failure chance here isn't tied to skill at all — it's driven entirely by how much Plunder you're currently holding and your Sector Authority standing. An empty hold means near-zero Failure risk regardless of anything else.</p>
+        <p>Every tick resolves into one of four outcomes. Unlike the other combat-adjacent actions, Failure chance here isn't tied to skill at all — it's driven by how much Plunder you're currently holding, your Sector Authority standing, and (once you've warped) Galaxy Depth on top of both. An empty hold at Galaxy Depth 0 means near-zero Failure risk; that risk floor rises the deeper you've pushed.</p>
         <h4>OUTCOMES</h4>
         <ul>
           <li><strong>Critical Failure</strong> (fixed 5%): double distance-based hull damage (reduced by Skullduggery), and reputation losses to every faction except Free Fleets — the Sector Authority portion specifically hits the galaxy-wide baseline, not just this sector</li>
-          <li><strong>Failure</strong> (scales with Plunder held and Authority rep): hull damage, no Plunder change, reputation losses to every faction except Free Fleets (sector-local this time)</li>
+          <li><strong>Failure</strong> (scales with Plunder held, Authority rep, and Effective Depth): hull damage, no Plunder change, reputation losses to every faction except Free Fleets (sector-local this time)</li>
           <li><strong>Success</strong>: Plunder gained, plus Free Fleets reputation and smaller losses elsewhere</li>
           <li><strong>Critical Success</strong> (fixed 5%): double Plunder, bigger Free Fleets gain</li>
         </ul>
-        <h4>PLUNDER</h4>
-        <p>Shares cargo space with ore (100 Plunder = 1 cargo slot). Only fenceable at a Pirate Space Station's Black Market — the rate scales with your Free Fleets standing.</p>
+        <h4>PLUNDER &amp; YIELD</h4>
+        <p>Shares cargo space with ore (100 Plunder = 1 cargo slot). Only fenceable at a Pirate Space Station's Black Market — the rate scales with your Free Fleets standing. The Efficiency Module and Piracy Knowledge (Log Fragments) both multiply how much Plunder a successful tick actually pays out — high multipliers can genuinely exceed what a small hold can carry in one hit, so cargo space becomes the real ceiling before the math does.</p>
         <h4>TIER 2+ AUTOMATION</h4>
-        <p>Automatically repairs and resumes the raid whenever hull drops below your auto-repair threshold.</p>
+        <p>Automatically repairs and resumes the raid whenever hull drops below 30% (a fixed threshold, not currently adjustable).</p>
       `
     },
     {
@@ -3643,20 +3648,20 @@
         <h3>HULL DAMAGE</h3>
         <p>All four actions can deal hull damage on a bad outcome, scaled by how far from the galaxy center you're operating. The further out, the harder a bad roll hits.</p>
         <h3>AUTO-REPAIR</h3>
-        <p>At Ship Tier 2+, a slider under your ship's bonus line lets you set a hull percentage (10-90%, default 30%). If hull drops below it, your ship automatically docks, repairs, undocks, and resumes whatever it was doing — using the real docking sequence, not an instant fix.</p>
+        <p>At Ship Tier 2+, if hull drops below 30% (a fixed threshold, not currently adjustable), your ship automatically docks, repairs, undocks, and resumes whatever it was doing — using the real docking sequence, not an instant fix.</p>
         <h3>QUICK RETREAT</h3>
         <p>If you have this perk equipped and charged, hull hitting exactly 0 is caught for free — hull is set to 1 and the perk needs to recharge (dock anywhere) before it can save you again. This always takes priority over the insurance system below.</p>
         <h3>INSURANCE &amp; PERMADEATH</h3>
         <p>If Quick Retreat isn't available and hull hits 0, an insurance claim is automatically filed: 30% of your ship's Tier base price (the flat table price, not scaled by the local Economy the way buying or tiering up at a Shipyard is) in available credits.</p>
         <ul>
           <li><strong>If you can afford it:</strong> the ship survives at 1 hull, insurance paid</li>
-          <li><strong>If you can't:</strong> the run ends entirely. Your score is calculated from several things, not just credits — see the Scoring section of this Compendium for the exact breakdown — and the save resets completely: fresh captain, fresh ship, back to ship selection.</li>
+          <li><strong>If you can't:</strong> the run ends. Your score is calculated from several things, not just credits — see Scoring for the exact breakdown — and any newly-crossed Log Fragment milestones get banked permanently before the save resets: fresh captain, fresh ship, back to ship selection.</li>
         </ul>
         <p>There's no confirmation dialog for this — the moment you can't cover the claim <em>is</em> the event. Worth knowing your ship's insurance cost before pushing a run to the edge.</p>
         <h3>ABORT</h3>
         <p>The red ABORT button (top-right of Current Operation) stops whatever's running immediately. For an in-progress Trade run specifically, it refunds whatever legs hadn't resolved yet, at cost.</p>
         <h3>END RUN</h3>
-        <p>The red END RUN button (bottom save bar) voluntarily triggers the same scoring and save-reset flow as running out of hull — useful if you'd rather bank a score on your own terms than risk losing everything to a bad roll. Same as permadeath, there's no way back once confirmed.</p>
+        <p>The red END RUN button (bottom save bar) voluntarily triggers the exact same scoring and Log Fragment banking flow as running out of hull — useful if you'd rather end things on your own terms than risk losing everything to a bad roll. Same as permadeath, there's no way back once confirmed. This is different from RESET SAVE, which wipes your Log Fragments too — see Log Fragments for that distinction.</p>
       `
     },
     {
@@ -3698,6 +3703,27 @@
         <p>Hover any star to see what it costs and what it does. Most of the graph is still uncharted — new stars are added as they're designed.</p>
         <h4>CURRENTLY AVAILABLE: THE FOUR KNOWLEDGE PERKS</h4>
         <p>Each lane's root star — Trading Knowledge, Mining Knowledge, Bounty Knowledge, Piracy Knowledge — triples that action's primary reward (Credits, Ore, Vouchers, or Plunder respectively) once unlocked. Trading Knowledge specifically isn't limited by Trading's normal payout ceiling, so it keeps delivering its full effect even stacked with a maxed Efficiency Module.</p>
+      `
+    },
+    {
+      id: 'upgrades',
+      title: 'Equipment & Ship Upgrades',
+      html: `
+        <h3>HULL, CARGO, FUEL &amp; WEAPONS</h3>
+        <p>All four repeatable Shipyard/Equipment upgrades share the same growth curve: purchase N costs the baseline &times; (2N&minus;1) &mdash; 1&times;, 3&times;, 5&times;, 7&times;, 9&times;... rather than a flat compounding multiplier. Baselines: Hull 1,000cr, Cargo 50,000cr, Fuel 50,000cr, Weapons 1,000cr.</p>
+        <ul>
+          <li><strong>Hull</strong> &mdash; each purchase adds +5 to both current and max hull</li>
+          <li><strong>Cargo</strong> &mdash; each purchase adds +20 capacity</li>
+          <li><strong>Fuel</strong> &mdash; each purchase adds +5 tank capacity</li>
+          <li><strong>Weapons</strong> &mdash; each purchase adds a flat roll bonus to Bounty Hunting and Piracy</li>
+        </ul>
+        <h4>HULL &amp; WEAPON CAPS</h4>
+        <p>Both are capped at Tier &times; 5, independently of each other — see Ship &amp; Tier for the full breakdown of how the cap works, what tiering up does to it, and what a newly-purchased ship starts with.</p>
+        <h3>OVERCLOCK MODULES</h3>
+        <p>10 levels per action, geometric pricing from 1,500cr at level 1 to 10,000,000cr at level 10. Each level removes another 5 percentage points of that action's tick time, linearly — level 10 reaches exactly half the base time.</p>
+        <h3>EFFICIENCY MODULES</h3>
+        <p>5 levels per action, geometric pricing from 500,000cr at level 1 to 1,000,000,000cr at level 5. Each level doubles output — level 5's cumulative multiplier is 2<sup>5</sup>, 32&times; base. Affects all four actions' primary reward now: Credits (Trading), Ore (Mining), Vouchers (Bounty Hunting), and Plunder (Piracy) alike.</p>
+        <p>Trading's payout is separately capped at 90% per leg — Efficiency respects that cap, so very high Trading Efficiency levels can stop delivering a visible difference once the cap is already reached.</p>
       `
     },
     {
@@ -3795,6 +3821,15 @@
   const REPAIR_COST_PER_HULL_POINT = 50;
   function arithmeticUpgradeCost(baseline, purchasesMade) {
     return baseline * (2 * purchasesMade + 1);
+  }
+
+  // Build 041 follow-up: Hull and Weapon upgrades are now each capped at Tier × 5 —
+  // Tier 1 allows 5 of each, Tier 2 allows 10, and so on. Tiering up an existing ship just
+  // raises this ceiling without touching what's already owned; buying a new ship instead
+  // starts it at the previous tier's max (a Tier 2 ship starts with 5 of each, since 5 was
+  // the Tier 1 ceiling), never at 0 for anything above Tier 1.
+  function upgradeCapForTier(tier) {
+    return tier * 5;
   }
 
   // Overclock: 10 levels, geometric growth solved so level 1 = 1,500cr and level 10 =
@@ -4679,10 +4714,15 @@
     const displayedSensorsCost = Math.round(state.sensorsCost * priceMult);
     const displayedFuelPrice = Math.round(FUEL_PRICE * priceMult);
 
+    const hullUpgradesOwned = state.hullUpgradeLevel - 1;
+    const hullUpgradeCap = upgradeCapForTier(state.shipTier);
+    const hullMaxed = hullUpgradesOwned >= hullUpgradeCap;
     el('upgradeCost').textContent = fmt(displayedUpgradeCost);
-
     renderShipMarketplace();
-    el('upgradeBtn').disabled = state.credits < displayedUpgradeCost || !state.docked;
+    el('upgradeBtn').disabled = hullMaxed || state.credits < displayedUpgradeCost || !state.docked;
+    el('upgradeBtn').textContent = hullMaxed
+      ? 'HULL UPGRADES MAXED FOR TIER ' + state.shipTier + ' (' + hullUpgradeCap + '/' + hullUpgradeCap + ')'
+      : 'UPGRADE HULL SYSTEMS (' + hullUpgradesOwned + '/' + hullUpgradeCap + ') — ' + fmt(displayedUpgradeCost) + 'cr';
     el('repairBtn').textContent = 'REPAIR — ' + fmt(displayedRepairCost) + 'cr';
     el('repairBtn').disabled = state.credits < displayedRepairCost || state.hull >= state.maxHull || !state.docked;
     const shipActivityTheme = {
@@ -4756,8 +4796,13 @@
     el('fuelTankUpgradeBtn').disabled = state.credits < displayedFuelUpgradeCost || !state.docked;
 
     const displayedWeaponCost = Math.round(arithmeticUpgradeCost(WEAPON_UPGRADE_BASE, state.weaponTier) * priceMult);
+    const weaponUpgradeCap = upgradeCapForTier(state.shipTier);
+    const weaponMaxed = state.weaponTier >= weaponUpgradeCap;
     el('weaponCost').textContent = fmt(displayedWeaponCost);
-    el('weaponUpgradeBtn').disabled = state.credits < displayedWeaponCost || !state.docked;
+    el('weaponUpgradeBtn').disabled = weaponMaxed || state.credits < displayedWeaponCost || !state.docked;
+    el('weaponUpgradeBtn').textContent = weaponMaxed
+      ? 'WEAPON SYSTEMS MAXED FOR TIER ' + state.shipTier + ' (' + weaponUpgradeCap + '/' + weaponUpgradeCap + ')'
+      : 'WEAPON SYSTEMS UPGRADE (' + state.weaponTier + '/' + weaponUpgradeCap + ') — ' + fmt(displayedWeaponCost) + 'cr';
     el('weaponTierLabel').textContent = state.weaponTier;
 
     ['trading', 'mining', 'bounty', 'piracy'].forEach(key => {
@@ -6559,6 +6604,11 @@
   });
 
   el('upgradeBtn').addEventListener('click', () => {
+    const hullUpgradeCap = upgradeCapForTier(state.shipTier);
+    if (state.hullUpgradeLevel - 1 >= hullUpgradeCap) {
+      addLog('Hull systems are already maxed out for a Tier ' + state.shipTier + ' ship (' + hullUpgradeCap + '/' + hullUpgradeCap + ') — tier up for more room.', 'risk');
+      return;
+    }
     const cost = Math.round(arithmeticUpgradeCost(HULL_UPGRADE_BASE, state.hullUpgradeLevel - 1) * sectorPriceMultiplier());
     if (state.credits < cost) return;
     state.credits -= cost;
@@ -6627,6 +6677,11 @@
   });
 
   el('weaponUpgradeBtn').addEventListener('click', () => {
+    const weaponUpgradeCap = upgradeCapForTier(state.shipTier);
+    if (state.weaponTier >= weaponUpgradeCap) {
+      addLog('Weapon systems are already maxed out for a Tier ' + state.shipTier + ' ship (' + weaponUpgradeCap + '/' + weaponUpgradeCap + ') — tier up for more room.', 'risk');
+      return;
+    }
     const cost = Math.round(arithmeticUpgradeCost(WEAPON_UPGRADE_BASE, state.weaponTier) * sectorPriceMultiplier());
     if (state.credits < cost) return;
     state.credits -= cost;
@@ -8050,7 +8105,20 @@
         state.maxHull = newShip.maxHull;
         state.shipBonusActivity = newShip.bonusActivity;
         state.shipTier = listing.tier;
-        state.hullUpgradeLevel = 1;
+        // Build 041 follow-up: starts at the PREVIOUS tier's max, not 0 — a Tier 2 ship
+        // comes with 5 of each already installed, since 5 was Tier 1's ceiling. A Tier 1
+        // ship still starts at 0 (there's no tier below it). hullUpgradeLevel is 1-indexed
+        // (purchases made = level - 1), weaponTier is already a direct 0-indexed count.
+        // Weapons needs no further change — its bonus is computed live from weaponTier at
+        // the point of use, so setting the count alone already grants the full effect.
+        // Hull is different: each upgrade bakes +5 maxHull in permanently at purchase
+        // time, so the starting maxHull set above has to be topped up to match, or "starts
+        // with 5 hull upgrades" would be true in name only.
+        const startingUpgrades = Math.max(0, (listing.tier - 1) * 5);
+        state.hullUpgradeLevel = startingUpgrades + 1;
+        state.weaponTier = startingUpgrades;
+        state.maxHull += startingUpgrades * 5;
+        state.hull = state.maxHull;
         recalcShipBonus();
         addLog(resolveLogTemplate("Captain's log. The old ship is decommissioned — {crew} and the rest of the crew transfer aboard the new " + label + '-class, Tier ' + listing.tier + '.'), 'system');
         render();
