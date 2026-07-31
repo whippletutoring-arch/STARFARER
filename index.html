@@ -682,6 +682,15 @@
     margin-top: 6px;
     letter-spacing: 0.02em;
   }
+  .game-over-fragments {
+    text-align: center;
+    font-family: var(--font-hud);
+    font-size: 1rem;
+    letter-spacing: 0.08em;
+    color: var(--amber);
+    text-shadow: 0 0 8px rgba(232,163,61,0.5);
+    margin: -6px 0 16px 0;
+  }
 
   .compendium-overlay {
     position: fixed;
@@ -722,6 +731,79 @@
     display: flex;
     flex-direction: column;
     overflow: hidden;
+  }
+  .constellation-frame {
+    position: relative;
+    width: min(1000px, 94vw);
+    height: min(760px, 92vh);
+    background: rgba(8,8,12,0.92);
+    border: 2px solid var(--amber);
+    border-radius: 8px;
+    box-shadow: 0 0 24px 4px rgba(232,163,61,0.35), inset 0 0 40px rgba(232,163,61,0.06);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .constellation-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 22px;
+    border-bottom: 1px solid var(--amber-dim);
+    flex-shrink: 0;
+  }
+  .constellation-title {
+    font-family: var(--font-hud);
+    font-size: 1.05rem;
+    letter-spacing: 0.18em;
+    color: var(--amber);
+    text-shadow: 0 0 8px rgba(232,163,61,0.6);
+  }
+  .constellation-fragments {
+    font-family: var(--font-hud);
+    font-size: 0.72rem;
+    letter-spacing: 0.06em;
+    color: var(--amber);
+  }
+  .constellation-body {
+    flex: 1;
+    overflow: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px;
+  }
+  .constellation-footer {
+    flex-shrink: 0;
+    padding: 14px 22px;
+    border-top: 1px solid var(--amber-dim);
+    text-align: center;
+  }
+  #constellationContinueBtn {
+    background: #000;
+    border: 1px solid var(--amber);
+    color: var(--amber);
+    padding: 8px 20px;
+    border-radius: 4px;
+    font-family: var(--font-hud);
+    font-size: 0.72rem;
+    letter-spacing: 0.1em;
+    cursor: pointer;
+  }
+  #constellationContinueBtn:hover { background: #1a1408; box-shadow: 0 0 8px 1px rgba(232,163,61,0.4); }
+  .constellation-star {
+    cursor: default;
+    transition: opacity 0.15s, filter 0.15s;
+  }
+  .constellation-star.owned { cursor: default; }
+  .constellation-star.reachable { cursor: pointer; }
+  .constellation-star.reachable:hover { filter: drop-shadow(0 0 6px #fff) brightness(1.3); }
+  .constellation-star-label {
+    font-family: var(--font-hud);
+    font-size: 9px;
+    fill: var(--text-dim);
+    text-anchor: middle;
+    pointer-events: none;
   }
   .compendium-header {
     display: flex;
@@ -1745,15 +1827,60 @@
   }
 
   .station-content {
-    transition: opacity 0.3s ease, filter 0.3s ease;
+    transition: opacity 0.2s ease;
   }
   .station-content.locked {
-    opacity: 0.32;
-    filter: grayscale(0.7);
+    opacity: 0;
+    pointer-events: none;
   }
+  /* Blast doors — cover the whole station panel (Shipyard/Depot/Equipment alike, not
+     just one tab) whenever undocked. Plain rectangular leaves clipped by the panel's own
+     overflow:hidden + border-radius, rather than shaping the leaves themselves — keeps
+     the seam between them perfectly flush top-to-bottom regardless of corner rounding. */
+  .blast-door-leaf {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 50%;
+    z-index: 5;
+    background: linear-gradient(135deg, #8a95a3 0%, #5c6675 12%, #3d4552 30%, #2a303a 55%, #1c2129 100%);
+    box-shadow: inset 0 0 30px rgba(0,0,0,0.5);
+    transition: transform 1.4s cubic-bezier(0.65, 0, 0.35, 1);
+    pointer-events: none;
+  }
+  .blast-door-leaf::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(0deg, transparent 0px, transparent 26px, rgba(0,0,0,0.18) 26px, rgba(0,0,0,0.18) 28px);
+  }
+  .blast-door-leaf::after {
+    content: '';
+    position: absolute;
+    inset: 6px;
+    border: 1px solid rgba(255,255,255,0.08);
+  }
+  .blast-door-leaf.left { left: 0; transform: translateX(2%); }
+  .blast-door-leaf.right { right: 0; transform: translateX(-2%); }
+  .blast-door-leaf.open.left { transform: translateX(-102%); }
+  .blast-door-leaf.open.right { transform: translateX(102%); }
+  .blast-door-base {
+    position: absolute;
+    bottom: 0;
+    left: 8%;
+    right: 8%;
+    height: 10px;
+    background: linear-gradient(180deg, #454e5c, #262b33);
+    z-index: 6;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+  }
+  .blast-door-base.hidden { opacity: 0; }
+
   .station-lock-overlay {
     position: absolute;
     inset: 0;
+    z-index: 10;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -2512,11 +2639,14 @@
       <div class="game-over-score">
         FINAL SCORE<br><span id="gameOverScoreValue">0.00</span>
       </div>
+      <div id="gameOverFragmentsRow" class="game-over-fragments" style="display:none;">
+        +<span id="gameOverFragmentsValue">0</span> LOG FRAGMENT<span id="gameOverFragmentsPlural">S</span>
+      </div>
       <div id="gameOverLeaderboardPrompt" style="display:none;">
         <div class="leaderboard-status" id="gameOverSubmitStatus"></div>
       </div>
       <div class="trade-invest-row">
-        <button id="gameOverNewRunBtn">START NEW RUN</button>
+        <button id="gameOverNewRunBtn">DECANT NEW CLONE</button>
       </div>
     </div>
   </div>
@@ -2561,6 +2691,20 @@
       </div>
       <div class="trade-invest-row">
         <button id="warpCellFoundOkBtn">OK</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="compendium-overlay" id="constellationOverlay">
+    <div class="compendium-starfield"></div>
+    <div class="constellation-frame">
+      <div class="constellation-header">
+        <span class="constellation-title">CAPTAIN'S LOG ARCHIVE</span>
+        <span class="constellation-fragments">LOG FRAGMENTS: <span id="constellationFragmentsValue">0</span></span>
+      </div>
+      <div class="constellation-body" id="constellationBody"></div>
+      <div class="constellation-footer">
+        <button id="constellationContinueBtn">DEPART FOR SHIP SELECTION</button>
       </div>
     </div>
   </div>
@@ -3085,6 +3229,10 @@
         </div>
       </div>
 
+      <div class="blast-door-leaf left" id="blastDoorLeft"></div>
+      <div class="blast-door-leaf right" id="blastDoorRight"></div>
+      <div class="blast-door-base" id="blastDoorBase"></div>
+
       <div class="station-lock-overlay" id="stationLockOverlay">
         <span class="station-lock-text" id="stationLockText">UNDOCKED</span>
       </div>
@@ -3097,7 +3245,7 @@
       <button id="saveNowBtn">SAVE NOW</button>
       <button id="exportSaveBtn">EXPORT FILE</button>
       <button id="importSaveBtn">IMPORT FILE</button>
-      <button id="newGameBtn" class="danger">NEW GAME</button>
+      <button id="newGameBtn" class="danger">RESET SAVE</button>
       <button id="endRunBtn" class="danger">END RUN</button>
       <button id="bugReportBtn" class="bug-report">REPORT A BUG</button>
       <input type="file" id="importFileInput" accept=".json,application/json" style="display:none;">
@@ -3173,6 +3321,17 @@
 </script>
 <script>
 (function () {
+  // Log Fragments meta-progression — deliberately its own object, not a field on state,
+  // so it can never accidentally get touched by the main state's reset/reinitialize path.
+  // highestMilestoneBanked tracks the score value of the highest 100-multiple already
+  // converted to fragments, so a run that reaches 236 after an earlier run already banked
+  // 100 only awards the newly-crossed 200 milestone, not both.
+  const metaProgress = {
+    logFragments: 0,
+    highestMilestoneBanked: 0,
+    unlockedStars: []
+  };
+
   const state = {
     credits: 250,
     ore: { copper: 0, iron: 0, silver: 0, gold: 0 },
@@ -4895,6 +5054,10 @@
       run.successCount += 1;
       let pct = tier.maxPct * (0.5 + Math.random() * 0.5);
       if (state.activityUpgrades.trading.yield) pct = Math.min(0.9, pct * efficiencyMultiplier(state.activityUpgrades.trading.yield));
+      // Unclamped deliberately (unlike Efficiency's line above) — the Log Fragments
+      // constellation perk should apply its full 3x regardless of where Efficiency alone
+      // already landed, rather than being silently absorbed by the 90% ceiling.
+      if (hasTripleYieldPerk('trading')) pct = pct * 3;
       // Merchant Guild standing inflates or deflates the payout within the same run it's
       // measured — a modest ±15% swing across the full -600..600 range, centered on 1.0x
       // at neutral rep. Previously rep had no effect on trading payout at all.
@@ -5052,6 +5215,9 @@
     el('stationContent').classList.toggle('locked', !state.docked);
     el('stationLockOverlay').classList.toggle('hidden', state.docked);
     el('stationLockOverlay').classList.toggle('no-station', noStation && !state.docked);
+    el('blastDoorLeft').classList.toggle('open', state.docked);
+    el('blastDoorRight').classList.toggle('open', state.docked);
+    el('blastDoorBase').classList.toggle('hidden', state.docked);
     el('stationLockText').textContent = noStation ? 'NO SPACE DOCK IN SYSTEM' : 'UNDOCKED';
 
     el('blackMarketBtn').style.display = atPirateStation ? 'block' : 'none';
@@ -5563,6 +5729,7 @@
       let units = tier === 'critSuccess' ? 2 : 1;
       units += miningBonusUnits(skillAndShip);
       if (state.activityUpgrades.mining.yield) units *= efficiencyMultiplier(state.activityUpgrades.mining.yield);
+      if (hasTripleYieldPerk('mining')) units *= 3;
       let miningLucky = false;
       if (luckyProc()) { units *= 2; miningLucky = true; }
       units = Math.max(1, Math.round(units * distanceEarningsMultiplier(state.sector)));
@@ -5809,6 +5976,21 @@
     return 'permadeath';
   }
 
+  // Log Fragments (meta-progression) — every 100 score, lifetime-cumulative rather than
+  // per-run. A run that reaches 236 after an earlier run already banked the 100 milestone
+  // only awards the newly-crossed 200 milestone (1 fragment), not both milestones (2).
+  // Called once per death/End Run — both funnel through the same reincarnation flow.
+  function bankLogFragmentsForScore(score) {
+    const currentMilestone = Math.floor(score / 100) * 100;
+    const newFragments = Math.max(0, Math.floor((currentMilestone - metaProgress.highestMilestoneBanked) / 100));
+    if (newFragments > 0) {
+      metaProgress.logFragments += newFragments;
+      metaProgress.highestMilestoneBanked = currentMilestone;
+      saveMetaProgress();
+    }
+    return newFragments;
+  }
+
   function triggerPermadeath(voluntary) {
     stopTicking();
     if (dockTimer) { clearInterval(dockTimer); dockTimer = null; }
@@ -5826,11 +6008,15 @@
     const otherFactionScore = state.otherFactionMaxedCount * 10;
     const score = creditsScore + skillScore + authorityScore + otherFactionScore;
 
+    const fragmentsEarned = bankLogFragmentsForScore(score);
+
     el('gameOverTitle').textContent = 'RUN ENDED';
     el('gameOverDesc').textContent = voluntary
       ? "Run ended on your order. The ship and everything aboard it are logged and decommissioned."
       : "The hull gave out, and there was no credit on file to cover the insurance claim. The underwriters have repossessed what's left of the ship.";
     el('gameOverScoreValue').textContent = fmt(score);
+    el('gameOverFragmentsRow').style.display = fragmentsEarned > 0 ? 'block' : 'none';
+    el('gameOverFragmentsValue').textContent = fragmentsEarned;
     el('gameOverLeaderboardPrompt').style.display = 'none';
     el('gameOverSubmitStatus').textContent = '';
     el('gameOverOverlay').classList.add('open');
@@ -5929,6 +6115,7 @@
       let amount = computeRoll('piracy') * distanceEarningsMultiplier(state.sector);
       if (tier === 'critSuccess') amount *= 2;
       if (state.activityUpgrades.piracy.yield) amount *= efficiencyMultiplier(state.activityUpgrades.piracy.yield);
+      if (hasTripleYieldPerk('piracy')) amount *= 3;
       let piracyLucky = false;
       if (luckyProc()) { amount *= 2; piracyLucky = true; }
 
@@ -6022,6 +6209,7 @@
       for (let i = 0; i < diceCount; i++) vouchersGained += Math.floor(Math.random() * 6) + 1;
       if (tier === 'critSuccess') vouchersGained *= 2;
       if (state.activityUpgrades.bounty.yield) vouchersGained *= efficiencyMultiplier(state.activityUpgrades.bounty.yield);
+      if (hasTripleYieldPerk('bounty')) vouchersGained *= 3;
       let bountyLucky = false;
       if (luckyProc()) { vouchersGained *= 2; bountyLucky = true; }
 
@@ -6310,7 +6498,7 @@
     state.credits -= cost;
     state.hullUpgradeLevel += 1;
     state.maxHull += 5;
-    state.hull = Math.min(state.maxHull, state.hull + 4);
+    state.hull = Math.min(state.maxHull, state.hull + 5);
     addLog(resolveLogTemplate('Hull systems upgraded — output level ' + state.hullUpgradeLevel + ' — {crew} says she\'ll hit harder and take more punishment now. (-' + fmt(cost) + 'cr)'), 'system');
     render();
   });
@@ -6626,6 +6814,11 @@
      =================================================================== */
 
   const SAVE_KEY = 'starfarer.save.v1';
+  // Log Fragments and the constellation are meta-progression: they survive death and
+  // End Run (both feed into them), but a Reset Save wipe clears them entirely, same as
+  // everything else. Deliberately a separate storage key from SAVE_KEY, not a field
+  // inside the main save payload, so the two lifecycles can never be conflated.
+  const META_KEY = 'starfarer.meta.v1';
   const SAVE_VERSION = 1;
   const SAVE_LOG_LINES = 40;
   const LOG_CLASSES = ['system', 'trading', 'mining', 'bounty', 'piracy', 'risk'];
@@ -6674,6 +6867,29 @@
     };
   })();
 
+  function saveMetaProgress() {
+    try {
+      storage.set(META_KEY, JSON.stringify(metaProgress));
+    } catch (e) { /* meta-progression is a nice-to-have; a failed write here shouldn't break anything else */ }
+  }
+
+  function loadMetaProgress() {
+    try {
+      const raw = storage.get(META_KEY);
+      if (!raw) return;
+      const parsed = JSON.parse(raw);
+      metaProgress.logFragments = vInt(parsed.logFragments, 0, 0, 1e9);
+      metaProgress.highestMilestoneBanked = vInt(parsed.highestMilestoneBanked, 0, 0, 1e12);
+      metaProgress.unlockedStars = Array.isArray(parsed.unlockedStars)
+        ? parsed.unlockedStars.filter(id => typeof id === 'string')
+        : [];
+    } catch (e) {
+      // Corrupt meta-progress data shouldn't block the game from loading — start that
+      // layer fresh rather than throw.
+    }
+  }
+  loadMetaProgress();
+
   // ---- validation helpers ------------------------------------------------
   // A save file is plain JSON the player can hand-edit or swap out, so nothing read back
   // is trusted: every field is coerced, clamped to a sane range, and falls back to the
@@ -6704,6 +6920,124 @@
 
   const ORE_KEYS = ORE_TIERS.map(t => t.key);
   const ACTIVITY_KEYS = ['trading', 'mining', 'bounty', 'piracy'];
+
+  // Log Fragment constellation — left to right in the game's existing activity order.
+  // 4 lanes × 5 rows of lane stars, plus cross-lane connector stars sitting between
+  // adjacent lanes at two rows, wired to be functionally reachable through either lane —
+  // not just decorative. This pass builds the graph, the accumulation, and the spend
+  // screen; the stars themselves don't grant any effect yet (deliberately deferred).
+  const CONSTELLATION_LANE_COLOR = {
+    trading: 'var(--amber)', mining: 'var(--green)', bounty: 'var(--cyan)', piracy: 'var(--crimson)'
+  };
+  const CONSTELLATION_ROWS = 5;
+  const CONSTELLATION_LANE_X = { trading: 140, mining: 340, bounty: 540, piracy: 740 };
+  const CONSTELLATION_ROW_Y0 = 60;
+  const CONSTELLATION_ROW_GAP = 130;
+  const CONSTELLATION_STAR_COST = 1; // flat for this first pass; easy to vary per-star later
+
+  const CONSTELLATION_STARS = [];
+  const CONSTELLATION_EDGES = [];
+  ACTIVITY_KEYS.forEach(lane => {
+    for (let row = 0; row < CONSTELLATION_ROWS; row++) {
+      CONSTELLATION_STARS.push({
+        id: lane + row, lane: lane, row: row,
+        x: CONSTELLATION_LANE_X[lane], y: CONSTELLATION_ROW_Y0 + row * CONSTELLATION_ROW_GAP
+      });
+      if (row > 0) CONSTELLATION_EDGES.push([lane + (row - 1), lane + row]);
+    }
+  });
+  const CONSTELLATION_ADJACENT_LANES = [['trading', 'mining'], ['mining', 'bounty'], ['bounty', 'piracy']];
+  CONSTELLATION_ADJACENT_LANES.forEach(([laneA, laneB]) => {
+    [1, 3].forEach(row => {
+      const id = 'cross_' + laneA + '_' + laneB + '_' + row;
+      CONSTELLATION_STARS.push({
+        id: id, lane: 'cross', laneA: laneA, laneB: laneB, row: row,
+        x: (CONSTELLATION_LANE_X[laneA] + CONSTELLATION_LANE_X[laneB]) / 2,
+        y: CONSTELLATION_ROW_Y0 + row * CONSTELLATION_ROW_GAP
+      });
+      CONSTELLATION_EDGES.push([laneA + row, id]);
+      CONSTELLATION_EDGES.push([id, laneB + row]);
+    });
+  });
+  const CONSTELLATION_STAR_MAP = {};
+  CONSTELLATION_STARS.forEach(s => { CONSTELLATION_STAR_MAP[s.id] = s; });
+
+  // A star is reachable once unlocked, or if it's a lane root (row 0), or if it shares an
+  // edge with an already-unlocked star — undirected, since cross-lane connectors run
+  // laterally between lanes rather than strictly top-down.
+  function isStarReachable(starId, unlockedList) {
+    const star = CONSTELLATION_STAR_MAP[starId];
+    if (!star) return false;
+    if (star.row === 0) return true;
+    return CONSTELLATION_EDGES.some(([a, b]) =>
+      (a === starId && unlockedList.indexOf(b) !== -1) || (b === starId && unlockedList.indexOf(a) !== -1)
+    );
+  }
+
+  // First real constellation perk: each lane's root star (row 0) flatly triples that
+  // activity's primary reward currency — Credits for Trading, Ore for Mining, Vouchers
+  // for Bounty, Plunder for Piracy. Every other star is still WIP, no effect yet.
+  function hasTripleYieldPerk(lane) {
+    return metaProgress.unlockedStars.indexOf(lane + '0') !== -1;
+  }
+
+  function starColor(star) {
+    return star.lane === 'cross' ? 'var(--amber)' : CONSTELLATION_LANE_COLOR[star.lane];
+  }
+
+  function renderConstellation() {
+    el('constellationFragmentsValue').textContent = fmt(metaProgress.logFragments);
+    const unlocked = metaProgress.unlockedStars;
+
+    const lines = CONSTELLATION_EDGES.map(([aId, bId]) => {
+      const a = CONSTELLATION_STAR_MAP[aId], b = CONSTELLATION_STAR_MAP[bId];
+      const bothOwned = unlocked.indexOf(aId) !== -1 && unlocked.indexOf(bId) !== -1;
+      const isCrossEdge = a.lane === 'cross' || b.lane === 'cross';
+      const color = isCrossEdge ? 'var(--amber)' : CONSTELLATION_LANE_COLOR[a.lane];
+      return '<line x1="' + a.x + '" y1="' + a.y + '" x2="' + b.x + '" y2="' + b.y + '"'
+        + ' stroke="' + color + '" stroke-width="' + (bothOwned ? 2.5 : 1.2) + '"'
+        + ' opacity="' + (bothOwned ? 0.9 : 0.28) + '" />';
+    }).join('');
+
+    // Reuses the same 4-point sparkle shape as the Resource Depot's auto-accept star,
+    // re-centered on the origin so it can be translated/scaled per star position rather
+    // than redefined per instance.
+    const STAR_PATH = 'M0 -11 L2.5 -2.5 L11 0 L2.5 2.5 L0 11 L-2.5 2.5 L-11 0 L-2.5 -2.5 Z';
+    const stars = CONSTELLATION_STARS.map(star => {
+      const owned = unlocked.indexOf(star.id) !== -1;
+      const reachable = !owned && isStarReachable(star.id, unlocked);
+      const color = starColor(star);
+      const cls = 'constellation-star' + (owned ? ' owned' : reachable ? ' reachable' : ' locked');
+      const fill = owned ? color : 'rgba(8,8,12,0.9)';
+      const stroke = owned || reachable ? color : 'var(--text-faint)';
+      const opacity = owned || reachable ? 1 : 0.35;
+      return '<g class="' + cls + '" data-star="' + star.id + '" transform="translate(' + star.x + ',' + star.y + ') scale(1.4)">'
+        + '<path d="' + STAR_PATH + '" fill="' + fill + '" stroke="' + stroke + '" stroke-width="1.6" stroke-linejoin="round" opacity="' + opacity + '">'
+        + '<title>' + star.id + (owned ? ' (owned)' : reachable ? ' (' + CONSTELLATION_STAR_COST + ' fragment' + (CONSTELLATION_STAR_COST === 1 ? '' : 's') + ')' : ' (locked)') + '</title>'
+        + '</path></g>';
+    }).join('');
+
+    const maxX = Math.max(...CONSTELLATION_STARS.map(s => s.x)) + 100;
+    const maxY = Math.max(...CONSTELLATION_STARS.map(s => s.y)) + 60;
+    el('constellationBody').innerHTML =
+      '<svg viewBox="0 0 ' + maxX + ' ' + maxY + '" style="width:100%; height:100%; max-width:900px;">'
+      + lines + stars + '</svg>';
+
+    el('constellationBody').querySelectorAll('.constellation-star.reachable').forEach(node => {
+      node.addEventListener('click', () => buyConstellationStar(node.dataset.star));
+    });
+  }
+
+  function buyConstellationStar(starId) {
+    if (metaProgress.unlockedStars.indexOf(starId) !== -1) return;
+    if (!isStarReachable(starId, metaProgress.unlockedStars)) return;
+    if (metaProgress.logFragments < CONSTELLATION_STAR_COST) return;
+    metaProgress.logFragments -= CONSTELLATION_STAR_COST;
+    metaProgress.unlockedStars.push(starId);
+    saveMetaProgress();
+    renderConstellation();
+  }
+
   const SKILL_KEYS = ['sec', 'skull', 'neg', 'prospect'];
 
   function vOreBag(raw) {
@@ -7349,6 +7683,13 @@
   });
 
   el('gameOverNewRunBtn').addEventListener('click', () => {
+    el('gameOverOverlay').classList.remove('open');
+    renderConstellation();
+    el('constellationOverlay').classList.add('open');
+  });
+
+  el('constellationContinueBtn').addEventListener('click', () => {
+    el('constellationOverlay').classList.remove('open');
     saveSuppressed = true;
     if (autosaveTimer) { clearTimeout(autosaveTimer); autosaveTimer = null; }
     storage.remove(SAVE_KEY);
@@ -7479,13 +7820,14 @@
 
   el('newGameBtn').addEventListener('click', () => {
     askConfirm(
-      'ABANDON THIS RUN',
-      'This deletes the saved voyage and returns to ship selection. There is no way back — export a save file first if you want to keep it.',
-      'ABANDON RUN',
+      'RESET SAVE',
+      'This wipes everything and starts a fresh save from scratch — including your Log Fragments and everything unlocked in the constellation. This is different from dying or ending a run normally, which banks your Log Fragments first. There is no way back — export a save file first if you want to keep it.',
+      'RESET EVERYTHING',
       () => {
         saveSuppressed = true;
         if (autosaveTimer) { clearTimeout(autosaveTimer); autosaveTimer = null; }
         storage.remove(SAVE_KEY);
+        storage.remove(META_KEY);
         window.location.reload();
       }
     );
@@ -7494,7 +7836,7 @@
   el('endRunBtn').addEventListener('click', () => {
     askConfirm(
       'END THIS RUN',
-      'This ends your run voluntarily and banks your score, same as the ship going down — the save resets and you return to ship selection. There is no way back.',
+      'This ends your run voluntarily and banks your score, same as the ship going down — any new Log Fragment milestones get banked permanently, then the save resets and you return to ship selection. There is no way back.',
       'END RUN',
       () => {
         state.activity = null;
