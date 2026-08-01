@@ -187,22 +187,16 @@
   }
   .depth-galaxy-icon {
     display: inline-block;
-    width: 22px;
-    height: 22px;
+    width: 24.2px;
+    height: 24.2px;
     border-radius: 50%;
     flex-shrink: 0;
-    background:
-      radial-gradient(circle at center, #f0e0ff 0%, rgba(240,224,255,0.4) 12%, transparent 30%),
-      conic-gradient(from 0deg,
-        #050208 0deg, #4a1a7a 45deg, #0d0515 90deg,
-        #9d4edd 135deg, #1a0a2e 180deg, #6b2fa8 225deg,
-        #050208 270deg, #7b2cbf 315deg, #050208 360deg);
-    box-shadow: 0 0 8px 1px rgba(157,78,221,0.55);
+    filter: drop-shadow(0 0 6px rgba(230, 90, 60, 0.45));
     animation: depth-galaxy-spin 9s linear infinite;
   }
   @keyframes depth-galaxy-spin {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
+    from { transform: rotate(360deg); }
+    to { transform: rotate(0deg); }
   }
   .depth-value {
     font-family: var(--font-hud);
@@ -2455,7 +2449,34 @@
     <button class="compendium-btn" id="compendiumBtn">COMPENDIUM</button>
     <button class="leaderboard-btn" id="leaderboardBtn">LEADERBOARD</button>
     <div class="depth-indicator" id="depthIndicator" title="Galactic Depth">
-      <span class="depth-galaxy-icon"></span>
+      <svg class="depth-galaxy-icon" viewBox="0 0 100 100">
+        <defs>
+          <radialGradient id="depthCoreGlow" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#fff4d6"/>
+            <stop offset="20%" stop-color="#ffb84d"/>
+            <stop offset="45%" stop-color="#ff6a3d"/>
+            <stop offset="75%" stop-color="#e0405a"/>
+            <stop offset="100%" stop-color="#e0405a" stop-opacity="0"/>
+          </radialGradient>
+          <linearGradient id="depthSpokeGrad" gradientUnits="userSpaceOnUse" x1="50" y1="43" x2="96" y2="40">
+            <stop offset="0%" stop-color="#ff7a4d"/>
+            <stop offset="25%" stop-color="#e0405a"/>
+            <stop offset="55%" stop-color="#9040a0"/>
+            <stop offset="100%" stop-color="#3a2570"/>
+          </linearGradient>
+        </defs>
+        <circle cx="50" cy="50" r="49" fill="#05040a"/>
+        <g>
+          <path d="M 55.49 43.29 L 55.17 40.70 L 55.11 38.41 L 55.38 36.14 L 56.08 33.88 L 57.33 31.64 L 59.25 29.51 L 61.90 27.64 L 65.35 26.22 L 69.56 25.49 L 74.43 25.69 L 79.80 27.07 L 85.42 29.85 L 90.95 34.19 L 95.97 40.23 L 91.34 33.83 L 86.10 28.89 L 80.57 25.36 L 75.01 23.15 L 69.64 22.12 L 64.62 22.13 L 60.07 23.03 L 56.05 24.69 L 52.64 26.97 L 49.86 29.75 L 47.71 32.87 L 46.16 36.20 L 45.13 39.59 L 44.51 42.71 Z" fill="url(#depthSpokeGrad)" transform="rotate(0 50 50)"/>
+          <path d="M 55.49 43.29 L 55.17 40.70 L 55.11 38.41 L 55.38 36.14 L 56.08 33.88 L 57.33 31.64 L 59.25 29.51 L 61.90 27.64 L 65.35 26.22 L 69.56 25.49 L 74.43 25.69 L 79.80 27.07 L 85.42 29.85 L 90.95 34.19 L 95.97 40.23 L 91.34 33.83 L 86.10 28.89 L 80.57 25.36 L 75.01 23.15 L 69.64 22.12 L 64.62 22.13 L 60.07 23.03 L 56.05 24.69 L 52.64 26.97 L 49.86 29.75 L 47.71 32.87 L 46.16 36.20 L 45.13 39.59 L 44.51 42.71 Z" fill="url(#depthSpokeGrad)" transform="rotate(60 50 50)"/>
+          <path d="M 55.49 43.29 L 55.17 40.70 L 55.11 38.41 L 55.38 36.14 L 56.08 33.88 L 57.33 31.64 L 59.25 29.51 L 61.90 27.64 L 65.35 26.22 L 69.56 25.49 L 74.43 25.69 L 79.80 27.07 L 85.42 29.85 L 90.95 34.19 L 95.97 40.23 L 91.34 33.83 L 86.10 28.89 L 80.57 25.36 L 75.01 23.15 L 69.64 22.12 L 64.62 22.13 L 60.07 23.03 L 56.05 24.69 L 52.64 26.97 L 49.86 29.75 L 47.71 32.87 L 46.16 36.20 L 45.13 39.59 L 44.51 42.71 Z" fill="url(#depthSpokeGrad)" transform="rotate(120 50 50)"/>
+          <path d="M 55.49 43.29 L 55.17 40.70 L 55.11 38.41 L 55.38 36.14 L 56.08 33.88 L 57.33 31.64 L 59.25 29.51 L 61.90 27.64 L 65.35 26.22 L 69.56 25.49 L 74.43 25.69 L 79.80 27.07 L 85.42 29.85 L 90.95 34.19 L 95.97 40.23 L 91.34 33.83 L 86.10 28.89 L 80.57 25.36 L 75.01 23.15 L 69.64 22.12 L 64.62 22.13 L 60.07 23.03 L 56.05 24.69 L 52.64 26.97 L 49.86 29.75 L 47.71 32.87 L 46.16 36.20 L 45.13 39.59 L 44.51 42.71 Z" fill="url(#depthSpokeGrad)" transform="rotate(180 50 50)"/>
+          <path d="M 55.49 43.29 L 55.17 40.70 L 55.11 38.41 L 55.38 36.14 L 56.08 33.88 L 57.33 31.64 L 59.25 29.51 L 61.90 27.64 L 65.35 26.22 L 69.56 25.49 L 74.43 25.69 L 79.80 27.07 L 85.42 29.85 L 90.95 34.19 L 95.97 40.23 L 91.34 33.83 L 86.10 28.89 L 80.57 25.36 L 75.01 23.15 L 69.64 22.12 L 64.62 22.13 L 60.07 23.03 L 56.05 24.69 L 52.64 26.97 L 49.86 29.75 L 47.71 32.87 L 46.16 36.20 L 45.13 39.59 L 44.51 42.71 Z" fill="url(#depthSpokeGrad)" transform="rotate(240 50 50)"/>
+          <path d="M 55.49 43.29 L 55.17 40.70 L 55.11 38.41 L 55.38 36.14 L 56.08 33.88 L 57.33 31.64 L 59.25 29.51 L 61.90 27.64 L 65.35 26.22 L 69.56 25.49 L 74.43 25.69 L 79.80 27.07 L 85.42 29.85 L 90.95 34.19 L 95.97 40.23 L 91.34 33.83 L 86.10 28.89 L 80.57 25.36 L 75.01 23.15 L 69.64 22.12 L 64.62 22.13 L 60.07 23.03 L 56.05 24.69 L 52.64 26.97 L 49.86 29.75 L 47.71 32.87 L 46.16 36.20 L 45.13 39.59 L 44.51 42.71 Z" fill="url(#depthSpokeGrad)" transform="rotate(300 50 50)"/>
+        </g>
+        <circle cx="50" cy="50" r="13" fill="url(#depthCoreGlow)"/>
+        <circle cx="50" cy="50" r="3.5" fill="#fff4d6"/>
+      </svg>
       <span class="depth-value" id="depthValue">0</span>
     </div>
     <div class="sector-current">
@@ -3293,7 +3314,7 @@
       <button id="bugReportBtn" class="bug-report">REPORT A BUG</button>
       <input type="file" id="importFileInput" accept=".json,application/json" style="display:none;">
     </div>
-    <span class="footnote-version">STARFARER V42.2 — design mockup · not a full game, illustrates the core allocation loop</span>
+    <span class="footnote-version">STARFARER V42.3 — design mockup · not a full game, illustrates the core allocation loop</span>
   </div>
 </div>
 
