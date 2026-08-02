@@ -913,6 +913,12 @@
     letter-spacing: 0.04em;
     margin: 18px 0 6px 0;
   }
+  .compendium-content h5 {
+    color: var(--text-dim);
+    font-size: 0.7rem;
+    letter-spacing: 0.06em;
+    margin: 14px 0 4px 0;
+  }
   .compendium-content p { margin: 0 0 12px 0; }
   .compendium-content ul { margin: 0 0 12px 0; padding-left: 20px; }
   .compendium-content li { margin-bottom: 6px; }
@@ -1033,6 +1039,8 @@
     margin-bottom: 10px;
   }
   .trade-invest-row .map-seed-input { width: 130px; }
+  .trade-invest-pct-row { gap: 6px; }
+  .trade-invest-pct-btn { flex: 1; padding: 6px 4px !important; font-size: 0.68rem; }
   .trade-invest-row button {
     background: var(--bg-panel);
     border: 1px solid var(--border-bright);
@@ -2659,8 +2667,14 @@
       <div class="trade-invest-row">
         <span class="map-seed-label">INVEST</span>
         <input class="map-seed-input" id="tradeInvestInput" type="number" min="1" step="1" placeholder="credits">
-        <button id="tradeInvestMaxBtn">MAX</button>
         <button id="tradeInvestConfirmBtn">LAUNCH</button>
+      </div>
+      <div class="trade-invest-row trade-invest-pct-row">
+        <button class="trade-invest-pct-btn" id="tradeInvestPct20Btn">20%</button>
+        <button class="trade-invest-pct-btn" id="tradeInvestPct40Btn">40%</button>
+        <button class="trade-invest-pct-btn" id="tradeInvestPct60Btn">60%</button>
+        <button class="trade-invest-pct-btn" id="tradeInvestPct80Btn">80%</button>
+        <button class="trade-invest-pct-btn" id="tradeInvestPct100Btn">100%</button>
       </div>
       <div class="trade-invest-desc" id="tradeInvestError"></div>
     </div>
@@ -3314,7 +3328,7 @@
       <button id="bugReportBtn" class="bug-report">REPORT A BUG</button>
       <input type="file" id="importFileInput" accept=".json,application/json" style="display:none;">
     </div>
-    <span class="footnote-version">STARFARER V42.3 — design mockup · not a full game, illustrates the core allocation loop</span>
+    <span class="footnote-version">STARFARER V43.1 — design mockup · not a full game, illustrates the core allocation loop</span>
   </div>
 </div>
 
@@ -3435,6 +3449,8 @@
     warpCells: 0,
     foundFirstWarpCell: false,
     warpCellCapacity: 1,
+    markedForDeathSector: null,
+    ghostFleetSector: null,
     activityUpgrades: {
       trading: { speed: 0, yield: 0 },
       mining: { speed: 0, yield: 0 },
@@ -3546,6 +3562,38 @@
         <p>Buying a new ship doesn't reset this to zero the way it used to: it starts pre-loaded with whatever the <em>previous</em> Tier's max was. A new Tier 2 ship arrives with 5 Hull and 5 Weapon upgrades already installed (matching Tier 1's ceiling), a Tier 3 ship with 10 of each, and so on — a Tier 1 ship still starts at 0, since there's no Tier below it to inherit from.</p>
         <h4>THE MARKETPLACE</h4>
         <p>Every non-pirate station offers 2-3 ships for sale, fixed for that galaxy — stock never refreshes. Higher-Economy stations have a better chance of stocking high-Tier ships, but everything there costs more too, even lower-Tier listings. Tier 5 ships only ever appear at the highest Economy level.</p>
+        <h4>WARP CELL CAPACITY</h4>
+        <p>Tier 1 and 2 ships hold 1 warp cell at a time, same as always. <span class="comp-tag">Tier 3 and 4</span> raise that to 2, and <span class="comp-tag">Tier 5</span> reaches the full 3 — letting a well-tiered ship stockpile several warps' worth of Effective Depth increase before needing to actually spend one. This follows the same rule as everything else Tier-gated: buying a new ship or tiering up sets capacity from the new Tier immediately, and it's never reduced, only raised.</p>
+        <h4>SHIP TIER PERKS</h4>
+        <p>Starting at Tier 2, every ship class unlocks one perk per tier through Tier 5 — 16 total, 4 per class. These are cumulative and bound to the specific ship: a Tier 5 Hauler has all 4 Trading perks active at once, but switching to a different class (even at the same Tier) means losing access to these entirely, since they belong to the ship, not the captain. They stack fully with the Efficiency Module and Log Fragments Knowledge perks — nothing here replaces those, all three layer together.</p>
+        <h5>HAULER — TRADING</h5>
+        <ul>
+          <li><strong>Tier 2 — Quick Turnaround:</strong> legs resolve 20% faster, but the payout ceiling drops from 90% to 80% per leg.</li>
+          <li><strong>Tier 3 — Diversified Portfolio:</strong> every investment splits into two equal, simultaneous half-stake runs instead of one, smoothing out variance since a bad roll on one no longer sinks the whole stake. Every rep gain and per-leg bonus that would normally trigger once now triggers per half — up to twice. Ambush/hull-damage risk is <em>not</em> doubled; it's still one ship, one convoy, just split financially, so that risk only checks once per tick regardless.</li>
+          <li><strong>Tier 4 — Silent Partner:</strong> Critical Failures never trigger an ambush (no hull damage), but the entire leg's stake is lost instead of the normal small loss.</li>
+          <li><strong>Tier 5 — Market Maker:</strong> runs extend from 6 legs to 8, spreading the same total investment across more, smaller legs.</li>
+        </ul>
+        <h5>PROSPECTOR — MINING</h5>
+        <ul>
+          <li><strong>Tier 2 — Vein Sense:</strong> a 25% chance, on any failed pass, to still walk away with a small amount of the lowest ore tier instead of nothing.</li>
+          <li><strong>Tier 3 — High-Grade Filter:</strong> rolls the ore-tier outcome twice and keeps the better result, genuinely shifting the distribution toward Silver and Gold — paid for with 20% lower total unit yield on every successful tick.</li>
+          <li><strong>Tier 4 — Auto-Forge:</strong> smelting starts on its own whenever ore is held and the forge is free, in the same Copper→Iron→Silver→Gold order Smelt All uses — no manual queue needed.</li>
+          <li><strong>Tier 5 — Motherlode Instinct:</strong> Critical Success chance doubles (5%→10%), and Critical Success always yields the highest ore tier available in the sector, not just the normal richness roll.</li>
+        </ul>
+        <h5>INTERCEPTOR — BOUNTY HUNTING</h5>
+        <ul>
+          <li><strong>Tier 2 — De-escalation Training:</strong> Failure-tier damage gets an additional flat reduction, stacking on top of Security's own reduction.</li>
+          <li><strong>Tier 3 — Bounty Network:</strong> a successful tick has a 25% chance to immediately chain into one bonus tick — a genuine second resolution, not just a payout multiplier. Guarded against chaining off itself, so it's one bonus tick at most, never a runaway cascade.</li>
+          <li><strong>Tier 4 — No Quarter:</strong> Critical Failures downgrade to regular Failures — the triple-damage tier never triggers — traded for regular Failure damage running about 30% harder.</li>
+          <li><strong>Tier 5 — Marked for Death:</strong> the first successful tick in a given sector is automatically upgraded to a Critical Success. Tracked per sector, so it resets naturally on travel rather than needing a timer.</li>
+        </ul>
+        <h5>RAIDER — PIRACY</h5>
+        <ul>
+          <li><strong>Tier 2 — Quick Hands:</strong> 20% of currently-held Plunder doesn't count toward the held-Plunder fail-chance escalation — softens Piracy's core "more Plunder held, more risk" mechanic directly.</li>
+          <li><strong>Tier 3 — Silent Running:</strong> halves the rep hit from Piracy's failures across every non-Free-Fleets faction, but also halves the Free Fleets rep gained from successes — reshapes the faction tradeoff rather than just reducing risk.</li>
+          <li><strong>Tier 4 — Opportunist:</strong> Critical Success chance scales up the more Plunder is currently held, up to 15% at 2,000+ Plunder — inverts the usual risk logic into also being a reward incentive, a genuine push-your-luck loop on top of Quick Hands.</li>
+          <li><strong>Tier 5 — Ghost Fleet:</strong> the first Critical Failure in a given sector is negated entirely and treated as a regular Success instead. Same per-sector tracking as Marked for Death, mirrored — negating the worst outcome instead of guaranteeing the best.</li>
+        </ul>
         <h4>TIER 2+ AUTOMATION</h4>
         <p>At Tier 2 and above, your ship gains a full automation loop for its own action — see each action's section for exactly what that means for it. All four actions also gain a universal auto-repair: if hull drops below 30% (a fixed threshold, not currently adjustable), the ship docks, repairs, undocks, and resumes on its own.</p>
       `
@@ -3854,6 +3902,76 @@
   // the Tier 1 ceiling), never at 0 for anything above Tier 1.
   function upgradeCapForTier(tier) {
     return tier * 5;
+  }
+
+  // Ship Tiers content pass: Tier 3-4 ships hold 2 warp cells at once instead of 1,
+  // Tier 5 holds the full 3. Tiers 1-2 stay at the original baseline of 1.
+  function warpCellCapacityForTier(tier) {
+    if (tier >= 5) return 3;
+    if (tier >= 3) return 2;
+    return 1;
+  }
+
+  // Ship Tier Perks: one perk per action per tier (2-5), 16 total. Cumulative and bound
+  // to the ship's class — a Tier 5 Hauler has all 4 Trading perks active at once, and
+  // switching to a different class loses access to these entirely, even mid-run, since
+  // they're tied to the specific ship, not the captain or the action in the abstract.
+  const SHIP_TIER_PERKS = {
+    hauler: {
+      2: { id: 'quick_turnaround', name: 'Quick Turnaround', desc: 'Trade legs resolve 20% faster, but the payout percentage cap is 10 points lower.' },
+      3: { id: 'diversified_portfolio', name: 'Diversified Portfolio', desc: 'Every investment is split into two equal, simultaneous half-stake runs instead of one — smoothing out variance since a bad roll on one no longer sinks the whole stake. Every rep gain and end-of-run bonus that would normally trigger once now triggers twice, once per half-run.' },
+      4: { id: 'silent_partner', name: 'Silent Partner', desc: "Critical Failures never trigger an ambush (no hull damage) — but the entire leg's stake is lost instead of the normal small loss." },
+      5: { id: 'market_maker', name: 'Market Maker', desc: 'Runs extend from 6 legs to 8, with a rising payout bonus on every leg past the 6th.' }
+    },
+    prospector: {
+      2: { id: 'vein_sense', name: 'Vein Sense', desc: 'Failure ticks have a chance to still yield a small amount of the lowest ore tier instead of nothing.' },
+      3: { id: 'high_grade_filter', name: 'High-Grade Filter', desc: 'Shifts the ore-tier roll toward Silver and Gold, at the cost of somewhat lower total unit yield.' },
+      4: { id: 'auto_forge', name: 'Auto-Forge', desc: 'Smelting starts automatically in the background whenever ore is held and the forge is free — no manual queue needed.' },
+      5: { id: 'motherlode_instinct', name: 'Motherlode Instinct', desc: 'Critical Success chance doubles (5%→10%), and Critical Success always yields the highest ore tier available in the sector, not just the normal roll.' }
+    },
+    interceptor: {
+      2: { id: 'deescalation_training', name: 'De-escalation Training', desc: "Failure-tier damage gets an additional flat reduction, stacking on top of Security's normal reduction." },
+      3: { id: 'bounty_network', name: 'Bounty Network', desc: 'Successful ticks have a chance to immediately chain into one bonus tick.' },
+      4: { id: 'no_quarter', name: 'No Quarter', desc: 'Critical Failures downgrade to regular Failures (the triple-damage tier never triggers), but regular Failure damage increases slightly.' },
+      5: { id: 'marked_for_death', name: 'Marked for Death', desc: 'Once per sector, the first successful tick is automatically upgraded to a Critical Success.' }
+    },
+    raider: {
+      2: { id: 'quick_hands', name: 'Quick Hands', desc: "A portion of newly-gained Plunder doesn't count toward the held-Plunder fail-chance escalation." },
+      3: { id: 'silent_running', name: 'Silent Running', desc: 'Halves Sector Authority rep loss from Piracy, but also halves Free Fleets rep gain from successes.' },
+      4: { id: 'opportunist', name: 'Opportunist', desc: 'Critical Success chance scales up the more Plunder is currently held — more risk, more chance of the best outcome too.' },
+      5: { id: 'ghost_fleet', name: 'Ghost Fleet', desc: 'Once per sector, the first Critical Failure is negated entirely and treated as a regular Success instead.' }
+    }
+  };
+
+  function shipClassKeyForState() {
+    for (const key in SHIP_CLASS_LABELS) {
+      if (SHIP_CLASS_LABELS[key] === state.shipClassName) return key;
+    }
+    return null;
+  }
+
+  // True if the current ship (by class and tier) has this perk unlocked. Cumulative —
+  // checks every tier from 2 up through the ship's current tier, not just an exact match.
+  function hasShipTierPerk(perkId) {
+    const classKey = shipClassKeyForState();
+    if (!classKey || !SHIP_TIER_PERKS[classKey]) return false;
+    for (let t = 2; t <= state.shipTier; t++) {
+      const perk = SHIP_TIER_PERKS[classKey][t];
+      if (perk && perk.id === perkId) return true;
+    }
+    return false;
+  }
+
+  // All ship tier perks currently active for the ship in its hands, in tier order.
+  function activeShipTierPerks() {
+    const classKey = shipClassKeyForState();
+    if (!classKey || !SHIP_TIER_PERKS[classKey]) return [];
+    const out = [];
+    for (let t = 2; t <= state.shipTier; t++) {
+      const perk = SHIP_TIER_PERKS[classKey][t];
+      if (perk) out.push(Object.assign({ tier: t }, perk));
+    }
+    return out;
   }
 
   // Overclock: 10 levels, geometric growth solved so level 1 = 1,500cr and level 10 =
@@ -4950,7 +5068,7 @@
       el('currentActivity').textContent = 'DOCKED AT ' + state.dockedStationName;
       el('currentActivity').style.color = 'var(--purple)';
     } else if (state.tradeRun) {
-      el('currentActivity').textContent = 'TRADE RUN — Leg ' + Math.min(TRADE_LEG_COUNT, state.tradeRun.legsCompleted + 1) + '/' + TRADE_LEG_COUNT;
+      el('currentActivity').textContent = 'TRADE RUN — Leg ' + Math.min(state.tradeRun.totalLegCount, state.tradeRun.legsCompleted + 1) + '/' + state.tradeRun.totalLegCount;
       el('currentActivity').style.color = 'var(--amber)';
     } else if (activeConf) {
       el('currentActivity').innerHTML = state.activity === 'bounty'
@@ -5147,21 +5265,28 @@
     state.credits -= investAmount;
     state.activity = 'trading';
     state.tradingAutoReinvestAmount = investAmount;
-    const legMs = TRADE_LEG_MS * (1 - state.activityUpgrades.trading.speed * OVERCLOCK_SPEED_STEP);
+    // Quick Turnaround (Hauler Tier 2): legs resolve 20% faster.
+    const quickTurnaround = hasShipTierPerk('quick_turnaround') ? 0.8 : 1;
+    const legMs = TRADE_LEG_MS * (1 - state.activityUpgrades.trading.speed * OVERCLOCK_SPEED_STEP) * quickTurnaround;
+    // Market Maker (Hauler Tier 5): runs extend from 6 legs to 8 — decided once here at
+    // investment time and stored on the run itself, since the ship/perk shouldn't change
+    // mid-run anyway but this keeps the run self-consistent regardless.
+    const totalLegCount = hasShipTierPerk('market_maker') ? TRADE_LEG_COUNT + 2 : TRADE_LEG_COUNT;
     state.tradeRun = {
       totalInvested: investAmount,
-      legAmount: investAmount / TRADE_LEG_COUNT,
+      legAmount: investAmount / totalLegCount,
       legsCompleted: 0,
       totalReturned: 0,
       legMs: legMs,
       startAt: Date.now(),
-      totalMs: legMs * TRADE_LEG_COUNT,
+      totalMs: legMs * totalLegCount,
+      totalLegCount: totalLegCount,
       successCount: 0,
       failCount: 0
     };
     closeTradeInvestOverlay();
     updateBanner('trading');
-    addLog("Captain's log. Committing " + fmt(investAmount) + 'cr to the route — ' + TRADE_LEG_COUNT + ' legs, no turning back now.', 'trading');
+    addLog("Captain's log. Committing " + fmt(investAmount) + 'cr to the route — ' + totalLegCount + ' legs, no turning back now.', 'trading');
     render();
     animateProgress();
 
@@ -5177,57 +5302,89 @@
     const tier = ECONOMY_TIERS[sector.economy];
     const shipBonus = state.shipBonusActivity === 'trading' ? state.shipBonusAmount : 0;
     const bonus = tradingBonus() + shipBonus;
-    let d20 = Math.floor(Math.random() * 20) + 1;
-    let total = d20 + bonus;
+    const effectiveDC = TRADE_DC + depthDcPenalty(state.sector);
     const legNum = run.legsCompleted + 1;
 
-    if (total < TRADE_DC && state.captain.perks.indexOf('silver_tongue') !== -1 && state.captain.perkCharges.silver_tongue) {
-      state.captain.perkCharges.silver_tongue = false;
-      const flavor = SILVER_TONGUE_LINES[Math.floor(Math.random() * SILVER_TONGUE_LINES.length)];
-      addLog(flavor + ' — Silver Tongue', 'trading');
-      d20 = Math.floor(Math.random() * 20) + 1;
-      total = d20 + bonus;
+    // Diversified Portfolio (Hauler Tier 3): splits the stake into two equal half-runs
+    // that each roll independently — smoothing variance since a bad roll on one no
+    // longer sinks the whole stake. Every rep gain and per-leg bonus that would normally
+    // trigger once now triggers per half, i.e. up to twice. Ambush/hull-damage risk is
+    // NOT doubled — it's still one ship, one convoy, just split financially — so that
+    // check runs once below, triggered if either half rolled a failure.
+    const diversified = hasShipTierPerk('diversified_portfolio');
+    const halfCount = diversified ? 2 : 1;
+    let anyFail = false;
+    let anyCritFail = false;
+    let legReturnTotal = 0;
+
+    for (let half = 0; half < halfCount; half++) {
+      const stake = diversified ? run.legAmount / 2 : run.legAmount;
+      let d20 = Math.floor(Math.random() * 20) + 1;
+      let total = d20 + bonus;
+
+      if (total < TRADE_DC && state.captain.perks.indexOf('silver_tongue') !== -1 && state.captain.perkCharges.silver_tongue) {
+        state.captain.perkCharges.silver_tongue = false;
+        const flavor = SILVER_TONGUE_LINES[Math.floor(Math.random() * SILVER_TONGUE_LINES.length)];
+        addLog(flavor + ' — Silver Tongue', 'trading');
+        d20 = Math.floor(Math.random() * 20) + 1;
+        total = d20 + bonus;
+      }
+
+      let legReturn;
+      if (total >= effectiveDC) {
+        run.successCount += 1;
+        let pct = tier.maxPct * (0.5 + Math.random() * 0.5);
+        // Quick Turnaround (Hauler Tier 2): legs resolve 20% faster (handled in the tick
+        // timer setup elsewhere), but the payout ceiling is 10 points lower to compensate.
+        const payoutCeiling = hasShipTierPerk('quick_turnaround') ? 0.8 : 0.9;
+        if (state.activityUpgrades.trading.yield) pct = Math.min(payoutCeiling, pct * efficiencyMultiplier(state.activityUpgrades.trading.yield));
+        // Unclamped deliberately (unlike Efficiency's line above) — the Log Fragments
+        // constellation perk should apply its full 3x regardless of where Efficiency alone
+        // already landed, rather than being silently absorbed by the payout ceiling.
+        if (hasTripleYieldPerk('trading')) pct = pct * 3;
+        // Merchant Guild standing inflates or deflates the payout within the same run it's
+        // measured — a modest ±15% swing across the full -600..600 range, centered on 1.0x
+        // at neutral rep. Previously rep had no effect on trading payout at all.
+        const merchantMultiplier = 1 + (state.rep.merchant / REP_MAX) * 0.15;
+        let profit = stake * pct * distanceEarningsMultiplier(state.sector) * merchantMultiplier;
+        if (luckyProc()) {
+          profit *= 2;
+          addLog('A lucky break doubles that leg\'s take. — Lucky', 'trading');
+        }
+        legReturn = stake + profit;
+        grantSkillXP('neg', profit);
+        addLog('Leg ' + legNum + '/' + run.totalLegCount + (diversified ? ' (half ' + (half + 1) + ')' : '') + ': the deal closes at a ' + (pct * 100).toFixed(1) + '% markup. (d20 ' + d20 + '+' + bonus + ' vs DC ' + effectiveDC.toFixed(0) + ')', 'trading');
+      } else {
+        run.failCount += 1;
+        const isCritFail = d20 === 1;
+        anyFail = true;
+        if (isCritFail) anyCritFail = true;
+        const pct = Math.max(0.02, tier.maxPct * (0.08 + Math.random() * 0.27));
+        const loss = stake * pct;
+        legReturn = stake - loss;
+        addLog('Leg ' + legNum + '/' + run.totalLegCount + (diversified ? ' (half ' + (half + 1) + ')' : '') + ': the deal sours — lost ' + (pct * 100).toFixed(1) + '% of that leg. (d20 ' + d20 + '+' + bonus + ' vs DC ' + effectiveDC.toFixed(0) + ')', 'risk');
+      }
+      legReturnTotal += legReturn;
     }
 
-    const effectiveDC = TRADE_DC + depthDcPenalty(state.sector);
-    let legReturn;
-    if (total >= effectiveDC) {
-      run.successCount += 1;
-      let pct = tier.maxPct * (0.5 + Math.random() * 0.5);
-      if (state.activityUpgrades.trading.yield) pct = Math.min(0.9, pct * efficiencyMultiplier(state.activityUpgrades.trading.yield));
-      // Unclamped deliberately (unlike Efficiency's line above) — the Log Fragments
-      // constellation perk should apply its full 3x regardless of where Efficiency alone
-      // already landed, rather than being silently absorbed by the 90% ceiling.
-      if (hasTripleYieldPerk('trading')) pct = pct * 3;
-      // Merchant Guild standing inflates or deflates the payout within the same run it's
-      // measured — a modest ±15% swing across the full -600..600 range, centered on 1.0x
-      // at neutral rep. Previously rep had no effect on trading payout at all.
-      const merchantMultiplier = 1 + (state.rep.merchant / REP_MAX) * 0.15;
-      let profit = run.legAmount * pct * distanceEarningsMultiplier(state.sector) * merchantMultiplier;
-      if (luckyProc()) {
-        profit *= 2;
-        addLog('A lucky break doubles that leg\'s take. — Lucky', 'trading');
-      }
-      legReturn = run.legAmount + profit;
-      grantSkillXP('neg', profit);
-      addLog('Leg ' + legNum + '/' + TRADE_LEG_COUNT + ': the deal closes at a ' + (pct * 100).toFixed(1) + '% markup. (d20 ' + d20 + '+' + bonus + ' vs DC ' + effectiveDC.toFixed(0) + ')', 'trading');
-    } else {
-      run.failCount += 1;
-      const isCritFail = d20 === 1;
-      const pct = Math.max(0.02, tier.maxPct * (0.08 + Math.random() * 0.27));
-      const loss = run.legAmount * pct;
-      legReturn = run.legAmount - loss;
-      addLog('Leg ' + legNum + '/' + TRADE_LEG_COUNT + ': the deal sours — lost ' + (pct * 100).toFixed(1) + '% of that leg. (d20 ' + d20 + '+' + bonus + ' vs DC ' + effectiveDC.toFixed(0) + ')', 'risk');
-
+    if (anyFail) {
+      // Silent Partner (Hauler Tier 4): Critical Failures never trigger an ambush, but
+      // the entire leg's stake is lost instead of the normal small loss — traded a hull
+      // risk for a harsher economic one. Applied here since it changes what "failure"
+      // costs before the ambush roll even happens.
+      if (anyCritFail && hasShipTierPerk('silent_partner')) {
+        legReturnTotal = 0;
+        addLog('The deal collapses entirely rather than risk exposure — the whole stake is written off. — Silent Partner', 'risk');
+      } else {
       // Ambush risk (Build 036 follow-up) — this used to live in the shared tick function,
       // but Trading never actually ran through that function, so it was silently dead
       // code. Now gated to failed legs specifically: a regular failure rolls the normal
       // ambushChance() odds; a critical failure (natural 1 on the d20) guarantees an
       // ambush at double damage, matching how every other activity treats its worst tier.
-      const ambushRoll = isCritFail || Math.random() < ambushChance();
+      const ambushRoll = anyCritFail || Math.random() < ambushChance();
       if (ambushRoll) {
         let ambushDmg = rollDistanceDamage(state.sector);
-        if (isCritFail) ambushDmg *= 2;
+        if (anyCritFail) ambushDmg *= 2;
         if (ambushDmg > 0 && state.captain.perks.indexOf('prototype_stealth') !== -1) {
           const stealthRoll = Math.floor(Math.random() * 20) + 1;
           if (stealthRoll >= 8) {
@@ -5237,7 +5394,7 @@
         }
         state.hull = Math.max(0, state.hull - ambushDmg);
         if (ambushDmg > 0) {
-          addLog((isCritFail ? 'A critical misjudgment leaves the convoy exposed — raiders hit hard. ' : 'Raiders spotted the exposed convoy. ') + '(' + ambushDmg + ' hull damage)', 'risk');
+          addLog((anyCritFail ? 'A critical misjudgment leaves the convoy exposed — raiders hit hard. ' : 'Raiders spotted the exposed convoy. ') + '(' + ambushDmg + ' hull damage)', 'risk');
         }
 
         if (state.hull <= 0) {
@@ -5247,7 +5404,7 @@
           // permadeath skips settling the run, since the whole save is about to be wiped.
           const outcome = handleHullZero();
           if (outcome === 'permadeath') return;
-          run.totalReturned += legReturn;
+          run.totalReturned += legReturnTotal;
           run.legsCompleted += 1;
           completeTradeRun();
           return;
@@ -5258,18 +5415,19 @@
         // cycle — this just makes sure a low-hull run doesn't keep grinding through its
         // remaining legs untouched until something worse happens.
         if (state.shipTier >= 2 && (state.hull / state.maxHull) * 100 < AUTO_REPAIR_THRESHOLD) {
-          run.totalReturned += legReturn;
+          run.totalReturned += legReturnTotal;
           run.legsCompleted += 1;
           completeTradeRun();
           return;
         }
       }
+      }
     }
 
-    run.totalReturned += legReturn;
+    run.totalReturned += legReturnTotal;
     run.legsCompleted += 1;
 
-    if (run.legsCompleted >= TRADE_LEG_COUNT) {
+    if (run.legsCompleted >= run.totalLegCount) {
       completeTradeRun();
     } else {
       render();
@@ -5851,6 +6009,15 @@
     return Math.random() < bonusChance ? 1 : 0;
   }
 
+  // Auto-Forge (Prospector Tier 4): smelting starts on its own whenever ore is held and
+  // the forge is free, in the same Copper->Iron->Silver->Gold order Smelt All uses.
+  // startSmelt() itself has no docking requirement, so this can run mid-mining-tick.
+  function maybeAutoForge() {
+    if (!hasShipTierPerk('auto_forge') || state.smelting) return;
+    const nextTier = ORE_TIERS.find(t => state.ore[t.key] > 0);
+    if (nextTier) startSmelt(nextTier.key);
+  }
+
   // Mining's 4-tier resolution (Build 036 follow-up) — mirrors Piracy/Bounty's shape, but
   // scales off Prospecting + ship bonus only (no rep, no sector Threat), with a 50/50
   // Success/Failure base at zero skill+bonus, per explicit design direction. Ore *tier* is
@@ -5867,11 +6034,13 @@
     const failFactor = Math.max(0, 1 - skillAndShip / 200);
     const failChance = Math.min(90, (45 * failFactor) + depthFailPenalty(state.sector));
 
+    // Motherlode Instinct (Prospector Tier 5): Critical Success chance doubles, 5%->10%.
+    const critSuccessChance = hasShipTierPerk('motherlode_instinct') ? 10 : 5;
     const r = Math.random() * 100;
     let tier;
-    if (r < 5) tier = 'critSuccess';
-    else if (r < 5 + failChance) tier = 'failure';
-    else if (r < 5 + failChance + 5) tier = 'critFailure';
+    if (r < critSuccessChance) tier = 'critSuccess';
+    else if (r < critSuccessChance + failChance) tier = 'failure';
+    else if (r < critSuccessChance + failChance + 5) tier = 'critFailure';
     else tier = 'success';
 
     if (tier === 'critFailure') {
@@ -5895,9 +6064,38 @@
       }
       if (triggerAutoRepair('mining')) { render(); return; }
     } else if (tier === 'failure') {
-      addLog('Sensor sweep clear, but the seam\'s already tapped out. Nothing this pass.', 'mining');
+      // Vein Sense (Prospector Tier 2): a chance to still walk away with a small amount
+      // of the lowest ore tier, even on a failed pass.
+      if (hasShipTierPerk('vein_sense') && Math.random() < 0.25) {
+        const salvage = Math.floor(Math.random() * 8) + 3;
+        const cargoUsed = totalCargoUsed();
+        const roomLeft = Math.max(0, state.cargoCapacity - cargoUsed);
+        const salvageUnits = Math.min(salvage, roomLeft);
+        if (salvageUnits > 0) {
+          state.ore[ORE_TIERS[0].key] += salvageUnits;
+          addLog('Nothing worth the trip, but a stray vein scrapes together ' + salvageUnits + ' ' + ORE_TIERS[0].label + ' on the way out. — Vein Sense', 'mining');
+        } else {
+          addLog('Sensor sweep clear, but the seam\'s already tapped out. Nothing this pass.', 'mining');
+        }
+      } else {
+        addLog('Sensor sweep clear, but the seam\'s already tapped out. Nothing this pass.', 'mining');
+      }
     } else {
-      const oreTier = rollOreTierByRichness(sector.ore);
+      // Motherlode Instinct (Prospector Tier 5): Critical Success always yields the
+      // highest ore tier available, not just the normal richness roll.
+      // High-Grade Filter (Prospector Tier 3): rolls twice and keeps the better tier,
+      // genuinely shifting the distribution toward Silver/Gold - paid for with reduced
+      // total unit yield below.
+      let oreTier;
+      if (tier === 'critSuccess' && hasShipTierPerk('motherlode_instinct')) {
+        oreTier = ORE_TIERS[ORE_TIERS.length - 1];
+      } else if (hasShipTierPerk('high_grade_filter')) {
+        const rollA = rollOreTierByRichness(sector.ore);
+        const rollB = rollOreTierByRichness(sector.ore);
+        oreTier = ORE_TIERS.indexOf(rollA) >= ORE_TIERS.indexOf(rollB) ? rollA : rollB;
+      } else {
+        oreTier = rollOreTierByRichness(sector.ore);
+      }
       // Balance pass: base yield raised 100x (was 1/2) as the primary lever bringing
       // Mining's time-to-Tier-2 in line with Trading/Bounty/Piracy, confirmed via
       // simulation rather than guessed — see the balance sim results for the reasoning.
@@ -5912,6 +6110,7 @@
       units += miningBonusUnits(skillAndShip);
       if (state.activityUpgrades.mining.yield) units *= efficiencyMultiplier(state.activityUpgrades.mining.yield);
       if (hasTripleYieldPerk('mining')) units *= 3;
+      if (hasShipTierPerk('high_grade_filter')) units *= 0.8;
       let miningLucky = false;
       if (luckyProc()) { units *= 2; miningLucky = true; }
       units = Math.max(1, Math.round(units * distanceEarningsMultiplier(state.sector)));
@@ -5955,6 +6154,7 @@
       }
     }
 
+    maybeAutoForge();
     render();
   }
 
@@ -6276,8 +6476,16 @@
   }
 
   function applyPiracyRepEffects(tier) {
-    const freeFleetsGain = (tier === 'success' || tier === 'critSuccess') ? rollRepGain(tier === 'critSuccess') : 0;
-    const nonFFLoss = { critSuccess: 2, success: 4, failure: 8, critFailure: 10 }[tier];
+    // Silent Running (Raider Tier 3): halves the rep hit from Piracy's failures across
+    // every non-Free-Fleets faction, but also halves the Free Fleets gain from successes
+    // — reshapes the faction tradeoff rather than just reducing overall risk.
+    const silentRunning = hasShipTierPerk('silent_running');
+    let freeFleetsGain = (tier === 'success' || tier === 'critSuccess') ? rollRepGain(tier === 'critSuccess') : 0;
+    let nonFFLoss = { critSuccess: 2, success: 4, failure: 8, critFailure: 10 }[tier];
+    if (silentRunning) {
+      freeFleetsGain = Math.round(freeFleetsGain / 2);
+      nonFFLoss = Math.round(nonFFLoss / 2);
+    }
 
     if (freeFleetsGain > 0) shiftRep({ freefleets: freeFleetsGain });
 
@@ -6297,16 +6505,38 @@
 
   function resolvePiracyTick() {
     const conf = ACTIVITIES.piracy;
-    const plunderFactor = Math.min(state.plunder, 2000) / 2000;
+    // Quick Hands (Raider Tier 2): 20% of currently-held Plunder doesn't count toward
+    // the held-Plunder fail-chance escalation - directly softens Piracy's core "more
+    // Plunder held = more risk" mechanic rather than adding a flat reduction elsewhere.
+    const riskExemptFraction = hasShipTierPerk('quick_hands') ? 0.8 : 1;
+    const plunderFactor = Math.min(state.plunder * riskExemptFraction, 2000) / 2000;
     const repFactor = (REP_MAX - effectiveAuthorityRep(state.sector)) / (REP_MAX - REP_MIN);
     const failPct = Math.min(90, (35 * plunderFactor * repFactor) + depthFailPenalty(state.sector));
 
+    // Opportunist (Raider Tier 4): Critical Success chance scales up the more Plunder is
+    // currently held - inverts the usual "more Plunder = more risk" logic into also
+    // being "more Plunder = more chance at the best outcome," a genuine push-your-luck
+    // loop on top of Quick Hands' risk-softening (both can be active at Tier 5).
+    const critSuccessChance = hasShipTierPerk('opportunist')
+      ? 5 + Math.min(10, (state.plunder / 2000) * 10)
+      : 5;
+
     const r = Math.random() * 100;
     let tier;
-    if (r < 5) tier = 'critSuccess';
-    else if (r < 5 + failPct) tier = 'failure';
-    else if (r < 5 + failPct + 5) tier = 'critFailure';
+    if (r < critSuccessChance) tier = 'critSuccess';
+    else if (r < critSuccessChance + failPct) tier = 'failure';
+    else if (r < critSuccessChance + failPct + 5) tier = 'critFailure';
     else tier = 'success';
+
+    // Ghost Fleet (Raider Tier 5): the first Critical Failure in a given sector is
+    // negated entirely and treated as a regular Success instead - mirrors Marked for
+    // Death's per-sector tracking, but inverted (negating the worst instead of
+    // guaranteeing the best).
+    if (tier === 'critFailure' && hasShipTierPerk('ghost_fleet') && state.ghostFleetSector !== state.sector) {
+      tier = 'success';
+      state.ghostFleetSector = state.sector;
+      addLog('Gone before the alarm even finishes ringing — no one\'s the wiser. — Ghost Fleet', 'piracy');
+    }
 
     if (tier === 'success' || tier === 'critSuccess') {
       let amount = computeRoll('piracy') * distanceEarningsMultiplier(state.sector);
@@ -6385,7 +6615,7 @@
   // connection to the Sector Authority lives. Only Critical Failure has a direct
   // reputation effect (a loss), matching the confirmed design — no routine per-tick rep
   // gain on success, unlike Piracy's direct Free Fleets gain.
-  function resolveBountyTick() {
+  function resolveBountyTick(chained) {
     // Target rerolls every tick now, not just when the activity starts — placed here at
     // the very top so it fires exactly once per call regardless of which branch below
     // this tick resolves into (several return early on hull-0 or auto-repair).
@@ -6403,6 +6633,20 @@
     else if (r < 5 + failPct) tier = 'failure';
     else if (r < 5 + failPct + 5) tier = 'critFailure';
     else tier = 'success';
+
+    // No Quarter (Interceptor Tier 4): Critical Failures downgrade to regular Failures —
+    // the triple-damage tier never triggers — traded for slightly harder regular Failure
+    // damage, applied below alongside the rest of the damage calculation.
+    if (tier === 'critFailure' && hasShipTierPerk('no_quarter')) tier = 'failure';
+
+    // Marked for Death (Interceptor Tier 5): the first successful tick in a given sector
+    // is automatically upgraded to a Critical Success. Tracked by sector id so it resets
+    // naturally on travel rather than needing a separate timer or manual reset.
+    if (tier === 'success' && hasShipTierPerk('marked_for_death') && state.markedForDeathSector !== state.sector) {
+      tier = 'critSuccess';
+      state.markedForDeathSector = state.sector;
+      addLog('The name goes straight to the top of the board — this one\'s marked. — Marked for Death', 'bounty');
+    }
 
     if (tier === 'success' || tier === 'critSuccess') {
       const depth = effectiveDepth(state.sector);
@@ -6429,11 +6673,26 @@
         : conf.lines;
       const line = resolveLogTemplate(linePool[Math.floor(Math.random() * linePool.length)]);
       addLog(line + '  (+' + fmt(vouchersGained) + ' vouchers)', 'bounty');
+
+      // Bounty Network (Interceptor Tier 3): a successful tick has a chance to chain
+      // straight into one bonus tick. Guarded by `chained` so a chained tick can never
+      // itself chain again — one bonus per original tick, not a runaway cascade.
+      if (!chained && hasShipTierPerk('bounty_network') && Math.random() < 0.25) {
+        addLog('A tip comes in before the ink\'s even dry — another target, right here. — Bounty Network', 'bounty');
+        resolveBountyTick(true);
+        return;
+      }
     } else {
       let dmg = rollDistanceDamage(state.sector);
       // Balance pass: was raw skill subtracted directly (max -10 at old cap); divided by
       // 10 to preserve that same maximum reduction now that skill caps at 100 instead.
       dmg = Math.max(1, dmg - state.captain.sec / 10);
+      // De-escalation Training (Interceptor Tier 2): an additional flat reduction on
+      // Failure-tier damage specifically, stacking on top of Security's own reduction.
+      if (tier === 'failure' && hasShipTierPerk('deescalation_training')) dmg = Math.max(1, dmg - 2);
+      // No Quarter (Interceptor Tier 4): regular Failure damage is slightly harder,
+      // compensating for critFailure's triple-damage tier never triggering with this perk.
+      if (tier === 'failure' && hasShipTierPerk('no_quarter')) dmg *= 1.3;
       if (tier === 'critFailure') dmg *= 3;
 
       if (dmg > 0 && state.captain.perks.indexOf('prototype_stealth') !== -1) {
@@ -6986,8 +7245,10 @@
   el('tradeInvestOverlay').addEventListener('click', (event) => {
     if (event.target.id === 'tradeInvestOverlay') closeTradeInvestOverlay();
   });
-  el('tradeInvestMaxBtn').addEventListener('click', () => {
-    el('tradeInvestInput').value = Math.floor(state.credits);
+  [['tradeInvestPct20Btn', 0.2], ['tradeInvestPct40Btn', 0.4], ['tradeInvestPct60Btn', 0.6], ['tradeInvestPct80Btn', 0.8], ['tradeInvestPct100Btn', 1]].forEach(([id, pct]) => {
+    el(id).addEventListener('click', () => {
+      el('tradeInvestInput').value = Math.floor(state.credits * pct);
+    });
   });
   el('tradeInvestConfirmBtn').addEventListener('click', () => {
     const amount = Math.floor(Number(el('tradeInvestInput').value));
@@ -7350,6 +7611,8 @@
         warpCells: state.warpCells,
         foundFirstWarpCell: state.foundFirstWarpCell,
         warpCellCapacity: state.warpCellCapacity,
+        markedForDeathSector: state.markedForDeathSector,
+        ghostFleetSector: state.ghostFleetSector,
         activityUpgrades: state.activityUpgrades,
         shipClassName: state.shipClassName,
         shipName: state.shipName,
@@ -7376,7 +7639,8 @@
           totalInvested: state.tradeRun.totalInvested,
           legAmount: state.tradeRun.legAmount,
           legsCompleted: state.tradeRun.legsCompleted,
-          totalReturned: state.tradeRun.totalReturned
+          totalReturned: state.tradeRun.totalReturned,
+          totalLegCount: state.tradeRun.totalLegCount
         } : null,
         smelting: state.smelting ? { tierKey: state.smelting.tierKey, cost: state.smelting.cost } : null
       },
@@ -7487,12 +7751,15 @@
     state.dockProcess = null;
 
     if (saved.tradeRun) {
-      const legsCompleted = vInt(saved.tradeRun.legsCompleted, 0, 0, TRADE_LEG_COUNT);
+      // totalLegCount falls back to the base 6 for saves from before Market Maker
+      // existed, since those runs were always exactly 6 legs by definition.
+      const totalLegCount = vInt(saved.tradeRun.totalLegCount, TRADE_LEG_COUNT, TRADE_LEG_COUNT, TRADE_LEG_COUNT + 2);
+      const legsCompleted = vInt(saved.tradeRun.legsCompleted, 0, 0, totalLegCount);
       const legAmount = vNum(saved.tradeRun.legAmount, 0, 0, 1e12);
       const totalReturned = vNum(saved.tradeRun.totalReturned, 0, 0, 1e12);
-      const unresolved = (TRADE_LEG_COUNT - legsCompleted) * legAmount;
+      const unresolved = (totalLegCount - legsCompleted) * legAmount;
       state.credits += totalReturned + unresolved;
-      addLog('Trade run settled on load — ' + legsCompleted + '/' + TRADE_LEG_COUNT
+      addLog('Trade run settled on load — ' + legsCompleted + '/' + totalLegCount
         + ' legs resolved, the remainder returned at cost (+' + fmt(totalReturned + unresolved) + 'cr).', 'trading');
       if (state.activity === 'trading') state.activity = null;
     }
@@ -7578,6 +7845,14 @@
     state.shipName = vStr(s.shipName, 'WAYWARD', 20);
     state.shipBonusActivity = vPick(s.shipBonusActivity, ACTIVITY_KEYS, null);
     state.shipTier = vInt(s.shipTier, 1, 1, 5);
+    // Recomputed from tier rather than trusted from the save - old saves predate
+    // tier-based warp cell capacity entirely, and would otherwise stay stuck at 1
+    // regardless of the ship's actual tier. Re-clamp warpCells too, since it was
+    // already validated against the (possibly stale) saved capacity earlier above.
+    state.warpCellCapacity = warpCellCapacityForTier(state.shipTier);
+    state.warpCells = Math.min(state.warpCells, state.warpCellCapacity);
+    state.markedForDeathSector = typeof s.markedForDeathSector === 'string' ? s.markedForDeathSector : null;
+    state.ghostFleetSector = typeof s.ghostFleetSector === 'string' ? s.ghostFleetSector : null;
     state.warpDepthOffset = vInt(s.warpDepthOffset, 0, 0, 1e6);
     state.totalCreditsEarned = vNum(s.totalCreditsEarned, 0, 0, 1e15);
     state.sectorAuthorityMaxCount = vInt(s.sectorAuthorityMaxCount, 0, 0, 1e6);
@@ -7897,10 +8172,10 @@
   el('abortBtn').addEventListener('click', () => {
     if (state.tradeRun) {
       const run = state.tradeRun;
-      const unresolved = (TRADE_LEG_COUNT - run.legsCompleted) * run.legAmount;
+      const unresolved = (run.totalLegCount - run.legsCompleted) * run.legAmount;
       state.credits += unresolved;
       if (tradeRunTimer) { clearInterval(tradeRunTimer); tradeRunTimer = null; }
-      addLog("Captain's log. Run aborted — " + run.legsCompleted + '/' + TRADE_LEG_COUNT
+      addLog("Captain's log. Run aborted — " + run.legsCompleted + '/' + run.totalLegCount
         + ' legs settled, the remaining stake returned at cost. (+' + fmt(unresolved) + 'cr)', 'system');
       state.tradeRun = null;
       state.activity = null;
@@ -8206,6 +8481,7 @@
         state.maxHull = newShip.maxHull;
         state.shipBonusActivity = newShip.bonusActivity;
         state.shipTier = listing.tier;
+        state.warpCellCapacity = warpCellCapacityForTier(state.shipTier);
         // Build 041 follow-up: starts at the PREVIOUS tier's max, not 0 — a Tier 2 ship
         // comes with 5 of each already installed, since 5 was Tier 1's ceiling. A Tier 1
         // ship still starts at 0 (there's no tier below it). hullUpgradeLevel is 1-indexed
@@ -8239,6 +8515,7 @@
       () => {
         state.credits -= cost;
         state.shipTier += 1;
+        state.warpCellCapacity = warpCellCapacityForTier(state.shipTier);
         recalcShipBonus();
         addLog(resolveLogTemplate("Captain's log. The refit is complete — she's Tier " + state.shipTier + ' now.'), 'system');
         render();
