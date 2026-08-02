@@ -366,6 +366,7 @@
   }
   .sector-traits-row {
     display: flex;
+    align-items: center;
     gap: 16px;
     flex-wrap: wrap;
   }
@@ -391,6 +392,43 @@
     height: 11px;
     flex-shrink: 0;
     color: var(--text-dim);
+  }
+  .log-fragments-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    min-width: 84px;
+    position: absolute;
+    right: 22px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    font-family: inherit;
+  }
+  .log-fragments-btn:hover .mod-icon-label { color: var(--amber); }
+  .log-fragments-btn .mod-icon-label {
+    font-size: 0.58rem;
+    letter-spacing: 0.1em;
+    color: var(--text-dim);
+    transition: color 0.15s ease;
+  }
+  .log-fragments-icon {
+    width: 26px;
+    height: 26px;
+    flex-shrink: 0;
+    background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAMAAABEpIrGAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAA2ZpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuMy1jMDExIDY2LjE0NTY2MSwgMjAxMi8wMi8wNi0xNDo1NjoyNyAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wTU09Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9tbS8iIHhtbG5zOnN0UmVmPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvc1R5cGUvUmVzb3VyY2VSZWYjIiB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iIHhtcE1NOk9yaWdpbmFsRG9jdW1lbnRJRD0ieG1wLmRpZDo0OURERkRCMTBDM0RFRDExOUFBNjk3OTQ2RUU5NkZFNyIgeG1wTU06RG9jdW1lbnRJRD0ieG1wLmRpZDo2NDQ3NjNEMzc4ODYxMUVFOEQ4N0FGNDI4NTlGNDM2MSIgeG1wTU06SW5zdGFuY2VJRD0ieG1wLmlpZDo2NDQ3NjNEMjc4ODYxMUVFOEQ4N0FGNDI4NTlGNDM2MSIgeG1wOkNyZWF0b3JUb29sPSJBZG9iZSBQaG90b3Nob3AgQ1M2IChXaW5kb3dzKSI+IDx4bXBNTTpEZXJpdmVkRnJvbSBzdFJlZjppbnN0YW5jZUlEPSJ4bXAuaWlkOjMzNUFFN0I4MUU2MEVFMTFBNjdBOEQ3RUREOTY0MTdDIiBzdFJlZjpkb2N1bWVudElEPSJ4bXAuZGlkOjQ5RERGREIxMEMzREVEMTE5QUE2OTc5NDZFRTk2RkU3Ii8+IDwvcmRmOkRlc2NyaXB0aW9uPiA8L3JkZjpSREY+IDwveDp4bXBtZXRhPiA8P3hwYWNrZXQgZW5kPSJyIj8+E4ba9wAAAB5QTFRFW+zxN0RuPavqOAAsM2jcIipci6u/VmqJAAAAAAAADXl8wAAAAAp0Uk5T////////////ALLMLM8AAAC0SURBVHja1JNJEsMwCARBiwf//8NBoF2Jc004qaobjXBhur8U/Z4gIo+CMLA5tPMYV4fe8FLdoZXnjBQCpeHQzhGUEWrWJDRukGrWJV3oHIlII+x8DcF5dgVovAuj353BXSicWzPqRc5NKBwM4LjfBdEz8IGrYP2Twwsvgg4WJocXbkLQydWJsTkTtzfY1wk9e+E+hRSHeWTJsQ9SqmXNfN2HmvWwUZYlj1t9bC39w6/3EmAAkyYfStKrJ6sAAAAASUVORK5CYII=');
+    background-size: contain;
+    background-repeat: no-repeat;
+    image-rendering: pixelated;
+  }
+  .log-fragments-btn span:last-child {
+    color: var(--amber);
+    font-family: var(--font-hud);
+    font-size: 0.72rem;
   }
   .warp-pip-row {
     display: inline-flex;
@@ -787,6 +825,9 @@
     text-shadow: 0 0 8px rgba(232,163,61,0.6);
   }
   .constellation-fragments {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
     font-family: var(--font-hud);
     font-size: 0.72rem;
     letter-spacing: 0.06em;
@@ -806,7 +847,7 @@
     border-top: 1px solid var(--amber-dim);
     text-align: center;
   }
-  #constellationContinueBtn {
+  #constellationContinueBtn, #constellationCloseBtn {
     background: #000;
     border: 1px solid var(--amber);
     color: var(--amber);
@@ -817,7 +858,7 @@
     letter-spacing: 0.1em;
     cursor: pointer;
   }
-  #constellationContinueBtn:hover { background: #1a1408; box-shadow: 0 0 8px 1px rgba(232,163,61,0.4); }
+  #constellationContinueBtn:hover, #constellationCloseBtn:hover { background: #1a1408; box-shadow: 0 0 8px 1px rgba(232,163,61,0.4); }
   .constellation-star {
     cursor: default;
     transition: opacity 0.15s, filter 0.15s;
@@ -1823,11 +1864,14 @@
   }
   .captain-subtabs {
     display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
     gap: 6px;
     margin-bottom: 12px;
   }
   .captain-subtab {
-    flex: 1;
+    flex: 0 1 auto;
+    min-width: 70px;
     background: var(--bg-panel);
     border: 1px solid var(--border-bright);
     color: var(--text-dim);
@@ -2297,7 +2341,6 @@
     padding: 10px;
     grid-column: 1 / -1;
   }
-  .footnote-version { color: #fff; }
 </style>
 </head>
 <body>
@@ -2310,60 +2353,6 @@
       <div class="ship-bonus-row" id="shipBonusRow"></div>
       <div class="insurance-claim-row" id="insuranceClaimRow" style="display:none;">
         INSURANCE CLAIM: <span id="insuranceClaimValue">0</span>
-      </div>
-    </div>
-    <div class="systems-boxes">
-      <div class="systems-box systems-box-trading">
-        <div class="systems-box-title">TRADING SYSTEMS</div>
-        <div class="systems-bar-row">
-          <span class="systems-bar-label">OPTIMIZATION:</span>
-          <div class="systems-bar-wrap"><div class="systems-bar-fill" id="tradingSpeedBar"></div></div>
-          <span class="systems-bar-value" id="tradingSpeedBarValue">0/10</span>
-        </div>
-        <div class="systems-bar-row">
-          <span class="systems-bar-label">EFFICIENCY:</span>
-          <div class="systems-bar-wrap"><div class="systems-bar-fill" id="tradingYieldBar"></div></div>
-          <span class="systems-bar-value" id="tradingYieldBarValue">0/5</span>
-        </div>
-      </div>
-      <div class="systems-box systems-box-mining">
-        <div class="systems-box-title">MINING SYSTEMS</div>
-        <div class="systems-bar-row">
-          <span class="systems-bar-label">OPTIMIZATION:</span>
-          <div class="systems-bar-wrap"><div class="systems-bar-fill" id="miningSpeedBar"></div></div>
-          <span class="systems-bar-value" id="miningSpeedBarValue">0/10</span>
-        </div>
-        <div class="systems-bar-row">
-          <span class="systems-bar-label">EFFICIENCY:</span>
-          <div class="systems-bar-wrap"><div class="systems-bar-fill" id="miningYieldBar"></div></div>
-          <span class="systems-bar-value" id="miningYieldBarValue">0/5</span>
-        </div>
-      </div>
-      <div class="systems-box systems-box-bounty">
-        <div class="systems-box-title">BOUNTY SYSTEMS</div>
-        <div class="systems-bar-row">
-          <span class="systems-bar-label">OPTIMIZATION:</span>
-          <div class="systems-bar-wrap"><div class="systems-bar-fill" id="bountySpeedBar"></div></div>
-          <span class="systems-bar-value" id="bountySpeedBarValue">0/10</span>
-        </div>
-        <div class="systems-bar-row">
-          <span class="systems-bar-label">EFFICIENCY:</span>
-          <div class="systems-bar-wrap"><div class="systems-bar-fill" id="bountyYieldBar"></div></div>
-          <span class="systems-bar-value" id="bountyYieldBarValue">0/5</span>
-        </div>
-      </div>
-      <div class="systems-box systems-box-piracy">
-        <div class="systems-box-title">PIRACY SYSTEMS</div>
-        <div class="systems-bar-row">
-          <span class="systems-bar-label">OPTIMIZATION:</span>
-          <div class="systems-bar-wrap"><div class="systems-bar-fill" id="piracySpeedBar"></div></div>
-          <span class="systems-bar-value" id="piracySpeedBarValue">0/10</span>
-        </div>
-        <div class="systems-bar-row">
-          <span class="systems-bar-label">EFFICIENCY:</span>
-          <div class="systems-bar-wrap"><div class="systems-bar-fill" id="piracyYieldBar"></div></div>
-          <span class="systems-bar-value" id="piracyYieldBarValue">0/5</span>
-        </div>
       </div>
     </div>
     <div class="stats">
@@ -2518,6 +2507,13 @@
         </div>
       </div>
     </div>
+    <button class="log-fragments-btn" id="logFragmentsBtn" title="Captain's Log Archive">
+      <span class="mod-icon-label">
+        <span class="log-fragments-icon"></span>
+        LOG FRAGMENTS
+      </span>
+      <span id="topbarLogFragmentsValue">0</span>
+    </button>
   </div>
 
   <div class="ship-select-overlay open" id="shipSelectOverlay">
@@ -2778,11 +2774,12 @@
     <div class="constellation-frame">
       <div class="constellation-header">
         <span class="constellation-title">CAPTAIN'S LOG ARCHIVE</span>
-        <span class="constellation-fragments">LOG FRAGMENTS: <span id="constellationFragmentsValue">0</span></span>
+        <span class="constellation-fragments"><span class="log-fragments-icon"></span> LOG FRAGMENTS: <span id="constellationFragmentsValue">0</span></span>
       </div>
       <div class="constellation-body" id="constellationBody"></div>
       <div class="constellation-footer">
         <button id="constellationContinueBtn">DEPART FOR SHIP SELECTION</button>
+        <button id="constellationCloseBtn" style="display:none;">CLOSE</button>
       </div>
     </div>
   </div>
@@ -2917,6 +2914,7 @@
         <button class="captain-subtab active" data-subtab="skills" id="subtabSkills">CAPTAIN</button>
         <button class="captain-subtab" data-subtab="standing" id="subtabStanding">STANDING</button>
         <button class="captain-subtab" data-subtab="cargo" id="subtabCargo">CARGO</button>
+        <button class="captain-subtab" data-subtab="systems" id="subtabSystems">SYSTEMS</button>
       </div>
 
       <div class="captain-subtab-content" id="skillsSubtab">
@@ -3085,6 +3083,63 @@
             <div class="cargo-stack-row cargo-row-red">
               <span class="cargo-stack-label">Illicit Goods</span>
               <b class="cargo-stack-value" id="cargoTabIllicit">0</b>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="captain-subtab-content" id="systemsSubtab" style="display:none;">
+        <div class="systems-boxes">
+          <div class="systems-box systems-box-trading">
+            <div class="systems-box-title">TRADING SYSTEMS</div>
+            <div class="systems-bar-row">
+              <span class="systems-bar-label">OPTIMIZATION:</span>
+              <div class="systems-bar-wrap"><div class="systems-bar-fill" id="tradingSpeedBar"></div></div>
+              <span class="systems-bar-value" id="tradingSpeedBarValue">0/10</span>
+            </div>
+            <div class="systems-bar-row">
+              <span class="systems-bar-label">EFFICIENCY:</span>
+              <div class="systems-bar-wrap"><div class="systems-bar-fill" id="tradingYieldBar"></div></div>
+              <span class="systems-bar-value" id="tradingYieldBarValue">0/5</span>
+            </div>
+          </div>
+          <div class="systems-box systems-box-mining">
+            <div class="systems-box-title">MINING SYSTEMS</div>
+            <div class="systems-bar-row">
+              <span class="systems-bar-label">OPTIMIZATION:</span>
+              <div class="systems-bar-wrap"><div class="systems-bar-fill" id="miningSpeedBar"></div></div>
+              <span class="systems-bar-value" id="miningSpeedBarValue">0/10</span>
+            </div>
+            <div class="systems-bar-row">
+              <span class="systems-bar-label">EFFICIENCY:</span>
+              <div class="systems-bar-wrap"><div class="systems-bar-fill" id="miningYieldBar"></div></div>
+              <span class="systems-bar-value" id="miningYieldBarValue">0/5</span>
+            </div>
+          </div>
+          <div class="systems-box systems-box-bounty">
+            <div class="systems-box-title">BOUNTY SYSTEMS</div>
+            <div class="systems-bar-row">
+              <span class="systems-bar-label">OPTIMIZATION:</span>
+              <div class="systems-bar-wrap"><div class="systems-bar-fill" id="bountySpeedBar"></div></div>
+              <span class="systems-bar-value" id="bountySpeedBarValue">0/10</span>
+            </div>
+            <div class="systems-bar-row">
+              <span class="systems-bar-label">EFFICIENCY:</span>
+              <div class="systems-bar-wrap"><div class="systems-bar-fill" id="bountyYieldBar"></div></div>
+              <span class="systems-bar-value" id="bountyYieldBarValue">0/5</span>
+            </div>
+          </div>
+          <div class="systems-box systems-box-piracy">
+            <div class="systems-box-title">PIRACY SYSTEMS</div>
+            <div class="systems-bar-row">
+              <span class="systems-bar-label">OPTIMIZATION:</span>
+              <div class="systems-bar-wrap"><div class="systems-bar-fill" id="piracySpeedBar"></div></div>
+              <span class="systems-bar-value" id="piracySpeedBarValue">0/10</span>
+            </div>
+            <div class="systems-bar-row">
+              <span class="systems-bar-label">EFFICIENCY:</span>
+              <div class="systems-bar-wrap"><div class="systems-bar-fill" id="piracyYieldBar"></div></div>
+              <span class="systems-bar-value" id="piracyYieldBarValue">0/5</span>
             </div>
           </div>
         </div>
@@ -3328,7 +3383,6 @@
       <button id="bugReportBtn" class="bug-report">REPORT A BUG</button>
       <input type="file" id="importFileInput" accept=".json,application/json" style="display:none;">
     </div>
-    <span class="footnote-version">STARFARER V43.1 — design mockup · not a full game, illustrates the core allocation loop</span>
   </div>
 </div>
 
@@ -3401,13 +3455,18 @@
 (function () {
   // Log Fragments meta-progression — deliberately its own object, not a field on state,
   // so it can never accidentally get touched by the main state's reset/reinitialize path.
-  // highestMilestoneBanked tracks the score value of the highest 100-multiple already
-  // converted to fragments, so a run that reaches 236 after an earlier run already banked
-  // 100 only awards the newly-crossed 200 milestone, not both.
+  // highestMilestoneBanked tracks the score value of the highest 25-multiple already
+  // converted to fragments, so a run that reaches 61 after an earlier run already banked
+  // 25 only awards the newly-crossed 50 milestone, not both.
   const metaProgress = {
     logFragments: 0,
     highestMilestoneBanked: 0,
-    unlockedStars: []
+    unlockedStars: [],
+    // Knowledge root stars (trading0/mining0/bounty0/piracy0) are leveled 0-3 instead of
+    // a flat owned/not-owned boolean - level 1 costs 1 fragment for x1.5, level 2 costs 2
+    // more (3 total) for x2, level 3 costs 3 more (6 total) for x3. Every other star in
+    // the constellation stays a simple single-purchase.
+    starLevels: {}
   };
 
   const state = {
@@ -3450,6 +3509,7 @@
     foundFirstWarpCell: false,
     warpCellCapacity: 1,
     markedForDeathSector: null,
+    bountyTickCount: 0,
     ghostFleetSector: null,
     activityUpgrades: {
       trading: { speed: 0, yield: 0 },
@@ -3525,6 +3585,18 @@
           <li>Level skills, pick perks, and grow your ship's Tier to make everything safer and more automated</li>
           <li>Watch your hull — running it to zero without enough credit for the insurance claim ends the run entirely</li>
         </ul>
+        <h4>READING THE SCREEN</h4>
+        <p>The interface breaks down into a handful of consistent zones, top to bottom:</p>
+        <ul>
+          <li><strong>Top Menu Bar</strong> — ship name, class, and Tier on the left; the four Systems boxes (Trading/Mining/Bounty/Piracy Optimization and Efficiency) in the middle; Credits, Vouchers, Warp Cells, Fuel, Hull, and Cargo on the right.</li>
+          <li><strong>Lower Menu Bar</strong> — Compendium and Leaderboard buttons, the Galactic Depth indicator and current sector name, Open Galaxy Map, Sector Traits (Economy/Ore Richness/Threat Level), and the Captain's Log Archive access on the far right.</li>
+          <li><strong>Animation Bar</strong> — a single-line status readout showing what's currently happening (standing by, docking, in transit, mid-operation) alongside a progress bar for whatever timed process is active.</li>
+          <li><strong>Player Zone</strong> — captain portrait, name, rank, the four Captain Skills with their current levels, and any perks picked so far.</li>
+          <li><strong>Action Zone</strong> — the panel for assigning what the ship is doing right now: Rest, Dock at Station, or one of the four core actions.</li>
+          <li><strong>Log Zone</strong> — Current Operation readout at the top, with the full scrolling Captain's Log underneath, newest entries first.</li>
+          <li><strong>Spacedock Zone</strong> — the visual dock/undock indicator on the far right, showing at a glance whether the ship is currently docked.</li>
+          <li><strong>Bottom Bar</strong> — save status and manual save, Export/Import File, Reset Save, End Run, and Report a Bug.</li>
+        </ul>
       `
     },
     {
@@ -3558,10 +3630,13 @@
           <li><strong>Pay to tier up</strong> your current ship at the Shipyard — same price as buying an equivalent-Tier ship outright, scaled by the station's Economy. Tiering up only raises what you're allowed to own (see Hull &amp; Weapon Upgrade Limits below) — it never changes what you already have.</li>
         </ul>
         <h4>HULL &amp; WEAPON UPGRADE LIMITS</h4>
-        <p>Both are capped at <span class="comp-tag">Tier &times; 5</span>, independently — a Tier 1 ship can own up to 5 Hull upgrades and 5 Weapon upgrades; Tier 2 raises that to 10 of each; Tier 3 to 15, and so on. Trying to buy past the cap for your current Tier just gets you a warning instead of a purchase — tier up to raise the ceiling.</p>
-        <p>Buying a new ship doesn't reset this to zero the way it used to: it starts pre-loaded with whatever the <em>previous</em> Tier's max was. A new Tier 2 ship arrives with 5 Hull and 5 Weapon upgrades already installed (matching Tier 1's ceiling), a Tier 3 ship with 10 of each, and so on — a Tier 1 ship still starts at 0, since there's no Tier below it to inherit from.</p>
+        <p>Hauler and Prospector are capped at <span class="comp-tag">Tier &times; 5</span>, independently — a Tier 1 ship of either class can own up to 5 Hull upgrades and 5 Weapon upgrades; Tier 2 raises that to 10 of each; Tier 3 to 15, and so on. <span class="comp-tag">Interceptor and Raider run a steeper Tier &times; 10</span> curve instead — 10 of each at Tier 1, 20 at Tier 2, up to 50 at Tier 5. Trying to buy past the cap for your current Tier just gets you a warning instead of a purchase — tier up to raise the ceiling.</p>
+        <p>Buying a new ship doesn't reset this to zero the way it used to: it starts pre-loaded with whatever the <em>previous</em> Tier's max was, using whichever curve that class runs on. A new Tier 2 Hauler arrives with 5 Hull and 5 Weapon upgrades already installed; a new Tier 2 Interceptor arrives with 10 of each, since 10 was its Tier 1 ceiling. A Tier 1 ship of any class still starts at 0, since there's no Tier below it to inherit from.</p>
         <h4>THE MARKETPLACE</h4>
         <p>Every non-pirate station offers 2-3 ships for sale, fixed for that galaxy — stock never refreshes. Higher-Economy stations have a better chance of stocking high-Tier ships, but everything there costs more too, even lower-Tier listings. Tier 5 ships only ever appear at the highest Economy level.</p>
+        <h4>CARGO CAPACITY BY TIER</h4>
+        <p>Base cargo now scales with Tier, on top of whatever Cargo upgrades are bought separately: <span class="comp-tag">+100/Tier for Hauler</span>, <span class="comp-tag">+200/Tier for Prospector</span>, <span class="comp-tag">+50/Tier for Interceptor and Raider</span>. Tier 1 is the base value with no bonus yet; the bonus accumulates from Tier 2 onward, same pattern as Hull upgrades' starting count.</p>
+        <p>This applies differently depending on how you tier up. <strong>Tiering up your current ship</strong> adds the bonus straight onto your cargo capacity as it currently stands — any Cargo upgrades already bought stay intact and stack with it. <strong>Buying a new ship</strong> instead resets cargo to the flat formula value for that class and Tier, discarding whatever Cargo upgrades the old ship had. Worth knowing before choosing between the two if you've sunk a lot into Cargo upgrades already.</p>
         <h4>WARP CELL CAPACITY</h4>
         <p>Tier 1 and 2 ships hold 1 warp cell at a time, same as always. <span class="comp-tag">Tier 3 and 4</span> raise that to 2, and <span class="comp-tag">Tier 5</span> reaches the full 3 — letting a well-tiered ship stockpile several warps' worth of Effective Depth increase before needing to actually spend one. This follows the same rule as everything else Tier-gated: buying a new ship or tiering up sets capacity from the new Tier immediately, and it's never reduced, only raised.</p>
         <h4>SHIP TIER PERKS</h4>
@@ -3648,8 +3723,8 @@
         <ul>
           <li><strong>Critical Failure</strong> (fixed 5%): triple distance-based hull damage (reduced by Security), no Vouchers, and a 1d6+3 loss to this sector's Sector Authority standing</li>
           <li><strong>Failure</strong> (scales): distance-based hull damage, reduced by Security skill</li>
-          <li><strong>Success</strong>: Vouchers equal to (Effective Depth + 1) six-sided dice, plus 1d6+3 Sector Authority reputation</li>
-          <li><strong>Critical Success</strong> (fixed 5%): double Vouchers and double the reputation gain</li>
+          <li><strong>Success</strong>: Vouchers equal to (Effective Depth + 1) six-sided dice, plus 1d6+3 Sector Authority reputation, minus a 1d6+3 hit to Free Fleets standing — the Free Fleets lean pirate-sympathetic, and don't take kindly to a successful hunt</li>
+          <li><strong>Critical Success</strong> (fixed 5%): double Vouchers, double the Sector Authority gain, and double the Free Fleets loss</li>
         </ul>
         <h4>VOUCHERS &amp; YIELD</h4>
         <p>Bounty Hunting's reward currency — not credits directly. Redeem them at any non-pirate station's Sector Authority Office: sell outright for credits, or convert at a better rate directly into Sector Authority standing. The Efficiency Module and Bounty Knowledge (Log Fragments) both multiply how many Vouchers a successful tick actually pays out.</p>
@@ -3743,8 +3818,8 @@
         <h3>HOW YOUR SCORE IS CALCULATED</h3>
         <p>Shown whenever a run ends, whether by hull hitting 0 with no insurance available or by voluntarily hitting END RUN. Four components, all whole numbers, added together:</p>
         <h4>1. CREDITS</h4>
-        <p><span class="comp-tag">floor(Total Credits Earned &divide; 10,000)</span></p>
-        <p>Total Credits Earned is a running lifetime total, separate from your spendable credit balance — it only ever goes up, tracking every sale (ore, ingots, Plunder, Vouchers) and net Trading profit across the whole run. Spending doesn't reduce it, and it's not the same number as what you see in the topbar. Rounds down, so anything under 10,000 lifetime earned contributes 0 here.</p>
+        <p><span class="comp-tag">min(450, floor(Total Credits Earned &divide; 10,000))</span></p>
+        <p>Total Credits Earned is a running lifetime total, separate from your spendable credit balance — it only ever goes up, tracking every sale (ore, ingots, Plunder, Vouchers) and net Trading profit across the whole run. Spending doesn't reduce it, and it's not the same number as what you see in the topbar. Rounds down, so anything under 10,000 lifetime earned contributes 0 here, and this component caps at 450 regardless of how much more is earned beyond 4.5 million lifetime credits.</p>
         <h4>2. CAPTAIN SKILLS</h4>
         <p><span class="comp-tag">Security + Skullduggery + Negotiation + Prospecting</span></p>
         <p>A simple sum of all four skill levels at the moment the run ends. Maximum possible: 400 (every skill at 100).</p>
@@ -3763,7 +3838,7 @@
         <h3>WHAT THEY ARE</h3>
         <p>A permanent currency that survives death — separate from credits, separate from your save file, separate from everything else that resets when a run ends. Log Fragments carry across every run you ever play, spent on permanent unlocks in the Captain's Log Archive (the constellation screen).</p>
         <h3>HOW YOU EARN THEM</h3>
-        <p>Every 100 score, lifetime-cumulative — not per run. If an earlier run already banked the milestone at 100 score, a later run that reaches 236 only banks the newly-crossed 200 milestone (1 more fragment), not both. The exact same milestone math the Scoring section describes, just converted into a currency that outlives the run.</p>
+        <p>Every 25 score, lifetime-cumulative — not per run. If an earlier run already banked the milestone at 25 score, a later run that reaches 61 only banks the newly-crossed 50 milestone (1 more fragment), not both. The exact same milestone math the Scoring section describes, just converted into a currency that outlives the run.</p>
         <p>Fragments are only banked when a run actually ends — dying, or hitting END RUN voluntarily. Both route through the same reincarnation flow and both bank fragments identically; the only difference is whether it was forced or your own call.</p>
         <h3>WHAT WIPES THEM — AND WHAT DOESN'T</h3>
         <ul>
@@ -3772,9 +3847,47 @@
         </ul>
         <h3>THE CONSTELLATION</h3>
         <p>Four lanes, left to right in the same order as everything else in this game — Trading, Mining, Bounty Hunting, Piracy — each running top to bottom through a chain of stars, plus connector stars linking adjacent lanes partway down. Those connectors are genuinely functional: unlocking one opens a path into the neighboring lane without needing that lane's own root star first, not just a visual link.</p>
-        <p>Hover any star to see what it costs and what it does. Most of the graph is still uncharted — new stars are added as they're designed.</p>
-        <h4>CURRENTLY AVAILABLE: THE FOUR KNOWLEDGE PERKS</h4>
-        <p>Each lane's root star — Trading Knowledge, Mining Knowledge, Bounty Knowledge, Piracy Knowledge — triples that action's primary reward (Credits, Ore, Vouchers, or Plunder respectively) once unlocked. Trading Knowledge specifically isn't limited by Trading's normal payout ceiling, so it keeps delivering its full effect even stacked with a maxed Efficiency Module.</p>
+        <p>Hover any star to see what it costs and what it does. Cost scales with depth down the lane: row 1 costs 2 fragments, row 2 costs 3, row 3 costs 4, and row 4 costs 5 — the deeper into a lane, the more expensive the next star, mirroring the same "further in costs more" shape as everything else Tier- or depth-scaled in this game.</p>
+        <h4>ROW 0 — THE KNOWLEDGE PERKS (LEVELED)</h4>
+        <p>Each lane's root star — Trading Knowledge, Mining Knowledge, Bounty Knowledge, Piracy Knowledge — is different from every other star in the constellation: instead of one flat purchase, it has 3 levels. <span class="comp-tag">Level 1 costs 1 fragment for x1.5</span> to that lane's primary reward currency (Credits, Ore, Vouchers, or Plunder respectively), <span class="comp-tag">Level 2 costs 2 more (3 total) for x2</span>, and <span class="comp-tag">Level 3 costs 3 more (6 total) for x3</span>. Same ceiling as before, just a gradual path there instead of one lump purchase. Trading Knowledge specifically isn't limited by Trading's normal payout ceiling, so it keeps delivering its full multiplier even stacked with a maxed Efficiency Module. Row 1 in a lane becomes reachable as soon as that lane's Knowledge hits Level 1 — Levels 2 and 3 don't gate anything further down the lane, they just add more multiplier.</p>
+        <h4>TRADING LANE</h4>
+        <ul>
+          <li><strong>Row 1 — Insured Cargo:</strong> Trading Failures lose 30% less of that leg's stake.</li>
+          <li><strong>Row 2 — Fast Lanes:</strong> legs resolve 15% faster, stacking with Quick Turnaround if the ship has it.</li>
+          <li><strong>Row 3 — Guild Contacts:</strong> Mercantile Guild rep gained from a net-positive run increased 50%.</li>
+          <li><strong>Row 4 — Golden Ticket:</strong> the first leg of every run is guaranteed to succeed.</li>
+        </ul>
+        <h4>MINING LANE</h4>
+        <ul>
+          <li><strong>Row 1 — Deep Scan:</strong> a 30% chance on any successful tick to double that tick's ore yield outright.</li>
+          <li><strong>Row 2 — Efficient Extraction:</strong> smelting costs 25% less per unit.</li>
+          <li><strong>Row 3 — Consortium Ties:</strong> Deep-Space Consortium rep gained from successful ticks increased 50%.</li>
+          <li><strong>Row 4 — Endless Vein:</strong> a 15% chance on any successful tick that it costs no time — an immediate free extra tick chained right onto it.</li>
+        </ul>
+        <h4>BOUNTY HUNTING LANE</h4>
+        <ul>
+          <li><strong>Row 1 — Sharper Intel:</strong> a further flat 5-point fail chance reduction, independent of Security skill entirely.</li>
+          <li><strong>Row 2 — Faster Response:</strong> ticks resolve 15% faster.</li>
+          <li><strong>Row 3 — Authority Favor:</strong> Sector Authority rep gained from successful ticks increased 50%.</li>
+          <li><strong>Row 4 — Kill Order:</strong> every 10th tick is guaranteed to succeed, counted independently of Marked for Death's per-sector trigger.</li>
+        </ul>
+        <h4>PIRACY LANE</h4>
+        <ul>
+          <li><strong>Row 1 — Better Fencing:</strong> Plunder sells for 20% more at the Black Market.</li>
+          <li><strong>Row 2 — Stealth Approach:</strong> a further flat 10-point fail chance reduction, but only while holding under 500 Plunder — the early, low-risk part of a run gets safer specifically.</li>
+          <li><strong>Row 3 — Free Fleets Bond:</strong> Free Fleets rep gained from successful ticks increased 50%.</li>
+          <li><strong>Row 4 — Reign of Terror:</strong> a further flat damage reduction on Failure and Critical Failure, stacking with Skullduggery's own reduction.</li>
+        </ul>
+        <h4>CROSS-LANE CONNECTORS (HYBRID PERKS)</h4>
+        <p>The 6 stars linking adjacent lanes are genuine hybrids — each one boosts <em>both</em> neighboring activities at once, not just one. They render with a hard-split color fill (left half in the left lane's color, right half in the right lane's) to mark them out from the single-lane stars around them, and cost the same as any other star at that depth: 2 fragments at row 1, 4 at row 3.</p>
+        <ul>
+          <li><strong>Trading &harr; Mining, Row 1 — Cargo Manifest:</strong> +10% cargo capacity, applied immediately and re-applied on every future ship purchase so it's never silently lost.</li>
+          <li><strong>Trading &harr; Mining, Row 3 — Efficient Operations:</strong> both Trading legs and Mining ticks resolve a further 10% faster, stacking with Fast Lanes and Faster Response's Mining-equivalent respectively.</li>
+          <li><strong>Mining &harr; Bounty Hunting, Row 1 — Steady Hands:</strong> a further flat 5-point fail chance reduction for both Mining and Bounty Hunting.</li>
+          <li><strong>Mining &harr; Bounty Hunting, Row 3 — Frontier Network:</strong> Deep-Space Consortium rep (Mining) and Sector Authority rep (Bounty) gains from successful ticks both increased a further 30%, stacking with Consortium Ties and Authority Favor.</li>
+          <li><strong>Bounty Hunting &harr; Piracy, Row 1 — Combat Readiness:</strong> a further flat damage reduction on Bounty and Piracy Failure/Critical Failure, stacking with De-escalation Training and Reign of Terror.</li>
+          <li><strong>Bounty Hunting &harr; Piracy, Row 3 — Wanted, Dead or Alive:</strong> a 15% chance on any successful Bounty or Piracy tick to gain a bonus 25% of that tick's yield.</li>
+        </ul>
       `
     },
     {
@@ -3900,8 +4013,17 @@
   // raises this ceiling without touching what's already owned; buying a new ship instead
   // starts it at the previous tier's max (a Tier 2 ship starts with 5 of each, since 5 was
   // the Tier 1 ceiling), never at 0 for anything above Tier 1.
-  function upgradeCapForTier(tier) {
+  // Ship Tiers content pass: Interceptor and Raider now run a steeper Tier x 10 curve
+  // instead, differentiating their Hull/Weapon progression from Hauler/Prospector's.
+  function upgradeCapForTier(tier, classKey) {
+    if (classKey === 'interceptor' || classKey === 'raider') return tier * 10;
     return tier * 5;
+  }
+
+  // Ship Tiers content pass: cargo capacity now scales with Tier too, per class. Applied
+  // two different ways depending on context - see buyShip() and tierUpShip() below.
+  function cargoBonusPerTier(classKey) {
+    return { hauler: 100, prospector: 200, interceptor: 50, raider: 50 }[classKey] || 0;
   }
 
   // Ship Tiers content pass: Tier 3-4 ships hold 2 warp cells at once instead of 1,
@@ -4744,6 +4866,7 @@
     if (!state.sector) return; // game hasn't started yet — still on the ship-select screen
     checkRepMilestones();
     el('depthValue').textContent = effectiveDepth(state.sector);
+    el('topbarLogFragmentsValue').textContent = fmt(metaProgress.logFragments);
     el('shipName').textContent = 'S.S. ' + (state.shipName || 'WAYWARD').toUpperCase();
     el('credits').textContent = fmt(state.credits);
     el('vouchers').textContent = fmt(state.vouchers);
@@ -4841,6 +4964,7 @@
     el('skillsSubtab').style.display = state.activeCaptainSubtab === 'skills' ? 'block' : 'none';
     el('standingSubtab').style.display = state.activeCaptainSubtab === 'standing' ? 'block' : 'none';
     el('cargoSubtab').style.display = state.activeCaptainSubtab === 'cargo' ? 'block' : 'none';
+    el('systemsSubtab').style.display = state.activeCaptainSubtab === 'systems' ? 'block' : 'none';
     if (state.activeCaptainSubtab === 'cargo') {
       el('cargoTabTotal').textContent = fmt(totalCargoUsed()) + '/' + fmt(state.cargoCapacity);
       el('cargoTabCopper').textContent = fmt(state.ore.copper);
@@ -4863,7 +4987,7 @@
     const displayedFuelPrice = Math.round(FUEL_PRICE * priceMult);
 
     const hullUpgradesOwned = state.hullUpgradeLevel - 1;
-    const hullUpgradeCap = upgradeCapForTier(state.shipTier);
+    const hullUpgradeCap = upgradeCapForTier(state.shipTier, shipClassKeyForState());
     const hullMaxed = hullUpgradesOwned >= hullUpgradeCap;
     el('upgradeCost').textContent = fmt(displayedUpgradeCost);
     renderShipMarketplace();
@@ -4944,7 +5068,7 @@
     el('fuelTankUpgradeBtn').disabled = state.credits < displayedFuelUpgradeCost || !state.docked;
 
     const displayedWeaponCost = Math.round(arithmeticUpgradeCost(WEAPON_UPGRADE_BASE, state.weaponTier) * priceMult);
-    const weaponUpgradeCap = upgradeCapForTier(state.shipTier);
+    const weaponUpgradeCap = upgradeCapForTier(state.shipTier, shipClassKeyForState());
     const weaponMaxed = state.weaponTier >= weaponUpgradeCap;
     el('weaponCost').textContent = fmt(displayedWeaponCost);
     el('weaponUpgradeBtn').disabled = weaponMaxed || state.credits < displayedWeaponCost || !state.docked;
@@ -5267,7 +5391,13 @@
     state.tradingAutoReinvestAmount = investAmount;
     // Quick Turnaround (Hauler Tier 2): legs resolve 20% faster.
     const quickTurnaround = hasShipTierPerk('quick_turnaround') ? 0.8 : 1;
-    const legMs = TRADE_LEG_MS * (1 - state.activityUpgrades.trading.speed * OVERCLOCK_SPEED_STEP) * quickTurnaround;
+    // Fast Lanes (constellation, Trading row 2): a further 15% off leg time, stacking
+    // multiplicatively with Quick Turnaround rather than replacing it.
+    const fastLanes = hasConstellationPerk('trading2') ? 0.85 : 1;
+    // Efficient Operations (constellation, Trading/Mining cross, row 3): a further 10%
+    // off, stacking with the above.
+    const efficientOps = hasConstellationPerk('cross_trading_mining_3') ? 0.9 : 1;
+    const legMs = TRADE_LEG_MS * (1 - state.activityUpgrades.trading.speed * OVERCLOCK_SPEED_STEP) * quickTurnaround * fastLanes * efficientOps;
     // Market Maker (Hauler Tier 5): runs extend from 6 legs to 8 — decided once here at
     // investment time and stored on the run itself, since the ship/perk shouldn't change
     // mid-run anyway but this keeps the run self-consistent regardless.
@@ -5331,7 +5461,10 @@
       }
 
       let legReturn;
-      if (total >= effectiveDC) {
+      // Golden Ticket (constellation, Trading row 4): the first leg of every run is
+      // guaranteed to succeed, regardless of the roll.
+      const goldenTicket = legNum === 1 && hasConstellationPerk('trading4');
+      if (total >= effectiveDC || goldenTicket) {
         run.successCount += 1;
         let pct = tier.maxPct * (0.5 + Math.random() * 0.5);
         // Quick Turnaround (Hauler Tier 2): legs resolve 20% faster (handled in the tick
@@ -5341,7 +5474,7 @@
         // Unclamped deliberately (unlike Efficiency's line above) — the Log Fragments
         // constellation perk should apply its full 3x regardless of where Efficiency alone
         // already landed, rather than being silently absorbed by the payout ceiling.
-        if (hasTripleYieldPerk('trading')) pct = pct * 3;
+        pct = pct * knowledgeMultiplier('trading');
         // Merchant Guild standing inflates or deflates the payout within the same run it's
         // measured — a modest ±15% swing across the full -600..600 range, centered on 1.0x
         // at neutral rep. Previously rep had no effect on trading payout at all.
@@ -5353,13 +5486,16 @@
         }
         legReturn = stake + profit;
         grantSkillXP('neg', profit);
-        addLog('Leg ' + legNum + '/' + run.totalLegCount + (diversified ? ' (half ' + (half + 1) + ')' : '') + ': the deal closes at a ' + (pct * 100).toFixed(1) + '% markup. (d20 ' + d20 + '+' + bonus + ' vs DC ' + effectiveDC.toFixed(0) + ')', 'trading');
+        addLog('Leg ' + legNum + '/' + run.totalLegCount + (diversified ? ' (half ' + (half + 1) + ')' : '') + (goldenTicket ? ' — a contact makes sure this one goes through clean. Golden Ticket. ' : ': ') + 'the deal closes at a ' + (pct * 100).toFixed(1) + '% markup. (d20 ' + d20 + '+' + bonus + ' vs DC ' + effectiveDC.toFixed(0) + ')', 'trading');
       } else {
         run.failCount += 1;
         const isCritFail = d20 === 1;
         anyFail = true;
         if (isCritFail) anyCritFail = true;
-        const pct = Math.max(0.02, tier.maxPct * (0.08 + Math.random() * 0.27));
+        let pct = Math.max(0.02, tier.maxPct * (0.08 + Math.random() * 0.27));
+        // Insured Cargo (constellation, Trading row 1): Failures lose 30% less of the
+        // leg's stake.
+        if (hasConstellationPerk('trading1')) pct *= 0.7;
         const loss = stake * pct;
         legReturn = stake - loss;
         addLog('Leg ' + legNum + '/' + run.totalLegCount + (diversified ? ' (half ' + (half + 1) + ')' : '') + ': the deal sours — lost ' + (pct * 100).toFixed(1) + '% of that leg. (d20 ' + d20 + '+' + bonus + ' vs DC ' + effectiveDC.toFixed(0) + ')', 'risk');
@@ -5448,7 +5584,10 @@
       const dice = Math.abs(lean);
       let repRoll = 0;
       for (let i = 0; i < dice; i++) repRoll += Math.floor(Math.random() * 4) + 1;
-      const repChange = lean > 0 ? repRoll : -repRoll;
+      let repChange = lean > 0 ? repRoll : -repRoll;
+      // Guild Contacts (constellation, Trading row 3): Merchant Guild rep gains from a
+      // net-positive run increased 50% - doesn't touch the loss side.
+      if (repChange > 0 && hasConstellationPerk('trading3')) repChange = Math.round(repChange * 1.5);
       shiftRep({ merchant: repChange });
       addLog('Route record with the Mercantile Guild: ' + run.successCount + ' good legs, ' + run.failCount + ' bad. (' + (repChange >= 0 ? '+' : '') + repChange + ' rep)', repChange >= 0 ? 'trading' : 'risk');
     }
@@ -5742,7 +5881,10 @@
     // quantity. Ore yield went up 100x in this same pass, and one-unit-at-a-time
     // smelting would have meant well over a hundred separate operations to process a
     // single good mining tick, which stopped being a reasonable UX at that scale.
-    const perUnitRate = tier.refineCost * sectorPriceMultiplier();
+    // Efficient Extraction (constellation, Mining row 2): smelting costs 25% less per
+    // unit, applied before the sector price multiplier so it scales with it correctly.
+    const extractionDiscount = hasConstellationPerk('mining2') ? 0.75 : 1;
+    const perUnitRate = tier.refineCost * extractionDiscount * sectorPriceMultiplier();
     const fullRate = Math.round(perUnitRate * quantity);
     let smeltQuantity = quantity;
     let rate = fullRate;
@@ -5922,7 +6064,10 @@
     // ±2 swing around the base rate of 5 that the old 0-100-scale formula produced; only
     // the mapping from rep value to that swing changed. Old Contact's floor is a minimum
     // on the output rate, not rep-scale-dependent, so it needed no change here.
-    return Math.max(floor, 5 + (state.rep.freefleets / 600) * 2) * 2;
+    let rate = Math.max(floor, 5 + (state.rep.freefleets / 600) * 2) * 2;
+    // Better Fencing (constellation, Piracy row 1): Plunder sells for 20% more.
+    if (hasConstellationPerk('piracy1')) rate *= 1.2;
+    return rate;
   }
 
   // Station buy-side prices (upgrades, repairs, sensors, fuel, refining) scale with the
@@ -6023,7 +6168,7 @@
   // Success/Failure base at zero skill+bonus, per explicit design direction. Ore *tier* is
   // decided separately by sector Richness (above) — skill and ship bonus affect whether
   // you succeed and how much you get, not which ore you get.
-  function resolveMiningTick() {
+  function resolveMiningTick(chained) {
     const sector = SECTORS[state.sector];
     const conf = ACTIVITIES.mining;
     const shipBonus = state.shipBonusActivity === 'mining' ? state.shipBonusAmount : 0;
@@ -6032,7 +6177,10 @@
     // preserving the same maximum effect - failFactor still hits exactly 0 at max
     // skill+ship combined, same as before.
     const failFactor = Math.max(0, 1 - skillAndShip / 200);
-    const failChance = Math.min(90, (45 * failFactor) + depthFailPenalty(state.sector));
+    let failChance = Math.min(90, (45 * failFactor) + depthFailPenalty(state.sector));
+    // Steady Hands (constellation, Mining/Bounty cross, row 1): a further flat fail-chance
+    // reduction. Bounty's half lives in resolveBountyTick() instead.
+    if (hasConstellationPerk('cross_mining_bounty_1')) failChance = Math.max(0, failChance - 5);
 
     // Motherlode Instinct (Prospector Tier 5): Critical Success chance doubles, 5%->10%.
     const critSuccessChance = hasShipTierPerk('motherlode_instinct') ? 10 : 5;
@@ -6109,8 +6257,13 @@
       if (tier === 'critSuccess') units *= 2;
       units += miningBonusUnits(skillAndShip);
       if (state.activityUpgrades.mining.yield) units *= efficiencyMultiplier(state.activityUpgrades.mining.yield);
-      if (hasTripleYieldPerk('mining')) units *= 3;
+      units *= knowledgeMultiplier('mining');
       if (hasShipTierPerk('high_grade_filter')) units *= 0.8;
+      // Deep Scan (constellation, Mining row 1): a 30% chance on any successful tick to
+      // double that tick's yield outright - a mini-crit independent of the real Critical
+      // Success roll.
+      let deepScanProc = false;
+      if (hasConstellationPerk('mining1') && Math.random() < 0.3) { units *= 2; deepScanProc = true; }
       let miningLucky = false;
       if (luckyProc()) { units *= 2; miningLucky = true; }
       units = Math.max(1, Math.round(units * distanceEarningsMultiplier(state.sector)));
@@ -6128,11 +6281,20 @@
         units = Math.min(units, roomLeft);
         state.ore[oreTier.key] += units;
         if (miningLucky) addLog('A rich seam turns up right where you were about to give up. — Lucky', 'mining');
+        if (deepScanProc) addLog('Deep scan catches a second vein running right alongside the first. — Deep Scan', 'mining');
         const pool = MINING_FLAVOR[oreTier.key];
         const line = resolveLogTemplate(pool[Math.floor(Math.random() * pool.length)]);
         addLog(line + '  (+' + units + ' ' + oreTier.label + (overflowed ? ', hold filled — the rest spills back into the belt' : '') + ')', conf.accent);
 
-        shiftRep({ consortium: rollRepGain(tier === 'critSuccess') });
+        // Consortium Ties (constellation, Mining row 3): Deep-Space Consortium rep gains
+        // from successful ticks increased 50%.
+        let consortiumGain = rollRepGain(tier === 'critSuccess');
+        if (hasConstellationPerk('mining3')) consortiumGain = Math.round(consortiumGain * 1.5);
+        // Frontier Network (constellation, Mining/Bounty cross, row 3): a further 30%,
+        // stacking multiplicatively with Consortium Ties. Bounty's half lives in
+        // resolveBountyTick() instead.
+        if (hasConstellationPerk('cross_mining_bounty_3')) consortiumGain = Math.round(consortiumGain * 1.3);
+        shiftRep({ consortium: consortiumGain });
 
         const newCargoUsed = cargoUsed + units;
         if (state.captain.perks.indexOf('careful_miner') !== -1 && newCargoUsed >= state.cargoCapacity) {
@@ -6155,6 +6317,16 @@
     }
 
     maybeAutoForge();
+    // Endless Vein (constellation, Mining row 4): a successful tick has a 15% chance to
+    // not consume any time - an immediate free re-roll on the same tick. Guarded by
+    // `chained` so a chained tick can never itself chain again, and only fires if the
+    // activity is still active afterward (a full hold or an interruption above may have
+    // already ended it).
+    if (!chained && (tier === 'success' || tier === 'critSuccess') && hasConstellationPerk('mining4') && state.activity === 'mining' && Math.random() < 0.15) {
+      addLog('The vein just keeps going — no time lost chasing it further. — Endless Vein', 'mining');
+      resolveMiningTick(true);
+      return;
+    }
     render();
   }
 
@@ -6365,13 +6537,16 @@
     return 'permadeath';
   }
 
-  // Log Fragments (meta-progression) — every 100 score, lifetime-cumulative rather than
-  // per-run. A run that reaches 236 after an earlier run already banked the 100 milestone
-  // only awards the newly-crossed 200 milestone (1 fragment), not both milestones (2).
+  // Log Fragments (meta-progression) — every 25 score, lifetime-cumulative rather than
+  // per-run. A run that reaches 61 after an earlier run already banked the 50 milestone
+  // only awards the newly-crossed... wait, 61 only clears the 50 milestone itself if the
+  // earlier run had banked 25 — e.g., a run reaching 30 banks the 25 milestone (1
+  // fragment), and a later run reaching 61 only awards the newly-crossed 50 milestone (1
+  // more fragment), not both the 25 and 50 milestones again.
   // Called once per death/End Run — both funnel through the same reincarnation flow.
   function bankLogFragmentsForScore(score) {
-    const currentMilestone = Math.floor(score / 100) * 100;
-    const newFragments = Math.max(0, Math.floor((currentMilestone - metaProgress.highestMilestoneBanked) / 100));
+    const currentMilestone = Math.floor(score / 25) * 25;
+    const newFragments = Math.max(0, Math.floor((currentMilestone - metaProgress.highestMilestoneBanked) / 25));
     if (newFragments > 0) {
       metaProgress.logFragments += newFragments;
       metaProgress.highestMilestoneBanked = currentMilestone;
@@ -6391,7 +6566,9 @@
     // nonzero score instead of universally rounding to 0.00. Skill levels, the
     // Sector Authority milestone counter, and the one-time other-faction bonus all add
     // on top — every component is a whole number, so the total is displayed as one too.
-    const creditsScore = Math.floor(state.totalCreditsEarned / 10000);
+    // Balance pass ahead of the 40-node constellation expansion: credits score is now
+    // capped at 450, rather than growing unboundedly with total credits earned.
+    const creditsScore = Math.min(450, Math.floor(state.totalCreditsEarned / 10000));
     const skillScore = state.captain.sec + state.captain.skull + state.captain.neg + state.captain.prospect;
     const authorityScore = state.sectorAuthorityMaxCount * 2;
     const otherFactionScore = state.otherFactionMaxedCount * 10;
@@ -6486,6 +6663,10 @@
       freeFleetsGain = Math.round(freeFleetsGain / 2);
       nonFFLoss = Math.round(nonFFLoss / 2);
     }
+    // Free Fleets Bond (constellation, Piracy row 3): Free Fleets rep gains from
+    // successful ticks increased 50%, applied after Silent Running's halving so both
+    // can meaningfully stack rather than one silently canceling the other out.
+    if (freeFleetsGain > 0 && hasConstellationPerk('piracy3')) freeFleetsGain = Math.round(freeFleetsGain * 1.5);
 
     if (freeFleetsGain > 0) shiftRep({ freefleets: freeFleetsGain });
 
@@ -6511,7 +6692,11 @@
     const riskExemptFraction = hasShipTierPerk('quick_hands') ? 0.8 : 1;
     const plunderFactor = Math.min(state.plunder * riskExemptFraction, 2000) / 2000;
     const repFactor = (REP_MAX - effectiveAuthorityRep(state.sector)) / (REP_MAX - REP_MIN);
-    const failPct = Math.min(90, (35 * plunderFactor * repFactor) + depthFailPenalty(state.sector));
+    let failPct = Math.min(90, (35 * plunderFactor * repFactor) + depthFailPenalty(state.sector));
+    // Stealth Approach (constellation, Piracy row 2): a further flat fail-chance
+    // reduction, but only while holding under 500 Plunder - the early, low-risk part of
+    // a run gets safer, rather than a blanket reduction regardless of what's held.
+    if (hasConstellationPerk('piracy2') && state.plunder < 500) failPct = Math.max(0, failPct - 10);
 
     // Opportunist (Raider Tier 4): Critical Success chance scales up the more Plunder is
     // currently held - inverts the usual "more Plunder = more risk" logic into also
@@ -6542,7 +6727,11 @@
       let amount = computeRoll('piracy') * distanceEarningsMultiplier(state.sector);
       if (tier === 'critSuccess') amount *= 2;
       if (state.activityUpgrades.piracy.yield) amount *= efficiencyMultiplier(state.activityUpgrades.piracy.yield);
-      if (hasTripleYieldPerk('piracy')) amount *= 3;
+      amount *= knowledgeMultiplier('piracy');
+      // Wanted, Dead or Alive (constellation, Bounty/Piracy cross, row 3): a 15% chance
+      // on any successful tick to gain a bonus 25% of that tick's yield.
+      let wantedProc = false;
+      if (hasConstellationPerk('cross_bounty_piracy_3') && Math.random() < 0.15) { amount *= 1.25; wantedProc = true; }
       let piracyLucky = false;
       if (luckyProc()) { amount *= 2; piracyLucky = true; }
 
@@ -6557,6 +6746,7 @@
       // handler, since Skullduggery XP is now tied to actually selling Plunder at the
       // Black Market, not simply collecting it.
       if (piracyLucky) addLog('A lucky break doubles the take this round. — Lucky', 'piracy');
+      if (wantedProc) addLog('Turns out this hold had a bounty riding on it too. — Wanted, Dead or Alive', 'piracy');
 
       if (actuallyGained < amount - 0.5) {
         addLog('Hold\'s too full to take it all — some of the haul gets left behind.', 'risk');
@@ -6572,6 +6762,12 @@
       // Balance pass: was raw skill subtracted directly (max -10 at old cap); divided by
       // 10 to preserve that same maximum reduction now that skill caps at 100 instead.
       dmg = Math.max(1, dmg - state.captain.skull / 10);
+      // Reign of Terror (constellation, Piracy row 4): a further flat damage reduction on
+      // Failure/Critical Failure, stacking on top of Skullduggery's own reduction above.
+      if (hasConstellationPerk('piracy4')) dmg = Math.max(1, dmg - 3);
+      // Combat Readiness (constellation, Bounty/Piracy cross, row 1): a further flat
+      // reduction, stacking with Reign of Terror.
+      if (hasConstellationPerk('cross_bounty_piracy_1')) dmg = Math.max(1, dmg - 2);
       if (tier === 'critFailure') dmg *= 2;
 
       if (dmg > 0 && state.captain.perks.indexOf('prototype_stealth') !== -1) {
@@ -6625,7 +6821,13 @@
     // Balance pass: divisor scaled 20->200 alongside the skill cap increase (10->100).
     const skillFactor = 1 - state.captain.sec / 200;
     const repFactor = (REP_MAX - effectiveAuthorityRep(state.sector)) / (REP_MAX - REP_MIN);
-    const failPct = Math.min(90, (35 * skillFactor * repFactor) + depthFailPenalty(state.sector));
+    let failPct = Math.min(90, (35 * skillFactor * repFactor) + depthFailPenalty(state.sector));
+    // Sharper Intel (constellation, Bounty row 1): a further flat fail-chance reduction,
+    // independent of Security skill entirely.
+    if (hasConstellationPerk('bounty1')) failPct = Math.max(0, failPct - 5);
+    // Steady Hands (constellation, Mining/Bounty cross, row 1): Mining's half lives in
+    // resolveMiningTick() instead.
+    if (hasConstellationPerk('cross_mining_bounty_1')) failPct = Math.max(0, failPct - 5);
 
     const r = Math.random() * 100;
     let tier;
@@ -6633,6 +6835,14 @@
     else if (r < 5 + failPct) tier = 'failure';
     else if (r < 5 + failPct + 5) tier = 'critFailure';
     else tier = 'success';
+
+    // Kill Order (constellation, Bounty row 4): every 10th tick is guaranteed to succeed,
+    // counted independently of Marked for Death's per-sector trigger below.
+    state.bountyTickCount += 1;
+    if (hasConstellationPerk('bounty4') && state.bountyTickCount % 10 === 0 && tier !== 'success' && tier !== 'critSuccess') {
+      tier = 'success';
+      addLog('The order came down from the top — this one doesn\'t walk away. — Kill Order', 'bounty');
+    }
 
     // No Quarter (Interceptor Tier 4): Critical Failures downgrade to regular Failures —
     // the triple-damage tier never triggers — traded for slightly harder regular Failure
@@ -6655,18 +6865,39 @@
       for (let i = 0; i < diceCount; i++) vouchersGained += Math.floor(Math.random() * 6) + 1;
       if (tier === 'critSuccess') vouchersGained *= 2;
       if (state.activityUpgrades.bounty.yield) vouchersGained *= efficiencyMultiplier(state.activityUpgrades.bounty.yield);
-      if (hasTripleYieldPerk('bounty')) vouchersGained *= 3;
+      vouchersGained *= knowledgeMultiplier('bounty');
+      // Wanted, Dead or Alive (constellation, Bounty/Piracy cross, row 3): a 15% chance
+      // on any successful tick to gain a bonus 25% of that tick's yield. Piracy's half
+      // lives in resolvePiracyTick() instead.
+      let wantedProc = false;
+      if (hasConstellationPerk('cross_bounty_piracy_3') && Math.random() < 0.15) { vouchersGained *= 1.25; wantedProc = true; }
       let bountyLucky = false;
       if (luckyProc()) { vouchersGained *= 2; bountyLucky = true; }
 
       state.vouchers += vouchersGained;
-      const repGain = rollRepGain(tier === 'critSuccess');
+      let repGain = rollRepGain(tier === 'critSuccess');
+      // Authority Favor (constellation, Bounty row 3): Sector Authority rep gains from
+      // successful ticks increased 50%.
+      if (hasConstellationPerk('bounty3')) repGain = Math.round(repGain * 1.5);
+      // Frontier Network (constellation, Mining/Bounty cross, row 3): a further 30%,
+      // stacking multiplicatively with Authority Favor.
+      if (hasConstellationPerk('cross_mining_bounty_3')) repGain = Math.round(repGain * 1.3);
       shiftRep({ authority: repGain });
       addLog('Sector Authority standing rises with the capture. (+' + repGain + ' rep)', 'bounty');
+      // New: successful hunts anger the Free Fleets, who lean pirate-sympathetic — using
+      // the same scaling rollRepGain() already provides for gains, just applied as a loss
+      // here. A Critical Success costs more Free Fleets standing than a regular success,
+      // same 2x relationship the function already gives crits everywhere else it's used.
+      // A fresh independent roll, not the authority-side repGain above, since that value
+      // already carries Authority Favor/Frontier Network's own separate multipliers.
+      const freeFleetsLoss = rollRepGain(tier === 'critSuccess');
+      shiftRep({ freefleets: -freeFleetsLoss });
+      addLog('Word travels fast — the Free Fleets don\'t take kindly to this one. (-' + freeFleetsLoss + ' rep)', 'risk');
       // XP no longer granted here on gaining Vouchers — moved to sellVouchersBtn and
       // convertVouchersBtn's handlers, since Security XP is now tied to actually
       // redeeming Vouchers, not simply collecting them.
       if (bountyLucky) addLog('A lucky break doubles the take this round. — Lucky', 'bounty');
+      if (wantedProc) addLog('Turns out there was a standing bonus on this one. — Wanted, Dead or Alive', 'bounty');
 
       const linePool = tier === 'critSuccess'
         ? ['Clean capture — {crew} has the target in irons before they even see it coming.', 'Textbook hunt. {captain} radios it in early.', "Perfect intercept — {crew} calls it the easiest bounty in weeks."]
@@ -6690,6 +6921,11 @@
       // De-escalation Training (Interceptor Tier 2): an additional flat reduction on
       // Failure-tier damage specifically, stacking on top of Security's own reduction.
       if (tier === 'failure' && hasShipTierPerk('deescalation_training')) dmg = Math.max(1, dmg - 2);
+      // Combat Readiness (constellation, Bounty/Piracy cross, row 1): a further flat
+      // reduction applied before the tier multiplier below, so it scales naturally for
+      // both Failure and Critical Failure rather than needing a separate branch for each.
+      // Piracy's half lives in resolvePiracyTick() instead.
+      if (hasConstellationPerk('cross_bounty_piracy_1')) dmg = Math.max(1, dmg - 2);
       // No Quarter (Interceptor Tier 4): regular Failure damage is slightly harder,
       // compensating for critFailure's triple-damage tier never triggering with this perk.
       if (tier === 'failure' && hasShipTierPerk('no_quarter')) dmg *= 1.3;
@@ -6782,7 +7018,14 @@
   function activityTickMs(key) {
     if (!key || !state.activityUpgrades[key]) return state.tickMs;
     const level = state.activityUpgrades[key].speed;
-    return state.tickMs * (1 - level * OVERCLOCK_SPEED_STEP);
+    let ms = state.tickMs * (1 - level * OVERCLOCK_SPEED_STEP);
+    // Faster Response (constellation, Bounty row 2): a further 15% off tick time.
+    if (key === 'bounty' && hasConstellationPerk('bounty2')) ms *= 0.85;
+    // Efficient Operations (constellation, Trading/Mining cross, row 3): a further 10%
+    // off Mining tick time - Trading's own half lives in openTradeInvestOverlay() instead,
+    // since Trading uses a separate leg-timer system rather than this shared function.
+    if (key === 'mining' && hasConstellationPerk('cross_trading_mining_3')) ms *= 0.9;
+    return ms;
   }
 
   function currentTransitDurationMs() {
@@ -6958,7 +7201,7 @@
   });
 
   el('upgradeBtn').addEventListener('click', () => {
-    const hullUpgradeCap = upgradeCapForTier(state.shipTier);
+    const hullUpgradeCap = upgradeCapForTier(state.shipTier, shipClassKeyForState());
     if (state.hullUpgradeLevel - 1 >= hullUpgradeCap) {
       addLog('Hull systems are already maxed out for a Tier ' + state.shipTier + ' ship (' + hullUpgradeCap + '/' + hullUpgradeCap + ') — tier up for more room.', 'risk');
       return;
@@ -7031,7 +7274,7 @@
   });
 
   el('weaponUpgradeBtn').addEventListener('click', () => {
-    const weaponUpgradeCap = upgradeCapForTier(state.shipTier);
+    const weaponUpgradeCap = upgradeCapForTier(state.shipTier, shipClassKeyForState());
     if (state.weaponTier >= weaponUpgradeCap) {
       addLog('Weapon systems are already maxed out for a Tier ' + state.shipTier + ' ship (' + weaponUpgradeCap + '/' + weaponUpgradeCap + ') — tier up for more room.', 'risk');
       return;
@@ -7366,6 +7609,12 @@
       metaProgress.unlockedStars = Array.isArray(parsed.unlockedStars)
         ? parsed.unlockedStars.filter(id => typeof id === 'string')
         : [];
+      metaProgress.starLevels = {};
+      if (parsed.starLevels && typeof parsed.starLevels === 'object') {
+        Object.keys(parsed.starLevels).forEach(id => {
+          if (typeof id === 'string') metaProgress.starLevels[id] = vInt(parsed.starLevels[id], 0, 0, 3);
+        });
+      }
     } catch (e) {
       // Corrupt meta-progress data shouldn't block the game from loading — start that
       // layer fresh rather than throw.
@@ -7416,7 +7665,6 @@
   const CONSTELLATION_LANE_X = { trading: 140, mining: 340, bounty: 540, piracy: 740 };
   const CONSTELLATION_ROW_Y0 = 60;
   const CONSTELLATION_ROW_GAP = 130;
-  const CONSTELLATION_STAR_COST = 1; // flat for this first pass; easy to vary per-star later
 
   const CONSTELLATION_STARS = [];
   const CONSTELLATION_EDGES = [];
@@ -7449,10 +7697,37 @@
   // stays an unnamed WIP star until it's given real content. Keyed by star id so the
   // tooltip renderer can fall back cleanly for anything not listed here.
   const CONSTELLATION_STAR_INFO = {
-    trading0: { name: 'Trading Knowledge', desc: 'Triples Credits earned from every successful Trading leg.' },
-    mining0: { name: 'Mining Knowledge', desc: 'Triples Ore yield from every successful Mining tick.' },
-    bounty0: { name: 'Bounty Knowledge', desc: 'Triples Vouchers earned from every successful Bounty Hunting tick.' },
-    piracy0: { name: 'Piracy Knowledge', desc: 'Triples Plunder earned from every successful Piracy tick.' }
+    trading0: { name: 'Trading Knowledge', desc: 'Multiplies Credits earned from every successful Trading leg — x1.5 at Level 1, x2 at Level 2, x3 at Level 3.' },
+    mining0: { name: 'Mining Knowledge', desc: 'Multiplies Ore yield from every successful Mining tick — x1.5 at Level 1, x2 at Level 2, x3 at Level 3.' },
+    bounty0: { name: 'Bounty Knowledge', desc: 'Multiplies Vouchers earned from every successful Bounty Hunting tick — x1.5 at Level 1, x2 at Level 2, x3 at Level 3.' },
+    piracy0: { name: 'Piracy Knowledge', desc: 'Multiplies Plunder earned from every successful Piracy tick — x1.5 at Level 1, x2 at Level 2, x3 at Level 3.' },
+
+    trading1: { name: 'Insured Cargo', desc: "Trading Failures lose 30% less of that leg's stake." },
+    trading2: { name: 'Fast Lanes', desc: 'Trade legs resolve 15% faster, stacking with Quick Turnaround if the ship has it.' },
+    trading3: { name: 'Guild Contacts', desc: 'Mercantile Guild rep gained from a net-positive run increased 50%.' },
+    trading4: { name: 'Golden Ticket', desc: 'The first leg of every Trading run is guaranteed to succeed.' },
+
+    mining1: { name: 'Deep Scan', desc: "A 30% chance on any successful Mining tick to double that tick's ore yield." },
+    mining2: { name: 'Efficient Extraction', desc: 'Smelting costs 25% less per unit.' },
+    mining3: { name: 'Consortium Ties', desc: 'Deep-Space Consortium rep gained from successful ticks increased 50%.' },
+    mining4: { name: 'Endless Vein', desc: 'A 15% chance on any successful tick that it costs no time — an immediate free extra tick.' },
+
+    bounty1: { name: 'Sharper Intel', desc: 'A further flat 5-point fail chance reduction, independent of Security skill.' },
+    bounty2: { name: 'Faster Response', desc: 'Bounty ticks resolve 15% faster.' },
+    bounty3: { name: 'Authority Favor', desc: 'Sector Authority rep gained from successful ticks increased 50%.' },
+    bounty4: { name: 'Kill Order', desc: 'Every 10th tick is guaranteed to succeed, counted independently of Marked for Death.' },
+
+    piracy1: { name: 'Better Fencing', desc: 'Plunder sells for 20% more at the Black Market.' },
+    piracy2: { name: 'Stealth Approach', desc: 'A further flat 10-point fail chance reduction, but only while holding under 500 Plunder.' },
+    piracy3: { name: 'Free Fleets Bond', desc: 'Free Fleets rep gained from successful ticks increased 50%.' },
+    piracy4: { name: 'Reign of Terror', desc: 'A further flat damage reduction on Failure and Critical Failure, stacking with Skullduggery.' },
+
+    cross_trading_mining_1: { name: 'Cargo Manifest', desc: '+10% cargo capacity, applied immediately and again on every future ship purchase.' },
+    cross_trading_mining_3: { name: 'Efficient Operations', desc: 'Both Trading legs and Mining ticks resolve a further 10% faster.' },
+    cross_mining_bounty_1: { name: 'Steady Hands', desc: 'A further flat 5-point fail chance reduction for both Mining and Bounty Hunting.' },
+    cross_mining_bounty_3: { name: 'Frontier Network', desc: 'Deep-Space Consortium rep (Mining) and Sector Authority rep (Bounty) gains from successful ticks both increased a further 30%.' },
+    cross_bounty_piracy_1: { name: 'Combat Readiness', desc: 'A further flat damage reduction on Bounty and Piracy Failure/Critical Failure.' },
+    cross_bounty_piracy_3: { name: 'Wanted, Dead or Alive', desc: 'A 15% chance on any successful Bounty or Piracy tick to gain a bonus 25% of that tick\'s yield.' }
   };
 
   // A star is reachable once unlocked, or if it's a lane root (row 0), or if it shares an
@@ -7467,11 +7742,18 @@
     );
   }
 
-  // First real constellation perk: each lane's root star (row 0) flatly triples that
-  // activity's primary reward currency — Credits for Trading, Ore for Mining, Vouchers
-  // for Bounty, Plunder for Piracy. Every other star is still WIP, no effect yet.
-  function hasTripleYieldPerk(lane) {
-    return metaProgress.unlockedStars.indexOf(lane + '0') !== -1;
+  // Knowledge root stars (row 0): leveled 0-3, returning the multiplier for that lane's
+  // primary reward currency directly - 1 (no purchase), 1.5, 2, or 3. Replaces the old
+  // flat triple-or-nothing boolean.
+  const KNOWLEDGE_MULTIPLIERS = [1, 1.5, 2, 3];
+  function knowledgeMultiplier(lane) {
+    const level = metaProgress.starLevels[lane + '0'] || 0;
+    return KNOWLEDGE_MULTIPLIERS[level];
+  }
+
+  // Simple single-purchase constellation perks (rows 1-4) - flat ownership check.
+  function hasConstellationPerk(starId) {
+    return metaProgress.unlockedStars.indexOf(starId) !== -1;
   }
 
   function starColor(star) {
@@ -7496,17 +7778,50 @@
     // re-centered on the origin so it can be translated/scaled per star position rather
     // than redefined per instance.
     const STAR_PATH = 'M0 -11 L2.5 -2.5 L11 0 L2.5 2.5 L0 11 L-2.5 2.5 L-11 0 L-2.5 -2.5 Z';
+    // Cross-lane stars get a hard-split gradient fill - left half in the left lane's
+    // color, right half in the right lane's, rather than the old flat amber. Defs are
+    // embedded per-star inline since SVG allows that anywhere, avoiding a separate
+    // dedupe/collection pass for what's only ever 6 gradients total.
+    const crossDefs = CONSTELLATION_STARS.filter(s => s.lane === 'cross').map(star => {
+      const colorA = CONSTELLATION_LANE_COLOR[star.laneA];
+      const colorB = CONSTELLATION_LANE_COLOR[star.laneB];
+      return '<linearGradient id="grad_' + star.id + '" x1="0" y1="0" x2="1" y2="0">'
+        + '<stop offset="0%" stop-color="' + colorA + '"/>'
+        + '<stop offset="50%" stop-color="' + colorA + '"/>'
+        + '<stop offset="50%" stop-color="' + colorB + '"/>'
+        + '<stop offset="100%" stop-color="' + colorB + '"/>'
+        + '</linearGradient>';
+    }).join('');
     const stars = CONSTELLATION_STARS.map(star => {
-      const owned = unlocked.indexOf(star.id) !== -1;
-      const reachable = !owned && isStarReachable(star.id, unlocked);
+      const isLeveled = star.row === 0;
+      const level = isLeveled ? (metaProgress.starLevels[star.id] || 0) : 0;
+      // Leveled root stars: "owned" once at least level 1, but stays clickable
+      // (to level up further) until level 3. Simple stars: owned is flat, all-or-nothing.
+      const owned = isLeveled ? level > 0 : unlocked.indexOf(star.id) !== -1;
+      const maxed = isLeveled && level >= 3;
+      const clickable = isLeveled ? !maxed : (!owned && isStarReachable(star.id, unlocked));
       const color = starColor(star);
-      const cls = 'constellation-star' + (owned ? ' owned' : reachable ? ' reachable' : ' locked');
-      const fill = owned ? color : 'rgba(8,8,12,0.9)';
-      const stroke = owned || reachable ? color : 'var(--text-faint)';
-      const opacity = owned || reachable ? 1 : 0.35;
+      const cls = 'constellation-star' + (owned ? ' owned' : '') + (clickable ? ' reachable' : (owned ? '' : ' locked'));
+      const fill = owned ? (star.lane === 'cross' ? 'url(#grad_' + star.id + ')' : color) : 'rgba(8,8,12,0.9)';
+      const stroke = owned || clickable ? color : 'var(--text-faint)';
+      const opacity = owned || clickable ? 1 : 0.35;
       const info = CONSTELLATION_STAR_INFO[star.id];
-      const statusText = owned ? 'Owned' : reachable ? CONSTELLATION_STAR_COST + ' fragment' + (CONSTELLATION_STAR_COST === 1 ? '' : 's') + ' to unlock' : 'Locked';
-      const tooltipText = info ? (info.name + ' — ' + info.desc + ' (' + statusText + ')') : ('Uncharted — ' + statusText + ', no effect yet');
+      const cost = isLeveled ? level + 1 : star.row + 1;
+      let statusText;
+      if (isLeveled) {
+        statusText = maxed ? 'Maxed (Level 3)' : 'Level ' + level + '/3 — ' + cost + ' fragment' + (cost === 1 ? '' : 's') + ' for Level ' + (level + 1);
+      } else {
+        statusText = owned ? 'Owned' : clickable ? cost + ' fragment' + (cost === 1 ? '' : 's') + ' to unlock' : 'Locked';
+      }
+      let tooltipText;
+      if (info && isLeveled) {
+        const currentMult = KNOWLEDGE_MULTIPLIERS[level];
+        tooltipText = info.name + ' — currently x' + currentMult + '. ' + (maxed ? 'Fully leveled.' : 'Next level: x' + KNOWLEDGE_MULTIPLIERS[level + 1] + '.') + ' (' + statusText + ')';
+      } else if (info) {
+        tooltipText = info.name + ' — ' + info.desc + ' (' + statusText + ')';
+      } else {
+        tooltipText = 'Uncharted — ' + statusText + ', no effect yet';
+      }
       return '<g class="' + cls + '" data-star="' + star.id + '" transform="translate(' + star.x + ',' + star.y + ') scale(1.4)">'
         + '<path d="' + STAR_PATH + '" fill="' + fill + '" stroke="' + stroke + '" stroke-width="1.6" stroke-linejoin="round" opacity="' + opacity + '">'
         + '<title>' + escapeHtml(tooltipText) + '</title>'
@@ -7517,7 +7832,7 @@
     const maxY = Math.max(...CONSTELLATION_STARS.map(s => s.y)) + 60;
     el('constellationBody').innerHTML =
       '<svg viewBox="0 0 ' + maxX + ' ' + maxY + '" style="width:100%; height:100%; max-width:900px;">'
-      + lines + stars + '</svg>';
+      + '<defs>' + crossDefs + '</defs>' + lines + stars + '</svg>';
 
     el('constellationBody').querySelectorAll('.constellation-star.reachable').forEach(node => {
       node.addEventListener('click', () => buyConstellationStar(node.dataset.star));
@@ -7525,11 +7840,35 @@
   }
 
   function buyConstellationStar(starId) {
-    if (metaProgress.unlockedStars.indexOf(starId) !== -1) return;
-    if (!isStarReachable(starId, metaProgress.unlockedStars)) return;
-    if (metaProgress.logFragments < CONSTELLATION_STAR_COST) return;
-    metaProgress.logFragments -= CONSTELLATION_STAR_COST;
-    metaProgress.unlockedStars.push(starId);
+    const star = CONSTELLATION_STAR_MAP[starId];
+    if (!star) return;
+    const isLeveled = star.row === 0;
+    if (isLeveled) {
+      const level = metaProgress.starLevels[starId] || 0;
+      if (level >= 3) return;
+      const cost = level + 1;
+      if (metaProgress.logFragments < cost) return;
+      metaProgress.logFragments -= cost;
+      metaProgress.starLevels[starId] = level + 1;
+      // Needed once, at level 0->1, so row 1 stars in this lane become reachable — later
+      // level-ups don't need to touch this list again.
+      if (metaProgress.unlockedStars.indexOf(starId) === -1) metaProgress.unlockedStars.push(starId);
+    } else {
+      if (metaProgress.unlockedStars.indexOf(starId) !== -1) return;
+      if (!isStarReachable(starId, metaProgress.unlockedStars)) return;
+      const cost = star.row + 1;
+      if (metaProgress.logFragments < cost) return;
+      metaProgress.logFragments -= cost;
+      metaProgress.unlockedStars.push(starId);
+      // Cargo Manifest (constellation, Trading/Mining cross, row 1): +10% cargo capacity,
+      // applied once here retroactively to whatever's currently held. Re-applied in
+      // buyShip() too, since that resets cargoCapacity to the flat class/tier formula and
+      // would otherwise silently drop this bonus on the next ship purchase.
+      if (starId === 'cross_trading_mining_1') {
+        state.cargoCapacity = Math.round(state.cargoCapacity * 1.1);
+        addLog('Manifest revised — 10% more room found throughout the hold. — Cargo Manifest', 'system');
+      }
+    }
     saveMetaProgress();
     renderConstellation();
   }
@@ -7612,6 +7951,7 @@
         foundFirstWarpCell: state.foundFirstWarpCell,
         warpCellCapacity: state.warpCellCapacity,
         markedForDeathSector: state.markedForDeathSector,
+        bountyTickCount: state.bountyTickCount,
         ghostFleetSector: state.ghostFleetSector,
         activityUpgrades: state.activityUpgrades,
         shipClassName: state.shipClassName,
@@ -7852,6 +8192,7 @@
     state.warpCellCapacity = warpCellCapacityForTier(state.shipTier);
     state.warpCells = Math.min(state.warpCells, state.warpCellCapacity);
     state.markedForDeathSector = typeof s.markedForDeathSector === 'string' ? s.markedForDeathSector : null;
+    state.bountyTickCount = vInt(s.bountyTickCount, 0, 0, 1e9);
     state.ghostFleetSector = typeof s.ghostFleetSector === 'string' ? s.ghostFleetSector : null;
     state.warpDepthOffset = vInt(s.warpDepthOffset, 0, 0, 1e6);
     state.totalCreditsEarned = vNum(s.totalCreditsEarned, 0, 0, 1e15);
@@ -8195,6 +8536,10 @@
   el('gameOverNewRunBtn').addEventListener('click', () => {
     el('gameOverOverlay').classList.remove('open');
     renderConstellation();
+    // Post-death flow: only the destructive "depart and wipe" option makes sense here,
+    // since the run is already over regardless of what the player does next.
+    el('constellationContinueBtn').style.display = '';
+    el('constellationCloseBtn').style.display = 'none';
     el('constellationOverlay').classList.add('open');
   });
 
@@ -8204,6 +8549,20 @@
     if (autosaveTimer) { clearTimeout(autosaveTimer); autosaveTimer = null; }
     storage.remove(SAVE_KEY);
     window.location.reload();
+  });
+
+  // On-demand viewing (Captain's Log Archive topbar button): available any time, mid-run
+  // or not, purely to check owned perks and current Log Fragments — never wipes anything,
+  // so it shows CLOSE instead of the destructive DEPART button.
+  el('logFragmentsBtn').addEventListener('click', () => {
+    renderConstellation();
+    el('constellationContinueBtn').style.display = 'none';
+    el('constellationCloseBtn').style.display = '';
+    el('constellationOverlay').classList.add('open');
+  });
+
+  el('constellationCloseBtn').addEventListener('click', () => {
+    el('constellationOverlay').classList.remove('open');
   });
 
   function buildCompendiumNav() {
@@ -8474,7 +8833,14 @@
         state.credits -= listing.price;
         listing.sold = true;
         state.shipClassName = newShip.name;
-        state.cargoCapacity = newShip.cargoCapacity;
+        // Cargo now includes the tier-based bonus for this class - a full reset to the
+        // formula value, deliberately not inheriting any Cargo upgrades bought on the
+        // old ship, per explicit direction.
+        state.cargoCapacity = newShip.cargoCapacity + cargoBonusPerTier(listing.classKey) * (listing.tier - 1);
+        // Cargo Manifest (constellation perk): re-applied here since the line above resets
+        // cargo to the flat class/tier formula, which would otherwise silently drop this
+        // permanent account-wide bonus on every new ship purchase.
+        if (hasConstellationPerk('cross_trading_mining_1')) state.cargoCapacity = Math.round(state.cargoCapacity * 1.1);
         state.fuel = newShip.fuel;
         state.fuelCapacity = newShip.fuelCapacity;
         state.hull = newShip.hull;
@@ -8491,7 +8857,9 @@
         // Hull is different: each upgrade bakes +5 maxHull in permanently at purchase
         // time, so the starting maxHull set above has to be topped up to match, or "starts
         // with 5 hull upgrades" would be true in name only.
-        const startingUpgrades = Math.max(0, (listing.tier - 1) * 5);
+        // Ship Tiers content pass: uses upgradeCapForTier(1, classKey) as the per-tier
+        // increment, so Interceptor/Raider correctly start with 10-per-tier instead of 5.
+        const startingUpgrades = Math.max(0, (listing.tier - 1) * upgradeCapForTier(1, listing.classKey));
         state.hullUpgradeLevel = startingUpgrades + 1;
         state.weaponTier = startingUpgrades;
         state.maxHull += startingUpgrades * 5;
@@ -8516,6 +8884,11 @@
         state.credits -= cost;
         state.shipTier += 1;
         state.warpCellCapacity = warpCellCapacityForTier(state.shipTier);
+        // Ship Tiers content pass: adds to CURRENT cargo capacity rather than resetting
+        // it, so any Cargo upgrades already purchased stay intact and stack with the
+        // tier bonus — different from buyShip(), which resets to the formula value
+        // instead, per explicit direction.
+        state.cargoCapacity += cargoBonusPerTier(shipClassKeyForState());
         recalcShipBonus();
         addLog(resolveLogTemplate("Captain's log. The refit is complete — she's Tier " + state.shipTier + ' now.'), 'system');
         render();
@@ -8526,7 +8899,7 @@
   const SHIP_CLASSES = {
     hauler: { name: 'Hauler', credits: 250, cargoCapacity: 200, fuel: 10, fuelCapacity: 10, hull: 25, maxHull: 25, bonusActivity: 'trading', bonusAmount: 2 },
     prospector: { name: 'Prospector', credits: 300, cargoCapacity: 400, fuel: 5, fuelCapacity: 5, hull: 15, maxHull: 15, bonusActivity: 'mining', bonusAmount: 2 },
-    interceptor: { name: 'Interceptor', credits: 100, cargoCapacity: 50, fuel: 10, fuelCapacity: 10, hull: 30, maxHull: 30, bonusActivity: 'bounty', bonusAmount: 2 },
+    interceptor: { name: 'Interceptor', credits: 100, cargoCapacity: 25, fuel: 10, fuelCapacity: 10, hull: 40, maxHull: 40, bonusActivity: 'bounty', bonusAmount: 2 },
     raider: { name: 'Raider', credits: 0, cargoCapacity: 50, fuel: 10, fuelCapacity: 10, hull: 30, maxHull: 30, bonusActivity: 'piracy', bonusAmount: 2 }
   };
 
